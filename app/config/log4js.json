@@ -1,0 +1,7 @@
+{
+  "appenders": [
+       { "type": "console", "level": "TRACE" },
+       { "type": "file", "filename": "logs/log-trace.log", "category": "server","level": "TRACE"},
+       { "type": "file", "filename": "logs/log-app.log","level": "TRACE"}
+  ]
+}
