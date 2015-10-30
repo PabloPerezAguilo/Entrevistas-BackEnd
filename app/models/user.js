@@ -1,6 +1,10 @@
 // Load required packages
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
+var log4js = require('log4js');
+
+//Common utils for all Schemas and their statics and methods
+var log=log4js.getLogger("server");
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({
@@ -43,6 +47,16 @@ UserSchema.methods.verifyPassword = function(password, cb) {
   });
 };
 
+UserSchema.static("getUsers", function(callBack){
+    this.find(function(err, users) {
+        if (err){
+            //Tratamiento de excepciones de consulta a la base de datos.
+            //Imprimimos un mensaje de error en el log y delegamos la excepción para que lo trate quien lo llame.
+         log.debug("Error at getting all users from data base: "+err);   
+        }
+        callBack(err, users);
+  });
+});
 // Export the Mongoose model
 module.exports = mongoose.model('User', UserSchema);
 

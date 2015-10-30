@@ -24,11 +24,13 @@ exports.postUsers = function(req, res) {
 
 // Create endpoint /api/users for GET
 exports.getUsers = function(req, res) {
-  console.log("getUsers with Permision Admin!");
-  User.find(function(err, users) {
-    if (err)
-      res.send(err);
-
-    res.json(users);
-  });
+        console.log("getUsers with Permision Admin!");
+        User.getUsers(function(err, users){
+          if(err){
+              res.status(400).send(err);
+          }
+          else{
+              res.json(users);
+          }
+        });
 };

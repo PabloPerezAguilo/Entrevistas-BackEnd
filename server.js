@@ -28,8 +28,12 @@ var port = process.env.PORT || 9600;
 
 // configuration ===============================================================
 mongoose.connect(config.database, function(err, res) {
-  if(err) throw err;
-  log.info('Connected to Database');
+    if(err) {
+      log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
+    }
+    else{
+        log.info('Connected to Database');
+    }
 });
 
 
