@@ -6,9 +6,10 @@ var bodyParser  = require('body-parser');
 var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var log4js = require('log4js');
+var cors = require('cors');
 var config = require('./app/config/config'); // get our config file
 //var redis = require("redis");
-    
+  
 
 // =================================================================
 // configuration ===================================================
@@ -39,6 +40,10 @@ mongoose.connect(config.database, function(err, res) {
 
 // Create our Express application
 var app = express();
+
+// Pone como defecto origin="*" y methods: 'GET,HEAD,PUT,PATCH,POST,DELETE'
+app.use(cors());
+
 // used to create, sign, and verify tokens
 app.set('superSecret', config.secret); // secret variable
 // use body parser so we can get info from POST data and/or URL parameters
@@ -46,13 +51,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 // use morgan to log requests to the console
 app.use(morgan('dev'));
-
-app.use(function(req, res) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
-
-});
 
 
 // =================================================================
