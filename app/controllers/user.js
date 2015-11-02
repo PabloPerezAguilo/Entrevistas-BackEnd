@@ -11,7 +11,7 @@ exports.postUsers = function(req, res) {
   var user = new User({
     username: req.body.username,
     password: req.body.password,
-    admin: req.body.admin 
+    role: req.body.role 
   });
 
   user.save(function(err) {

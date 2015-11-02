@@ -17,7 +17,7 @@ var UserSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  admin: Boolean 
+  role: String 
 });
 
 // Execute before each user.save() call

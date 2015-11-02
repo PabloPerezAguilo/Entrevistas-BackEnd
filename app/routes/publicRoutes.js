@@ -41,7 +41,7 @@ module.exports = function(router,app) {
 					}
 
 				   else{
-					var userJWT= {username: user.username, admin:user.admin, _id: user._id };
+					var userJWT= {username: user.username, role:user.role, _id: user._id };
 					// if user is found and password is right
 					// create a token
 						var token = jwt.sign(userJWT, app.get('superSecret'), {
@@ -52,6 +52,7 @@ module.exports = function(router,app) {
 						res.json({
 							success: true,
 							message: 'Enjoy your token!',
+							role: user.role,
 							token: token
 						});
 					}
