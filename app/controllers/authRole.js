@@ -21,5 +21,5 @@ exports.isTechrole = function (req, res, next){
             success: false, 
             message: 'Not permision.'
         });
-    } 
+    }
 };
