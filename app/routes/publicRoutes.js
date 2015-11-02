@@ -21,6 +21,7 @@ module.exports = function(router,app) {
 
 // http://localhost:9600/api/authenticate
 	router.route("/authenticate").post(function(req, res) {
+		
 		// find the user
 		User.getUser(req.body.username, function(err, user) {
 			if (err){
