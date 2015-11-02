@@ -40,6 +40,7 @@ UserSchema.pre('save', function(callback) {
   });
 });
 
+
 UserSchema.methods.verifyPassword = function(password, cb) {
   bcrypt.compare(password, this.password, function(err, isMatch) {
     if (err) return cb(err);
@@ -55,6 +56,17 @@ UserSchema.static("getUsers", function(callBack){
          log.debug("Error at getting all users from data base: "+err);   
         }
         callBack(err, users);
+  });
+});
+
+UserSchema.static("getUser", function(username, callBack){
+    this.findOne({username: username},function(err, user) {
+        if (err){
+            //Tratamiento de excepciones de consulta a la base de datos.
+            //Imprimimos un mensaje de error en el log y delegamos la excepción para que lo trate quien lo llame.
+         log.debug("Error at getting the user which username is "+username+" from data base: "+err);   
+        }
+        callBack(err, user);
   });
 });
 // Export the Mongoose model

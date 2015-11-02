@@ -1,6 +1,6 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
-var user = require("../models/user");
+var User = require("../models/user");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -22,21 +22,21 @@ module.exports = function(router,app) {
 // http://localhost:9600/api/authenticate
 	router.route("/authenticate").post(function(req, res) {
 		// find the user
-		user.findOne({
-			username: req.body.username
-		}, function(err, user) {
-			if (err) throw err;
+		User.getUser(req.body.username, function(err, user) {
+			if (err){
+             throw err;   
+            }
 			if (!user) {
-				res.json({ success: false, message: 'Authentication failed. User not found.' });
+				res.status(400).json({ success: false, message: 'Authentication failed. User not found.' });
 			} else if (user) {
 
 				// check if password matches
 				user.verifyPassword(req.body.password, function(err,cb) {
 					if(err){
-					  res.json({ success: false, message: 'Authentication failed. Error in validate password.' });
+					  res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
 					}
 					if(!cb){
-					  res.json({ success: false, message: 'Authentication failed. Wrong password.' });
+					  res.status(400).json({ success: false, message: 'Authentication failed. Wrong password.' });
 					}
 
 				   else{
