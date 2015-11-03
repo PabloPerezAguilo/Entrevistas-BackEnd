@@ -11,24 +11,28 @@ exports.postUsers = function(req, res) {
   var user = new User({
     username: req.body.username,
     password: req.body.password,
-    admin: req.body.admin 
+    role: req.body.role 
   });
 
   user.save(function(err) {
-    if (err)
+    if (err){
       res.send(err);
-
-    res.json({ message: 'New user created!', data: user });
+    }
+    else{
+       res.json({ message: 'New user created!', data: user }); 
+    }
   });
 };
 
 // Create endpoint /api/users for GET
 exports.getUsers = function(req, res) {
-  console.log("getUsers with Permision Admin!");
-  User.find(function(err, users) {
-    if (err)
-      res.send(err);
-
-    res.json(users);
-  });
+        console.log("getUsers with Permision Admin!");
+        User.getUsers(function(err, users){
+          if(err){
+              res.status(400).send(err);
+          }
+          else{
+              res.json(users);
+          }
+        });
 };
