@@ -1,5 +1,6 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
+var questionController = require("../controllers/questionController");
 var User = require("../models/user");
 
 var log4js = require('log4js');
@@ -14,6 +15,15 @@ module.exports = function(router,app) {
 // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
+	
+// --------------------------------------------------------------------------------------------------------------------------
+// 															question
+// --------------------------------------------------------------------------------------------------------------------------
+	
+// http://localhost:9600/api/user
+	router.route("/question")
+		.get(questionController.getProducts)
+		.post(questionController.postQuestion);
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
@@ -34,7 +44,7 @@ module.exports = function(router,app) {
 				// check if password matches
 				user.verifyPassword(req.body.password, function(err,cb) {
 					if(err){
-					  res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
+					  res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.'});
 					}
 					if(!cb){
 					  res.status(400).json({ success: false, message: 'Authentication failed. Wrong password.' });
