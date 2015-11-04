@@ -1,22 +1,11 @@
 // Load required packages
-
+var optinModel = require("../models/optionModel");
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
-
-var OptionSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    valid: {
-        required: true,
-        type: Boolean
-    }
-});
 
 var QuestionSchema = new mongoose.Schema({
     
@@ -39,10 +28,10 @@ var QuestionSchema = new mongoose.Schema({
         max: 10,
         required: true
     },
-    answer:[OptionSchema]
+    answer:[optinModel.Option]
 });
 
-/*QuestionSchema.static("getQuestionsByTech", function(tech, cb){
+QuestionSchema.static("getQuestionsByTech", function(tech, cb){
     
     this.find({tech: tech},function(err, result){
        if(err){
@@ -71,7 +60,7 @@ QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, 
         }
         cb(err, result);
     });
-});*/
+});
 
 // Export the Mongoose model
 module.exports = mongoose.model('Question', QuestionSchema);
