@@ -1,4 +1,5 @@
 // Load required packages
+var OptionsSchema = require('../models/optionModel');
 var questionModel = require('../models/questionModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
@@ -11,10 +12,15 @@ exports.postQuestion = function(req, res) {
 		level: req.body.level,
     	tech: req.body.tech,
 		type: req.body.type,
-		answer: JSON
+		answer: [String]
   	});
 	
+	
+	
   	question.save(function(err) {
+		log.debug("answer");
+		log.debug(question.answer);
+		
     	if (err){
       		res.send(err);
     	}
@@ -24,7 +30,7 @@ exports.postQuestion = function(req, res) {
   	});
 };
 
-exports.getProducts = function(req, res) {
+exports.getQuestion = function(req, res) {
 	log.debug("Execute ALL getquestions! ");
 	
 	questionModel.find({ }, function(err, questions) {

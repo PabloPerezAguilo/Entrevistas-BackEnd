@@ -1,5 +1,6 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
+var questionController = require("../controllers/questionController");
 var User = require("../models/user");
 
 var log4js = require('log4js');
@@ -14,6 +15,15 @@ module.exports = function(router,app) {
 // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
+	
+// --------------------------------------------------------------------------------------------------------------------------
+// 															question
+// --------------------------------------------------------------------------------------------------------------------------
+	
+// http://localhost:9600/api/question
+	router.route("/question")
+		.get(questionController.getQuestion)
+		.post(questionController.postQuestion);
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 

@@ -1,23 +1,12 @@
 // Load required packages
+
+var OptionsSchema = require('../models/optionModel');
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
-
-var OptionSchema = new mongoose.Schema({
-    title: {
-        type: String,
-        required: true
-    },
-    valid: {
-        required: true,
-        type: Boolean
-    }
-});
-
-
 
 var QuestionSchema = new mongoose.Schema({
     
@@ -40,7 +29,7 @@ var QuestionSchema = new mongoose.Schema({
         max: 10,
         required: true
     },
-    options:[OptionsSchema]
+    aswer:[String]
 });
 
 QuestionSchema.static("getQuestionsByTech", function(tech, cb){
