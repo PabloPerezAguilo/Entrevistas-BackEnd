@@ -31,6 +31,20 @@ var QuestionSchema = new mongoose.Schema({
     answer:[optinModel.Option]
 });
 
+//get all questions
+QuestionSchema.static("getQuestions", function(cb){
+    
+    this.find(function(err, result){
+       if(err){
+           //Tratamiento de excepciones de consulta a la base de datos.
+            //Imprimimos un mensaje de error en el log y delegamos la excepción para que lo trate quien lo llame.
+         log.debug("Error at getting all questions: "+err);
+       }
+        cb(err, result);
+    });
+});
+
+//get all questions for a certain technology
 QuestionSchema.static("getQuestionsByTech", function(tech, cb){
     
     this.find({tech: tech},function(err, result){
@@ -43,6 +57,7 @@ QuestionSchema.static("getQuestionsByTech", function(tech, cb){
     });
 });
 
+//get a certain question
 QuestionSchema.static("getQuestion", function(question, cb){
     //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
     this.findOne({_id:question}, function(err, result){
@@ -53,6 +68,7 @@ QuestionSchema.static("getQuestion", function(question, cb){
     });
 });
 
+//get all questions which level is in the range defined
 QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, cb){
     this.find({level: {$gte: minLevel, $lte: maxLevel}}, function(err, result){
         if(err){
