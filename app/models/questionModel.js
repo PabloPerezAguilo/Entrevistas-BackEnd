@@ -42,7 +42,7 @@ var QuestionSchema = new mongoose.Schema({
     answer:[OptionSchema]
 });
 
-/*QuestionSchema.static("getQuestionsByTech", function(tech, cb){
+QuestionSchema.static("getQuestionsByTech", function(tech, cb){
     
     this.find({tech: tech},function(err, result){
        if(err){
@@ -71,7 +71,7 @@ QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, 
         }
         cb(err, result);
     });
-});*/
+});
 
 // Export the Mongoose model
 module.exports = mongoose.model('Question', QuestionSchema);
