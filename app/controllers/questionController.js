@@ -1,18 +1,18 @@
 // Load required packages
 var OptionsSchema = require('../models/optionModel');
-var questionModel = require('../models/questionModel');
+var Question = require('../models/questionModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
 exports.postQuestion = function(req, res) {
 
 	
-	var question = new questionModel({
+	var question = new Question({
     	wording: req.body.wording,
 		level: req.body.level,
     	tech: req.body.tech,
 		type: req.body.type,
-		answer: [String]
+		answer: req.body.aswer
   	});
 	
 	
