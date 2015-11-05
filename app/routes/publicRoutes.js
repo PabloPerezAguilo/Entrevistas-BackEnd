@@ -22,8 +22,10 @@ module.exports = function(router,app) {
 	
 // http://localhost:9600/api/question
 	router.route("/question")
-		.get(questionController.getQuestion)
+		.get(questionController.getQuestions)
 		.post(questionController.postQuestion);
+    router.route("/question/:question_id")
+		.get(questionController.getQuestion);
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 

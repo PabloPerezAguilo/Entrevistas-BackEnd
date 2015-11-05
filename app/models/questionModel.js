@@ -3,7 +3,7 @@ var optinModel = require("../models/optionModel");
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
-
+var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
 
@@ -30,6 +30,8 @@ var QuestionSchema = new mongoose.Schema({
     },
     answer:[optinModel.Option]
 });
+
+//------------------STATIC METHODS (for acces to the data base)------------------------------------------
 
 //get all questions
 QuestionSchema.static("getQuestions", function(cb){
@@ -69,13 +71,47 @@ QuestionSchema.static("getQuestion", function(question, cb){
 });
 
 //get all questions which level is in the range defined
-QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, cb){
+QuestionSchema.static(" ", function (minLevel, maxLevel, cb){
     this.find({level: {$gte: minLevel, $lte: maxLevel}}, function(err, result){
         if(err){
             log.debug("Error at getting the question which level is in ["+minLevel+" , "+maxLevel+"]: "+err);
         }
         cb(err, result);
     });
+});
+
+//------------------------------------Mongoose methods----------------------------------------------------
+
+QuestionSchema.pre('save', function(cb){
+    console.log("Execute before each question.save() ");
+    if(config.SINGLE_CHOICE!=this.type && 
+       config.MULTI_CHOICE!=this.type && 
+       config.FREE_QUESTION!=this.type){
+        //ERROR. Las preguntas deben ser de uno de los 3 tipos
+    }
+    else{
+        //Seguimos con las comprobaciones
+        if(config.FREE_QUESTION===this.type){
+            //Vaciamos las opciones o damos error si las tiene. Depende de la política de tratamiento de errores
+        }
+        else{
+            if(0<this.answer.length){
+                if(config.SINGLE_CHOICE===this.type){
+                    //Comprobamos que haya exactamente una opción correcta
+                }
+
+                if(config.MULTI_CHOICE===this.type){
+                    //Comprobamos que haya al menos una opción correcta
+                }
+            }
+            else{
+                //ERROR. La pregunta debe tener por lo menos una opción
+            }
+            
+        }
+        
+    }
+    
 });
 
 // Export the Mongoose model

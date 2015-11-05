@@ -3,6 +3,8 @@ var questionModel = require('../models/questionModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
+
+// POST api/question
 exports.postQuestion = function(req, res) {
 
 	
@@ -20,7 +22,7 @@ exports.postQuestion = function(req, res) {
 		log.debug(question.answer);
 		
     	if (err){
-      		res.send(err);
+      		res.status(400).send(err);
     	}
     	else{
        		res.json({ message: 'New question created!', data: question }); 
@@ -28,15 +30,27 @@ exports.postQuestion = function(req, res) {
   	});
 };
 
+// GET  api/question/:questionID
 exports.getQuestion = function(req, res) {
-	log.debug("Execute ALL getquestions! ");
-	
-	questionModel.find({ }, function(err, questions) {
-    	if (err){
-      		res.send(err);
-		}
-		else{
-       		res.json(questions); 
-    	}
-	});
+	questionModel.getQuestion(req.params.question_id,function(err, question){
+        if(err){
+            res.status(400).send(err);
+        }
+        else{
+            res.json(question); 
+        }
+    });
 };
+
+// GET  api/question
+exports.getQuestions = function(req, res) {
+	questionModel.getQuestions(function(err, result){
+        if(err){
+            res.status(400).sen(err);
+        }
+        else{
+            res.json(result); 
+        }
+    });
+};
+
