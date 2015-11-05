@@ -1,5 +1,5 @@
 // Load required packages
-var optinModel = require("../models/optionModel");
+var optionModel = require("../models/optionModel");
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
@@ -10,9 +10,7 @@ var log=log4js.getLogger("server");
 
 //-------------Custom Validators----------------------------
 
-function requiredArrrayValidate(array){
-    return 0<array.length;
-}
+
 var QuestionSchema = new mongoose.Schema({
     
     wording: {
@@ -23,17 +21,14 @@ var QuestionSchema = new mongoose.Schema({
         required:true,
         type: String,
     },
-    tags:{
-        type: [String],
-        validate: requiredArrrayValidate
-    }, 
+    tags: [String], 
     level:{
         type: Number,
         min: 1,
         max: 10,
         required: true
     },
-    answers:[optinModel.Option]
+    answers:[optionModel.Option]
 });
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------

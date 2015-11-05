@@ -11,23 +11,27 @@ exports.postQuestion = function(req, res) {
 	var question = new questionModel({
     	wording: req.body.wording,
 		level: req.body.level,
-    	tech: req.body.tech,
+    	tags: req.body.tags,
 		type: req.body.type,
-		answer: req.body.answer
+		answer: req.body.answers
   	});
-	
-	
-  	question.save(function(err) {
-		log.debug("answer");
-		log.debug(question.answer);
-		
-    	if (err){
-      		res.status(400).send(err);
-    	}
-    	else{
-       		res.json({ message: 'New question created!', data: question }); 
-    	}
-  	});
+    
+    if(null!=question.tags && undefined!= question.tags && 0<question.tags.length){
+        question.save(function(err) {
+            log.debug("answer");
+            log.debug(question.answers);
+
+            if (err){
+                res.status(400).send(err);
+            }
+            else{
+                res.json({ message: 'New question created!', data: question }); 
+            }
+        });   
+    }
+    else{
+        res.status(400).json({message:"ERROR: field 'tags' must not empty"});
+    }
 };
 
 // GET  api/question/:questionID
