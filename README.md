@@ -5,9 +5,9 @@ Modulo de BackEnd del proyecto de Entrevistas
 {
     "wording": "Question_1",
     "type": "Multi_Choice",
-    "tech": "Java",
+    "tags": ["Java", "Web", "Testing"],
     "level":3,
-    "answer":[
+    "answers":[
         {
             "title":"Correcta",
             "valid":true
