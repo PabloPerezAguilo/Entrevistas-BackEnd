@@ -7,28 +7,33 @@ var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
 
+
+//-------------Custom Validators----------------------------
+
+function requiredArrrayValidate(array){
+    return 0<array.length;
+}
 var QuestionSchema = new mongoose.Schema({
     
     wording: {
         type: String,
-        required: true,
-        unique:true
-    },
+        required: true
+    },  
     type: {
         required:true,
         type: String,
     },
-    tech:{
-        type: String,
-        required: true
-    },
+    tags:{
+        type: [String],
+        validate: requiredArrrayValidate
+    }, 
     level:{
         type: Number,
         min: 1,
         max: 10,
         required: true
     },
-    answer:[optinModel.Option]
+    answers:[optinModel.Option]
 });
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -128,7 +133,7 @@ QuestionSchema.pre('save', function(cb){
             //Vaciamos las opciones o damos error si las tiene. Depende de la política de tratamiento de errores
         }
         else{
-            if(0<this.answer.length){
+            if(0<this.answers.length){
                 if("SINGLE_CHOICE"===this.type){
                     //Comprobamos que haya exactamente una opción correcta
                 }
