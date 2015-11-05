@@ -30,11 +30,13 @@ module.exports = function(router) {
 // 													question
 // --------------------------------------------------------------------------------------------------------------------------
 	router.route("/question")
-		.get(authRole.isTechRole,questionController.getQuestions)
-		.post(authRole.isTechRole,questionController.postQuestion);
+		.get(authRole.isTechRole, questionController.getQuestions)
+		.post(authRole.isTechRole, questionController.postQuestion);
 	
     router.route("/question/:question_id")
-		.get(authRole.isTechRole,questionController.getQuestion);
+		.get(authRole.isTechRole, questionController.getQuestion)
+		.put(authRole.isTechRole, questionController.putQuestion)
+		.delete(authRole.isTechRole, questionController.deleteQuestion);
 	
 	return router;
 };

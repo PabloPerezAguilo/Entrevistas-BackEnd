@@ -71,13 +71,46 @@ QuestionSchema.static("getQuestion", function(question, cb){
 });
 
 //get all questions which level is in the range defined
-QuestionSchema.static(" ", function (minLevel, maxLevel, cb){
+QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, cb){
     this.find({level: {$gte: minLevel, $lte: maxLevel}}, function(err, result){
         if(err){
             log.debug("Error at getting the question which level is in ["+minLevel+" , "+maxLevel+"]: "+err);
         }
         cb(err, result);
     });
+});
+
+
+// delete question by id /api/products/:product_id 
+//se borra por el id de la pregunta
+QuestionSchema.static("deleteQuestion", function(question, cb){
+	
+	this.remove({_id:question}, function(err, result) {
+    	if (err){
+			log.debug("Error deleting the question which ID is "+question+": "+err);
+        }else{
+			log.debug("Deleted question "+question);
+			 cb(err, result);
+		}
+
+  	});
+});
+
+// put question by id /api/products/:product_id 
+//se edita por el id de la pregunta
+QuestionSchema.static("putQuestion", function(question, req, cb){
+	
+	log.debug("WORDING "+req.body.wording);
+	
+	this.update({_id:question}, {wording: req.body.wording, level: req.body.level, tech: req.body.tech, type: req.body.type, answer: req.body.answer}, function(err, result) {
+    	if (err){
+			log.debug("Error updating the question which ID is "+question+": "+err);
+        }else{
+			log.debug("Updated question "+question);
+			 cb(err, result);
+		}
+
+  	});
 });
 
 //------------------------------------Mongoose methods----------------------------------------------------
@@ -111,7 +144,7 @@ QuestionSchema.pre('save', function(cb){
         }
         
     }
-    
+    cb();
 });
 
 // Export the Mongoose model
