@@ -58,3 +58,28 @@ exports.getQuestions = function(req, res) {
     });
 };
 
+// DELETE  api/question/:questionID
+exports.deleteQuestion = function(req, res) {
+	questionModel.deleteQuestion(req.params.question_id,function(err, question){
+        if(err){
+            res.status(400).send(err);
+        }
+        else{
+            res.json(question); 
+        }
+    });
+};
+
+// PUT  api/question/:questionID
+exports.putQuestion = function(req, res) {
+	log.debug("PUTTING "+ req.body.wording);
+	questionModel.putQuestion(req.params.question_id,req,function(err, question){
+		
+        if(err){
+            res.status(400).send(err);
+        }
+        else{
+            res.json(question); 
+        }
+    });
+};
