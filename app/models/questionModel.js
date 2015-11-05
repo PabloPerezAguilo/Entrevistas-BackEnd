@@ -7,28 +7,33 @@ var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
 
+
+//-------------Custom Validators----------------------------
+
+function requiredArrrayValidate(array){
+    return 0<array.length;
+}
 var QuestionSchema = new mongoose.Schema({
     
     wording: {
         type: String,
-        required: true,
-        unique:true
-    },
+        required: true
+    },  
     type: {
         required:true,
         type: String,
     },
-    tech:{
-        type: String,
-        required: true
-    },
+    tags:{
+        type: [String],
+        validate: requiredArrrayValidate
+    }, 
     level:{
         type: Number,
         min: 1,
         max: 10,
         required: true
     },
-    answer:[optinModel.Option]
+    answers:[optinModel.Option]
 });
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -71,7 +76,7 @@ QuestionSchema.static("getQuestion", function(question, cb){
 });
 
 //get all questions which level is in the range defined
-QuestionSchema.static(" ", function (minLevel, maxLevel, cb){
+QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, cb){
     this.find({level: {$gte: minLevel, $lte: maxLevel}}, function(err, result){
         if(err){
             log.debug("Error at getting the question which level is in ["+minLevel+" , "+maxLevel+"]: "+err);
@@ -84,23 +89,23 @@ QuestionSchema.static(" ", function (minLevel, maxLevel, cb){
 
 QuestionSchema.pre('save', function(cb){
     console.log("Execute before each question.save() ");
-    if(config.SINGLE_CHOICE!=this.type && 
-       config.MULTI_CHOICE!=this.type && 
-       config.FREE_QUESTION!=this.type){
+    if("SINGLE_CHOICE"!=this.type && 
+       "MULTI_CHOICE"!=this.type && 
+       "FREE"!=this.type){
         //ERROR. Las preguntas deben ser de uno de los 3 tipos
     }
     else{
         //Seguimos con las comprobaciones
-        if(config.FREE_QUESTION===this.type){
+        if("FREE"===this.type){
             //Vaciamos las opciones o damos error si las tiene. Depende de la política de tratamiento de errores
         }
         else{
-            if(0<this.answer.length){
-                if(config.SINGLE_CHOICE===this.type){
+            if(0<this.answers.length){
+                if("SINGLE_CHOICE"===this.type){
                     //Comprobamos que haya exactamente una opción correcta
                 }
 
-                if(config.MULTI_CHOICE===this.type){
+                if("MULTI_CHOICE"===this.type){
                     //Comprobamos que haya al menos una opción correcta
                 }
             }
@@ -111,7 +116,7 @@ QuestionSchema.pre('save', function(cb){
         }
         
     }
-    
+    cb();
 });
 
 // Export the Mongoose model
