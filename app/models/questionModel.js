@@ -84,23 +84,23 @@ QuestionSchema.static(" ", function (minLevel, maxLevel, cb){
 
 QuestionSchema.pre('save', function(cb){
     console.log("Execute before each question.save() ");
-    if(config.SINGLE_CHOICE!=this.type && 
-       config.MULTI_CHOICE!=this.type && 
-       config.FREE_QUESTION!=this.type){
+    if("SINGLE_CHOICE"!=this.type && 
+       "MULTI_CHOICE"!=this.type && 
+       "FREE"!=this.type){
         //ERROR. Las preguntas deben ser de uno de los 3 tipos
     }
     else{
         //Seguimos con las comprobaciones
-        if(config.FREE_QUESTION===this.type){
+        if("FREE"===this.type){
             //Vaciamos las opciones o damos error si las tiene. Depende de la política de tratamiento de errores
         }
         else{
             if(0<this.answer.length){
-                if(config.SINGLE_CHOICE===this.type){
+                if("SINGLE_CHOICE"===this.type){
                     //Comprobamos que haya exactamente una opción correcta
                 }
 
-                if(config.MULTI_CHOICE===this.type){
+                if("MULTI_CHOICE"===this.type){
                     //Comprobamos que haya al menos una opción correcta
                 }
             }
