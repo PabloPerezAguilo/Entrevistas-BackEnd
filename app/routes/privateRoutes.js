@@ -23,7 +23,7 @@ module.exports = function(router) {
         .delete(authRole.isAdminRole, interviewController.deleteInterview)
         .put(authRole.isAdminRole, interviewController.putInterview);
     
-	router.route("/interview/:interview")
+	router.route("/interview/:DNI")
         .get(authRole.isAdminRole, interviewController.getInterview);
 	
 // --------------------------------------------------------------------------------------------------------------------------

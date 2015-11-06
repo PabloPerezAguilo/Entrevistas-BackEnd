@@ -11,4 +11,4 @@ var InterviewSchema = new mongoose.Schema({
     //TO DO: el acceso a las base de datos para su gestión debe estar aquí
 });
 
-module.exports = mongoose.model('Interview', UserSchema);
+module.exports = mongoose.model('Interview', InterviewSchema);
