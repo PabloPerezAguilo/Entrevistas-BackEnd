@@ -19,7 +19,6 @@ module.exports = function(router) {
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
     router.route("/interview")
-        .get(authRole.isAdminRole, interviewController.getInterviews)
         .post(authRole.isAdminRole, interviewController.postInterview)
 	
 // --------------------------------------------------------------------------------------------------------------------------
