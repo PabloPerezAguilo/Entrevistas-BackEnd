@@ -37,6 +37,17 @@ mongoose.connect(config.database, function(err, res) {
     }
 });
 
+mongoose.connection.on('error', function(error) {
+  // Do something sane with error here
+    
+    log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
+    mongoose.connect(config.database, function(err, res) {
+    
+        if(!err){
+            log.info('Connected to Database');
+        }
+    });
+});
 
 // Create our Express application
 var app = express();
