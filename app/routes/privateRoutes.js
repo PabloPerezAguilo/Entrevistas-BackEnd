@@ -13,18 +13,14 @@ module.exports = function(router) {
 // ----------------------------------------------------------------------------------------------------------------------------
 	router.route("/user")
 		.get(authRole.isAdminRole,userController.getUsers);
+
 	
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
     router.route("/interview")
         .get(authRole.isAdminRole, interviewController.getInterviews)
-        .post(authRole.isAdminRole, interviewController.postInterview)
-        .delete(authRole.isAdminRole, interviewController.deleteInterview)
-        .put(authRole.isAdminRole, interviewController.putInterview);
-    
-	router.route("/interview/:interview")
-        .get(authRole.isAdminRole, interviewController.getInterview);
+        .post(authRole.isAdminRole, interviewController.postInterview);
 	
 // --------------------------------------------------------------------------------------------------------------------------
 // 													question
