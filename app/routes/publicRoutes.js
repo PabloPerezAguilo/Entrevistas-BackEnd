@@ -2,6 +2,7 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
 var User = require("../models/user");
 var interviewController = require("../controllers/interviewController");
+var questionController = require("../controllers/questionController");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -25,6 +26,9 @@ module.exports = function(router,app) {
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
 // -------------------------------------------------------------------------------------------------------------------------
+    
+    
+
 
 // http://localhost:9600/api/authenticate
 	router.route("/authenticate").post(function(req, res) {
@@ -69,6 +73,21 @@ module.exports = function(router,app) {
 
 		});
 	});
+    
+    //-----------------------------------------------------------------------------------------------------
+//              DEVELOPE ROUTES
+//  This routes should be private, but for developing, are public until the feature is done
+//-----------------------------------------------------------------------------------------------------
+router.route("/question")
+		.get(questionController.getQuestions)
+		.post(questionController.postQuestion);
+	
+router.route("/question/:question_id")
+    .get(questionController.getQuestion)
+    .put(questionController.putQuestion)
+    .delete(questionController.deleteQuestion);
 	
 	return router;
 };
+
+

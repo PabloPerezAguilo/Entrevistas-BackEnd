@@ -26,7 +26,7 @@ exports.getInterview = function(req, res){
     if(dni.length===9 ||dni.length===10){
         Interview.getInterview(dni, function(err, result){
             if(err){
-                res.status(400).send(err);
+                res.status(500).json({success:false,message: err.message});
             }
             else{
                 if(null!=result && undefined!=result){

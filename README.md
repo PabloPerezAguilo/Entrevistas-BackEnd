@@ -23,7 +23,7 @@ Modulo de BackEnd del proyecto de Entrevistas
 {
     "wording": "Question_2",
     "type": "Single_Choice",
-    "tech": "Java",
+    "tech": ["Java"],
     "level":6,
     "answer":[
         {

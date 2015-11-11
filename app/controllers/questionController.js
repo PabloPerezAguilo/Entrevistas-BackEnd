@@ -16,22 +16,25 @@ exports.postQuestion = function(req, res) {
 		answer: req.body.answers
   	});
     
-    if(null!=question.tags && undefined!= question.tags && 0<question.tags.length){
+    //if(null!=question.tags && undefined!= question.tags && 0<question.tags.length){
         question.save(function(err) {
             log.debug("answer");
             log.debug(question.answers);
 
             if (err){
-                res.status(400).send(err);
+                res.status(400).json({
+                    success: false,
+                    message: err.message
+                });
             }
             else{
                 res.json({ message: 'New question created!', data: question }); 
             }
         });   
-    }
+    /*}
     else{
         res.status(400).json({message:"ERROR: field 'tags' must not empty"});
-    }
+    }*/
 };
 
 // GET  api/question/:questionID
@@ -50,7 +53,7 @@ exports.getQuestion = function(req, res) {
 exports.getQuestions = function(req, res) {
 	questionModel.getQuestions(function(err, result){
         if(err){
-            res.status(400).sen(err);
+            res.status(400).send(err);
         }
         else{
             res.json(result); 
