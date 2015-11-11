@@ -65,7 +65,6 @@ QuestionSchema.path("answers").validate(function (value) {
 
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
-
 //get all questions
 QuestionSchema.static("getQuestions", function(cb){
     
@@ -114,35 +113,33 @@ QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, 
 });
 
 
-// delete question by id /api/products/:product_id 
-//se borra por el id de la pregunta
+// delete question by id /api/products/:product_id
 QuestionSchema.static("deleteQuestion", function(question, cb){
 	
 	this.remove({_id:question}, function(err, result) {
     	if (err){
 			log.debug("Error deleting the question which ID is "+question+": "+err);
-        }else{
-			log.debug("Deleted question "+question);
-			 cb(err, result);
-		}
-
+        }
+		
+		log.debug("Deleted question "+question);
+		cb(err, result);
   	});
 });
 
 // put question by id /api/products/:product_id 
-//se edita por el id de la pregunta
 QuestionSchema.static("putQuestion", function(question, req, cb){
 	
 	log.debug("title "+req.body.title);
 	
-	this.update({_id:question}, {title: req.body.title, level: req.body.level, tech: req.body.tech, type: req.body.type, answer: req.body.answer}, function(err, result) {
+
+	this.update({_id:question}, {title: req.body.title, level: req.body.level, tech: req.body.tech, 
+								 type: req.body.type, answers: req.body.answers}, function(err, result) {
     	if (err){
 			log.debug("Error updating the question which ID is "+question+": "+err);
-        }else{
-			log.debug("Updated question "+question);
-			 cb(err, result);
-		}
-
+        }
+		
+		log.debug("Updated question "+question);
+		cb(err, result);
   	});
 });
 

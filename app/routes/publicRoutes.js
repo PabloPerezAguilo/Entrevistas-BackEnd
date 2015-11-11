@@ -22,6 +22,7 @@ module.exports = function(router,app) {
 //-------------------------------------------------------------------------------------------------------
 	router.route("/interview/:DNI")
         .get(interviewController.getInterview);
+	
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
@@ -86,6 +87,23 @@ router.route("/question/:question_id")
     .get(questionController.getQuestion)
     .put(questionController.putQuestion)
     .delete(questionController.deleteQuestion);
+	
+	
+	// --------------------------------------------------------------------------------------------------------------------------
+// 													question
+	router.route("/question")
+		.get(questionController.getQuestions)
+		.post(questionController.postQuestion);
+	
+    router.route("/question/:question_id")
+		.get(questionController.getQuestion)
+		.put(questionController.putQuestion)
+		.delete(questionController.deleteQuestion);
+	
+// --------------------------------------------------------------------------------------------------------------------------
+
+	
+	
 	
 	return router;
 };

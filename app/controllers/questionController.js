@@ -13,7 +13,7 @@ exports.postQuestion = function(req, res) {
 		level: req.body.level,
     	tags: req.body.tags,
 		type: req.body.type,
-		answer: req.body.answers
+		answers: req.body.answers
   	});
     
     //if(null!=question.tags && undefined!= question.tags && 0<question.tags.length){
