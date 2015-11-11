@@ -31,6 +31,39 @@ var QuestionSchema = new mongoose.Schema({
     answers:[optionModel.Option]
 });
 
+QuestionSchema.path("title").validate(function (value) {
+    log.debug("TITLE: "+value+" , ");
+    return value.length !== 0;
+
+}, 'please insert title');
+
+QuestionSchema.path("type").validate(function (value) {
+
+  return value.length !== 0;
+
+}, 'please insert title');
+
+QuestionSchema.path("tags").validate(function (value) {
+
+  return value.length !== 0;
+
+}, 'please insert title');
+
+
+QuestionSchema.path("level").validate(function (value) {
+
+  return 1<=value && 10>=value;
+
+}, 'please insert title');
+
+
+QuestionSchema.path("answers").validate(function (value) {
+
+  return value.length !== 0;
+
+}, 'please insert title');
+
+
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
 
 //get all questions
@@ -112,6 +145,8 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
   	});
 });
+
+
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
