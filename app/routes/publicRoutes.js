@@ -2,6 +2,7 @@ var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
 var User = require("../models/user");
 var interviewController = require("../controllers/interviewController");
+var questionController = require("../controllers/questionController");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -21,6 +22,7 @@ module.exports = function(router,app) {
 //-------------------------------------------------------------------------------------------------------
 	router.route("/interview/:DNI")
         .get(interviewController.getInterview);
+	
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
@@ -69,6 +71,23 @@ module.exports = function(router,app) {
 
 		});
 	});
+	
+	
+	// --------------------------------------------------------------------------------------------------------------------------
+// 													question
+	router.route("/question")
+		.get(questionController.getQuestions)
+		.post(questionController.postQuestion);
+	
+    router.route("/question/:question_id")
+		.get(questionController.getQuestion)
+		.put(questionController.putQuestion)
+		.delete(questionController.deleteQuestion);
+	
+// --------------------------------------------------------------------------------------------------------------------------
+
+	
+	
 	
 	return router;
 };

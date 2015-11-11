@@ -13,7 +13,6 @@ module.exports = function(router) {
 // ----------------------------------------------------------------------------------------------------------------------------
 	router.route("/user")
 		.get(authRole.isAdminRole,userController.getUsers);
-
 	
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
@@ -24,14 +23,14 @@ module.exports = function(router) {
 // --------------------------------------------------------------------------------------------------------------------------
 // 													question
 // --------------------------------------------------------------------------------------------------------------------------
-	router.route("/question")
+/*	router.route("/question")
 		.get(authRole.isTechRole, questionController.getQuestions)
 		.post(authRole.isTechRole, questionController.postQuestion);
 	
     router.route("/question/:question_id")
 		.get(authRole.isTechRole, questionController.getQuestion)
 		.put(authRole.isTechRole, questionController.putQuestion)
-		.delete(authRole.isTechRole, questionController.deleteQuestion);
+		.delete(authRole.isTechRole, questionController.deleteQuestion);*/
 	
 	return router;
 };
