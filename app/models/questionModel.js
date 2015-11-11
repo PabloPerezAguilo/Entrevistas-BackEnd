@@ -13,7 +13,7 @@ var log=log4js.getLogger("server");
 
 var QuestionSchema = new mongoose.Schema({
     
-    wording: {
+    title: {
         type: String,
         required: true
     },  
@@ -96,8 +96,9 @@ QuestionSchema.static("deleteQuestion", function(question, cb){
 // put question by id /api/products/:product_id 
 QuestionSchema.static("putQuestion", function(question, req, cb){
 	
-	log.debug("WORDING "+req.body.wording);
+	log.debug("title "+req.body.title);
 	
+
 	this.update({_id:question}, {wording: req.body.wording, level: req.body.level, tech: req.body.tech, 
 								 type: req.body.type, answers: req.body.answers}, function(err, result) {
     	if (err){
@@ -113,34 +114,61 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
 QuestionSchema.pre('save', function(cb){
     console.log("Execute before each question.save() ");
+    var err=null;
     if("SINGLE_CHOICE"!=this.type && 
        "MULTI_CHOICE"!=this.type && 
        "FREE"!=this.type){
-        //ERROR. Las preguntas deben ser de uno de los 3 tipos
+        //err. Las preguntas deben ser de uno de los 3 tipos
+        err=new Error("Invalid type");
     }
     else{
+        /*Comprobamos que el array de tags :
+        1)Exista y se haya incluido
+        2)no esté vacío*/
+        if(/*1)*/null===this.tags || undefined===this.tags || 
+           /*2)*/0===this.tags.length){
+            err= new Error("tags field is required and cannot be empty");
+        }
         //Seguimos con las comprobaciones
         if("FREE"===this.type){
-            //Vaciamos las opciones o damos error si las tiene. Depende de la política de tratamiento de errores
+            //Damos error si tiene opciones.
+            
+            if(null!=this.answers || undefined!=this.answers){
+                err=new Error("A question with type 'FREE' cannot have questions");
+            }
         }
         else{
-            if(0<this.answers.length){
-                if("SINGLE_CHOICE"===this.type){
-                    //Comprobamos que haya exactamente una opción correcta
+            if(null!=this.answers && undefined!=this.answers && 0<this.answers.length){
+                var correctAnswers=0;
+                for (var i=0;i<this.answers.length;i++){
+                    if(this.answers[i].valid){
+                        correctAnswers++;
+                    }
                 }
-
-                if("MULTI_CHOICE"===this.type){
-                    //Comprobamos que haya al menos una opción correcta
+                //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
+                if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
+                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
+                }
+                
+                //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error
+                if("MULTI_CHOICE"===this.type && 0===correctAnswers){
+                    err= new Error("A question with type 'MULTI_CHOICE' must have at least one valid answer");
                 }
             }
             else{
                 //ERROR. La pregunta debe tener por lo menos una opción
-            }
-            
+                err= new Error("The question must have at least one answer");
+            }   
         }
-        
     }
-    cb();
+    
+    if(err){
+        log.debug(err);
+        cb(err);
+    }
+    else{
+        cb();
+    }
 });
 
 // Export the Mongoose model

@@ -27,6 +27,9 @@ module.exports = function(router,app) {
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
 // -------------------------------------------------------------------------------------------------------------------------
+    
+    
+
 
 // http://localhost:9600/api/authenticate
 	router.route("/authenticate").post(function(req, res) {
@@ -71,6 +74,19 @@ module.exports = function(router,app) {
 
 		});
 	});
+    
+    //-----------------------------------------------------------------------------------------------------
+//              DEVELOPE ROUTES
+//  This routes should be private, but for developing, are public until the feature is done
+//-----------------------------------------------------------------------------------------------------
+router.route("/question")
+		.get(questionController.getQuestions)
+		.post(questionController.postQuestion);
+	
+router.route("/question/:question_id")
+    .get(questionController.getQuestion)
+    .put(questionController.putQuestion)
+    .delete(questionController.deleteQuestion);
 	
 	
 	// --------------------------------------------------------------------------------------------------------------------------
@@ -91,3 +107,5 @@ module.exports = function(router,app) {
 	
 	return router;
 };
+
+
