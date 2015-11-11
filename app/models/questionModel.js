@@ -99,7 +99,7 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 	log.debug("title "+req.body.title);
 	
 
-	this.update({_id:question}, {wording: req.body.wording, level: req.body.level, tech: req.body.tech, 
+	this.update({_id:question}, {title: req.body.title, level: req.body.level, tech: req.body.tech, 
 								 type: req.body.type, answers: req.body.answers}, function(err, result) {
     	if (err){
 			log.debug("Error updating the question which ID is "+question+": "+err);
