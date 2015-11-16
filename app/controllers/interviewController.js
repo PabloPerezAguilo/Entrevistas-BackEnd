@@ -43,3 +43,14 @@ exports.getInterview = function(req, res){
         res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
     }
 };
+
+exports.getInterviews = function(req, res) {
+        Interview.getInterviews(function(err, interviews){
+          if(err){
+              res.status(400).send(err);
+          }
+          else{
+              res.json(interviews);
+          }
+        });
+};

@@ -31,7 +31,7 @@ var QuestionSchema = new mongoose.Schema({
     answers:[optionModel.Option]
 });
 
-QuestionSchema.path("title").validate(function (value) {
+/*QuestionSchema.path("title").validate(function (value) {
     log.debug("TITLE: "+value+" , ");
     return value.length !== 0;
 
@@ -61,7 +61,7 @@ QuestionSchema.path("answers").validate(function (value) {
 
   return value.length !== 0;
 
-}, 'please insert title');
+}, 'please insert title');*/
 
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -147,7 +147,7 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
-QuestionSchema.pre('save', function(cb){
+/*QuestionSchema.pre('save', function(cb){
     console.log("Execute before each question.save() ");
     var err=null;
     if("SINGLE_CHOICE"!=this.type && 
@@ -157,11 +157,11 @@ QuestionSchema.pre('save', function(cb){
         err=new Error("Invalid type");
     }
     else{
-        /*Comprobamos que el array de tags :
-        1)Exista y se haya incluido
-        2)no esté vacío*/
-        if(/*1)*/null===this.tags || undefined===this.tags || 
-           /*2)*/0===this.tags.length){
+        //Comprobamos que el array de tags :
+        //1)Exista y se haya incluido
+        //2)no esté vacío
+        if(null===this.tags || undefined===this.tags || 
+           0===this.tags.length){
             err= new Error("tags field is required and cannot be empty");
         }
         //Seguimos con las comprobaciones
@@ -169,7 +169,7 @@ QuestionSchema.pre('save', function(cb){
             //Damos error si tiene opciones.
             
             if(null!=this.answers || undefined!=this.answers){
-                err=new Error("A question with type 'FREE' cannot have questions");
+                err=new Error("A question with type 'FREE' cannot have answers");
             }
         }
         else{
@@ -204,7 +204,7 @@ QuestionSchema.pre('save', function(cb){
     else{
         cb();
     }
-});
+});*/
 
 // Export the Mongoose model
 module.exports = mongoose.model('Question', QuestionSchema);

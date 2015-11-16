@@ -1,5 +1,6 @@
 // Load required packages
 var questionModel = require('../models/questionModel');
+var optionModel = require('../models/optionModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
@@ -7,34 +8,59 @@ var log = log4js.getLogger("questionCtrl");
 // POST api/question
 exports.postQuestion = function(req, res) {
 
+	//Gets all the ansewers from the body and puts them in conjunto
+	
+	/*while (typeof req.body.answers[i].valid) {
+    code block to be executed
+	}*/
+	
+	//log.debug("*/***//*/*/*/*/*/*/ANTES "+typeof req.body.answers[1].valid);
+	
+	/*while ((typeof req.body.answers[i].valid)!="boolean" || i == req.body.answers.length) {
+		req.body.answers[i]
+	}*/
+	
+	//if ((typeof req.body.answers[1].valid)=="boolean"){
+	//	log.debug("*/***//*/*/*/*/*/*/DENTRO "+typeof req.body.answers[1].valid);
+	//};
+	
+	var conjunto =[optionModel.option];
+	
+	
+	for(var i = 0; i < req.body.answers.length; i++) {
+		if((typeof req.body.answers[i].valid)=="boolean"){
+			//log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
+			conjunto[i]=(new optionModel(req.body.answers[i]));
+		}else{
+			log.debug("SALIO");
+			break;
+		}
+	}
+	
+	log.debug("CONJUNTO "+conjunto);
+	/*for(var i = 0; i < req.body.answers.length; i++) {
+		conjunto[i]=(new optionModel(req.body.answers[i]));
+	}*/
 	
 	var question = new questionModel({
-    	wording: req.body.wording,
+    	title: req.body.title,
 		level: req.body.level,
     	tags: req.body.tags,
 		type: req.body.type,
-		answers: req.body.answers
+		answers: conjunto
   	});
     
-    //if(null!=question.tags && undefined!= question.tags && 0<question.tags.length){
-        question.save(function(err) {
-            log.debug("answer");
-            log.debug(question.answers);
-
-            if (err){
-                res.status(400).json({
-                    success: false,
-                    message: err.message
-                });
-            }
-            else{
-                res.json({ message: 'New question created!', data: question }); 
-            }
-        });   
-    /*}
-    else{
-        res.status(400).json({message:"ERROR: field 'tags' must not empty"});
-    }*/
+ 	question.save(function(err) {
+		if (err){
+			res.status(400).json({
+				success: false,
+				message: err.message
+			});
+		}
+		else{
+			res.json({ message: 'New question created!', data: question }); 
+		}
+	});   
 };
 
 // GET  api/question/:questionID
@@ -75,9 +101,7 @@ exports.deleteQuestion = function(req, res) {
 
 // PUT  api/question/:questionID
 exports.putQuestion = function(req, res) {
-	log.debug("PUTTING "+ req.body.wording);
 	questionModel.putQuestion(req.params.question_id,req,function(err, question){
-		
         if(err){
             res.status(400).send(err);
         }
