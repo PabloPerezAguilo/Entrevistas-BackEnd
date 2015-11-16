@@ -37,9 +37,11 @@ var QuestionSchema = new mongoose.Schema({
 QuestionSchema.path('answers').validate(function (value) {
     var result=true;
     log.debug("-----------------------------------------------------------------------------");
+    // comprobación
     if(null!==value && undefined!== value){
         result= "boolean"=== typeof value[0].valid;
     }
+    //Reescribimos con un objeto opción
     return result;
 }, 'Invalid answer');
 
