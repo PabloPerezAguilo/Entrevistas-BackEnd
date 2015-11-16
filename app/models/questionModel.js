@@ -31,16 +31,18 @@ var QuestionSchema = new mongoose.Schema({
     directive:{
         type:String
     },
-    answers:[optionModel.Option]
+    answers:[optionModel]
 });
 
 
 QuestionSchema.path('answers').validate(function (value) {
     var result=true;
     log.debug("-----------------------------------------------------------------------------");
+    // comprobación
     if(null!==value && undefined!== value){
         result= "boolean"=== typeof value[0].valid;
     }
+    //Reescribimos con un objeto opción
     return result;
 }, 'Invalid answer');
 
