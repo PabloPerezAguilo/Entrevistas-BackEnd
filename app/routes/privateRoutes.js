@@ -17,8 +17,8 @@ module.exports = function(router) {
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
-    router.route("/interview")
-        .post(authRole.isAdminRole, interviewController.postInterview)
+    /*router.route("/interview")
+        .post(authRole.isAdminRole, interviewController.postInterview)*/
 	
 // --------------------------------------------------------------------------------------------------------------------------
 // 													question

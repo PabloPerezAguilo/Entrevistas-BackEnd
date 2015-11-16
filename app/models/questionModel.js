@@ -34,6 +34,7 @@ var QuestionSchema = new mongoose.Schema({
     answers:[optionModel.Option]
 });
 
+
 QuestionSchema.path('answers').validate(function (value) {
     var result=true;
     log.debug("-----------------------------------------------------------------------------");
@@ -130,6 +131,9 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 //------------------------------------Mongoose methods----------------------------------------------------
 
 QuestionSchema.pre('save', function(cb){
+    console.log("Execute before each question.save() ");
+
+QuestionSchema.pre('save', function(cb){
     var err=null;
     if("SINGLE_CHOICE"!=this.type && 
        "MULTI_CHOICE"!=this.type && 
@@ -138,17 +142,18 @@ QuestionSchema.pre('save', function(cb){
         err=new Error("Invalid type");
     }
     else{
-        /*Comprobamos que el array de tags :
-        1)Exista y se haya incluido
-        2)no esté vacío*/
-        if(/*1)*/null===this.tags || undefined===this.tags || 
-           /*2)*/0===this.tags.length){
+        //Comprobamos que el array de tags :
+        //1)Exista y se haya incluido
+        //2)no esté vacío
+        if(null===this.tags || undefined===this.tags || 
+           0===this.tags.length){
             err= new Error("tags field is required and cannot be empty");
         }
         //Seguimos con las comprobaciones
         if("FREE"===this.type){
             //Damos error si tiene opciones.
-            if(null===this.directive || undefined===this.directive){
+
+        	if(null===this.directive || undefined===this.directive){
                 err=new Error("A FREE question must have a directive");
             }
             else{

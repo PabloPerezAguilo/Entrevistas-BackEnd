@@ -23,6 +23,12 @@ module.exports = function(router,app) {
 	router.route("/interview/:DNI")
         .get(interviewController.getInterview);
 	
+	//--------
+	 router.route("/interview")
+	 	.get(interviewController.getInterviews)
+        .post(interviewController.postInterview);
+	 
+	//----------
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
@@ -75,11 +81,14 @@ module.exports = function(router,app) {
 		});
 	});
     
+<<<<<<< HEAD
+=======
     //-----------------------------------------------------------------------------------------------------
 //              DEVELOPE ROUTES
 //  This routes should be private, but for developing, are public until the feature is done
 //-----------------------------------------------------------------------------------------------------
 
+>>>>>>> 53bea4b844eea7e06a176e051afcaded2b7a87e1
 	
 	// --------------------------------------------------------------------------------------------------------------------------
 // 													question
