@@ -24,18 +24,27 @@ exports.postQuestion = function(req, res) {
 	//	log.debug("*/***//*/*/*/*/*/*/DENTRO "+typeof req.body.answers[1].valid);
 	//};
 	
-	var conjunto =[optionModel.option];
 	
-	if(null!== req.body.answers)
-	for(var i = 0; i < req.body.answers.length; i++) {
-		if((typeof req.body.answers[i].valid)=="boolean"){
-			//log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
-			conjunto[i]=(new optionModel(req.body.answers[i]));
-		}else{
-			log.debug("SALIO");
-			break;
-		}
-	}
+    log.debug(req.body);
+    conjunto=null;
+	
+	if(null!== req.body.answers && undefined!== req.body.answers){
+        conjunto =[optionModel.option];
+        log.debug("Idiota");
+        for(var i = 0; i < req.body.answers.length; i++) {
+            if((typeof req.body.answers[i].valid)=="boolean"){
+                log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
+                conjunto[i]=(new optionModel(req.body.answers[i]));
+            }else{
+                //var mal=new Error();
+                //mal.message = "No es un boolean";
+                log.debug("SALIO");
+                //log.debug(mal);
+                //throw mal;
+            }
+	   }
+    }
+	
 	
 	log.debug("CONJUNTO "+conjunto);
 	/*for(var i = 0; i < req.body.answers.length; i++) {
@@ -62,8 +71,7 @@ exports.postQuestion = function(req, res) {
 			res.json({ message: 'New question created!', data: question }); 
 		}
   	});
-    
-      
+
 };
 
 // GET  api/question/:questionID

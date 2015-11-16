@@ -1,14 +1,10 @@
 // Load required packages
 var optionModel = require("../models/optionModel");
 var mongoose = require('mongoose');
-var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
-
-
-//-------------Custom Validators----------------------------
 
 
 var QuestionSchema = new mongoose.Schema({
@@ -31,9 +27,9 @@ var QuestionSchema = new mongoose.Schema({
     directive:{
         type:String
     },
-    answers:[optionModel]
+    answers:[optionModel.option]
 });
-
+ 
 
 /*QuestionSchema.path('answers').validate(function (value) {
     var result=true;
@@ -155,7 +151,7 @@ QuestionSchema.pre('save', function(cb){
                 err=new Error("A FREE question must have a directive");
             }
             else{
-                if(null!=this.answers && undefined!=this.answers){
+                if(null!==this.answers && undefined!==this.answers){
                     err=new Error("A question with type 'FREE' cannot have answers");
                 }
             }
@@ -166,7 +162,7 @@ QuestionSchema.pre('save', function(cb){
                 err=new Error("A question with type '"+this.type+"' cannot have a directive");
             }
             else{
-                if(null!=this.answers && undefined!=this.answers && 0<this.answers.length){
+                if(null!==this.answers && undefined!==this.answers && 0<this.answers.length){
                     var correctAnswers=0;
                     for (var i=0;i<this.answers.length;i++){
                         if(this.answers[i].valid){
