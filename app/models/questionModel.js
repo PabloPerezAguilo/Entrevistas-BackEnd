@@ -35,7 +35,7 @@ var QuestionSchema = new mongoose.Schema({
 });
 
 
-QuestionSchema.path('answers').validate(function (value) {
+/*QuestionSchema.path('answers').validate(function (value) {
     var result=true;
     log.debug("-----------------------------------------------------------------------------");
     // comprobación
@@ -44,7 +44,7 @@ QuestionSchema.path('answers').validate(function (value) {
     }
     //Reescribimos con un objeto opción
     return result;
-}, 'Invalid answer');
+}, 'Invalid answer');*/
 
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -130,8 +130,6 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
-QuestionSchema.pre('save', function(cb){
-    console.log("Execute before each question.save() ");
 
 QuestionSchema.pre('save', function(cb){
     var err=null;
@@ -157,7 +155,7 @@ QuestionSchema.pre('save', function(cb){
                 err=new Error("A FREE question must have a directive");
             }
             else{
-                if(null!=this.answers || undefined!=this.answers){
+                if(null!=this.answers && undefined!=this.answers){
                     err=new Error("A question with type 'FREE' cannot have answers");
                 }
             }
