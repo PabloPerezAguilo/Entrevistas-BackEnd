@@ -31,21 +31,8 @@ var QuestionSchema = new mongoose.Schema({
     directive:{
         type:String
     },
-    answers:[optionModel]
+    answers:[optionModel.option]
 });
-
-
-QuestionSchema.path('answers').validate(function (value) {
-    var result=true;
-    log.debug("-----------------------------------------------------------------------------");
-    // comprobación
-    if(null!==value && undefined!== value){
-        result= "boolean"=== typeof value[0].valid;
-    }
-    //Reescribimos con un objeto opción
-    return result;
-}, 'Invalid answer');
-
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
 //get all questions
@@ -129,9 +116,6 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
 
 //------------------------------------Mongoose methods----------------------------------------------------
-
-QuestionSchema.pre('save', function(cb){
-    console.log("Execute before each question.save() ");
 
 QuestionSchema.pre('save', function(cb){
     var err=null;

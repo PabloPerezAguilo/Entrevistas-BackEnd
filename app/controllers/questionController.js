@@ -29,11 +29,14 @@ exports.postQuestion = function(req, res) {
 	
 	for(var i = 0; i < req.body.answers.length; i++) {
 		if((typeof req.body.answers[i].valid)=="boolean"){
-			//log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
+			log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
 			conjunto[i]=(new optionModel(req.body.answers[i]));
 		}else{
+			//var mal=new Error();
+			//mal.message = "No es un boolean";
 			log.debug("SALIO");
-			break;
+			//log.debug(mal);
+			//throw mal;
 		}
 	}
 	
@@ -60,37 +63,7 @@ exports.postQuestion = function(req, res) {
 		else{
 			res.json({ message: 'New question created!', data: question }); 
 		}
-	});   
-        directive:req.body.directive,
-		answers: req.body.answers
-  	});
-    
-    
-    log.debug("*****************************************************************************");
-    log.debug(Boolean== typeof true);
-    if(null!==question.answers && undefined!==question.answers && 0<question.answers.length){
-        var aux;
-        
-        for(var i=0;i<question.answers.length;i++){
-            log.debug("TIPO: "+question.answers[i]);
-            aux=new optionModel({valid: question.answers[i].valid, title:question.answers[i].title});
-            log.debug(aux);
-        }
-    }
-    log.debug("----------------------------------PRE-------------------------------");
-
-        question.save(function(err) {
-            if (err){
-                log.error(err.stack)
-                res.status(400).json({
-                    success: false,
-                    message: err.message
-                });
-            }
-            else{
-                res.json({ message: 'New question created!', data: question }); 
-            }
-        });   
+	});  
 };
 
 // GET  api/question/:questionID
