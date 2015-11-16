@@ -6,72 +6,54 @@ var log = log4js.getLogger("questionCtrl");
 
 
 // POST api/question
+rellenar = function (req, callback){
+	log.debug("*/***//*/*/*/*/*/*/FUnction /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[1].valid);
+	var conjunto =[optionModel.option];
+	
+	for(var i = 0; i < req.body.answers.length; i++) {
+		if((typeof req.body.answers[i].valid)=="boolean"){
+			log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
+			conjunto[i]=(new optionModel({ valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
+		}else{
+			var mal=new Error();
+			mal.message = "No es un boolean";
+			log.debug("SALIO CON ERROR");
+			callback(mal);
+		}
+	}
+
+	callback(mal,conjunto);
+};
+
 exports.postQuestion = function(req, res) {
-
-	//Gets all the ansewers from the body and puts them in conjunto
-	
-	/*while (typeof req.body.answers[i].valid) {
-    code block to be executed
-	}*/
-	
-	//log.debug("*/***//*/*/*/*/*/*/ANTES "+typeof req.body.answers[1].valid);
-	
-	/*while ((typeof req.body.answers[i].valid)!="boolean" || i == req.body.answers.length) {
-		req.body.answers[i]
-	}*/
-	
-	//if ((typeof req.body.answers[1].valid)=="boolean"){
-	//	log.debug("*/***//*/*/*/*/*/*/DENTRO "+typeof req.body.answers[1].valid);
-	//};
-	
-	
-    log.debug(req.body);
-    conjunto=null;
-	
-	if(null!== req.body.answers && undefined!== req.body.answers){
-        conjunto =[optionModel.option];
-        log.debug("Idiota");
-        for(var i = 0; i < req.body.answers.length; i++) {
-            if((typeof req.body.answers[i].valid)=="boolean"){
-                log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
-                conjunto[i]=(new optionModel(req.body.answers[i]));
-            }else{
-                //var mal=new Error();
-                //mal.message = "No es un boolean";
-                log.debug("SALIO");
-                //log.debug(mal);
-                //throw mal;
-            }
-	   }
-    }
-	
-	
-	log.debug("CONJUNTO "+conjunto);
-	/*for(var i = 0; i < req.body.answers.length; i++) {
-		conjunto[i]=(new optionModel(req.body.answers[i]));
-	}*/
-
-	var question = new questionModel({
-    	title: req.body.title,
-		level: req.body.level,
-    	tags: req.body.tags,
-		type: req.body.type,
-        directive: req.body.directive,
-		answers: conjunto
-  	});
-    
- 	question.save(function(err) {
+	rellenar(req,function(err,respuesta){
 		if (err){
-			res.status(400).json({
-				success: false,
-				message: err.message
+			res.status(500).send(err);
+		}else{
+			
+			var question = new questionModel({
+				title: req.body.title,
+				level: req.body.level,
+				tags: req.body.tags,
+				type: req.body.type,
+				answers: respuesta
 			});
+			question.save(function(err) {
+				if (err){
+					res.status(400).json({
+						success: false,
+						message: err.message
+					});
+				}
+				else{
+					res.json({ message: 'New question created!', data: question }); 
+				}
+			});  
 		}
-		else{
-			res.json({ message: 'New question created!', data: question }); 
-		}
-  	});
 
+		
+	});
+	
 };
 
 // GET  api/question/:questionID
@@ -87,7 +69,6 @@ exports.getQuestion = function(req, res) {
             }
             else{
                 res.json(question); 
-
             }
         }
     });
