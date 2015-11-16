@@ -18,8 +18,4 @@ var OptionSchema =  new SchemaObject({
     }
 });
 
-
-
-module.exports = mongoose.model('Option', OptionSchema);
-
-
+module.exports = ('Option', OptionSchema);

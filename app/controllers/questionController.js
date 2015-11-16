@@ -1,10 +1,6 @@
 // Load required packages
 var questionModel = require('../models/questionModel');
-<<<<<<< HEAD
 var optionModel = require('../models/optionModel');
-=======
-var Option = require('../models/optionModel');
->>>>>>> 53bea4b844eea7e06a176e051afcaded2b7a87e1
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
@@ -77,7 +73,7 @@ exports.postQuestion = function(req, res) {
         
         for(var i=0;i<question.answers.length;i++){
             log.debug("TIPO: "+question.answers[i]);
-            aux=new Option({valid: question.answers[i].valid, title:question.answers[i].title});
+            aux=new optionModel({valid: question.answers[i].valid, title:question.answers[i].title});
             log.debug(aux);
         }
     }
