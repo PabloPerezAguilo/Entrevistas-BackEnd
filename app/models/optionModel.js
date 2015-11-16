@@ -12,8 +12,19 @@ var OptionSchema = new mongoose.Schema({
     },
     valid: {
         required: true,
-        type: Boolean
+        type: Boolean,
+        default: false
     }
 });
 
+OptionSchema.path('title').validate(function (value) {
+    log.debug("Schema path validation: "+null!=value);
+    return null!=value;
+}, 'Invalid color');
+
 module.exports = mongoose.model('Option', OptionSchema);
+
+/*OptionSchema.path('title').validate(function (value) {
+    log.debug("Schema path validation: "+null!=value);
+    return null!=value;
+}, 'Invalid color');*/
