@@ -31,7 +31,7 @@ var QuestionSchema = new mongoose.Schema({
     directive:{
         type:String
     },
-    answers:[optionModel.Option]
+    answers:[optionModel]
 });
 
 
