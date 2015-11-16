@@ -13,12 +13,13 @@ var OptionSchema =  new SchemaObject({
     },
     valid: {
         required: true,
-        type: Boolean
+        type: Boolean,
+        default: false
     }
 });
 
-/*OptionSchema.path('valid').validate(function (value) {
- 	log.debug(value + " " + typeof value);
-}, 'Invalid color');*/
 
-module.exports = ('Option', OptionSchema);
+
+module.exports = mongoose.model('Option', OptionSchema);
+
+

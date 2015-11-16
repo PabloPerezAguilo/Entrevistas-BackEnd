@@ -1,6 +1,10 @@
 // Load required packages
 var questionModel = require('../models/questionModel');
+<<<<<<< HEAD
 var optionModel = require('../models/optionModel');
+=======
+var Option = require('../models/optionModel');
+>>>>>>> 53bea4b844eea7e06a176e051afcaded2b7a87e1
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
@@ -41,7 +45,7 @@ exports.postQuestion = function(req, res) {
 	/*for(var i = 0; i < req.body.answers.length; i++) {
 		conjunto[i]=(new optionModel(req.body.answers[i]));
 	}*/
-	
+
 	var question = new questionModel({
     	title: req.body.title,
 		level: req.body.level,
@@ -61,16 +65,53 @@ exports.postQuestion = function(req, res) {
 			res.json({ message: 'New question created!', data: question }); 
 		}
 	});   
+        directive:req.body.directive,
+		answers: req.body.answers
+  	});
+    
+    
+    log.debug("*****************************************************************************");
+    log.debug(Boolean== typeof true);
+    if(null!==question.answers && undefined!==question.answers && 0<question.answers.length){
+        var aux;
+        
+        for(var i=0;i<question.answers.length;i++){
+            log.debug("TIPO: "+question.answers[i]);
+            aux=new Option({valid: question.answers[i].valid, title:question.answers[i].title});
+            log.debug(aux);
+        }
+    }
+    log.debug("----------------------------------PRE-------------------------------");
+
+        question.save(function(err) {
+            if (err){
+                log.error(err.stack)
+                res.status(400).json({
+                    success: false,
+                    message: err.message
+                });
+            }
+            else{
+                res.json({ message: 'New question created!', data: question }); 
+            }
+        });   
 };
 
 // GET  api/question/:questionID
 exports.getQuestion = function(req, res) {
-	questionModel.getQuestion(req.params.question_id,function(err, question){
+    var id=req.params.question_id;
+	questionModel.getQuestion(id,function(err, question){
         if(err){
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
         else{
-            res.json(question); 
+            if(null===question){
+                res.status(400).json({success: false, message: "No question found with the ID "+id});
+            }
+            else{
+                res.json(question); 
+
+            }
         }
     });
 };
@@ -79,7 +120,7 @@ exports.getQuestion = function(req, res) {
 exports.getQuestions = function(req, res) {
 	questionModel.getQuestions(function(err, result){
         if(err){
-            res.status(400).send(err);
+            res.status(500).send(err);
         }
         else{
             res.json(result); 
@@ -89,12 +130,22 @@ exports.getQuestions = function(req, res) {
 
 // DELETE  api/question/:questionID
 exports.deleteQuestion = function(req, res) {
-	questionModel.deleteQuestion(req.params.question_id,function(err, question){
+    var id=req.params.question_id;
+	questionModel.deleteQuestion(id,function(err, result){
         if(err){
             res.status(400).send(err);
         }
         else{
-            res.json(question); 
+            var response;
+            if(0<result){
+                response={success:true , message:"Question with ID "+id +" deleted"};
+                
+            }
+            else{
+                response={success:false , message:"No Question with ID "+id +" found"};
+                res.status(400);
+            }
+            res.json(response); 
         }
     });
 };

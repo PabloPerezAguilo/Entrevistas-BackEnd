@@ -28,40 +28,21 @@ var QuestionSchema = new mongoose.Schema({
         max: 10,
         required: true
     },
+    directive:{
+        type:String
+    },
     answers:[optionModel.Option]
 });
 
-/*QuestionSchema.path("title").validate(function (value) {
-    log.debug("TITLE: "+value+" , ");
-    return value.length !== 0;
 
-}, 'please insert title');
-
-QuestionSchema.path("type").validate(function (value) {
-
-  return value.length !== 0;
-
-}, 'please insert title');
-
-QuestionSchema.path("tags").validate(function (value) {
-
-  return value.length !== 0;
-
-}, 'please insert title');
-
-
-QuestionSchema.path("level").validate(function (value) {
-
-  return 1<=value && 10>=value;
-
-}, 'please insert title');
-
-
-QuestionSchema.path("answers").validate(function (value) {
-
-  return value.length !== 0;
-
-}, 'please insert title');*/
+QuestionSchema.path('answers').validate(function (value) {
+    var result=true;
+    log.debug("-----------------------------------------------------------------------------");
+    if(null!==value && undefined!== value){
+        result= "boolean"=== typeof value[0].valid;
+    }
+    return result;
+}, 'Invalid answer');
 
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -147,8 +128,10 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
-/*QuestionSchema.pre('save', function(cb){
+QuestionSchema.pre('save', function(cb){
     console.log("Execute before each question.save() ");
+
+QuestionSchema.pre('save', function(cb){
     var err=null;
     if("SINGLE_CHOICE"!=this.type && 
        "MULTI_CHOICE"!=this.type && 
@@ -167,33 +150,47 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
         //Seguimos con las comprobaciones
         if("FREE"===this.type){
             //Damos error si tiene opciones.
-            
-            if(null!=this.answers || undefined!=this.answers){
-                err=new Error("A question with type 'FREE' cannot have answers");
-            }
-        }
-        else{
-            if(null!=this.answers && undefined!=this.answers && 0<this.answers.length){
-                var correctAnswers=0;
-                for (var i=0;i<this.answers.length;i++){
-                    if(this.answers[i].valid){
-                        correctAnswers++;
-                    }
-                }
-                //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
-                if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
-                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
-                }
-                
-                //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error
-                if("MULTI_CHOICE"===this.type && 0===correctAnswers){
-                    err= new Error("A question with type 'MULTI_CHOICE' must have at least one valid answer");
-                }
+
+        	if(null===this.directive || undefined===this.directive){
+                err=new Error("A FREE question must have a directive");
             }
             else{
-                //ERROR. La pregunta debe tener por lo menos una opción
-                err= new Error("The question must have at least one answer");
-            }   
+                if(null!=this.answers || undefined!=this.answers){
+                    err=new Error("A question with type 'FREE' cannot have answers");
+                }
+            }
+            
+        }
+        else{
+            if(null!==this.directive && undefined!==this.directive){
+                err=new Error("A question with type '"+this.type+"' cannot have a directive");
+            }
+            else{
+                if(null!=this.answers && undefined!=this.answers && 0<this.answers.length){
+                    var correctAnswers=0;
+                    for (var i=0;i<this.answers.length;i++){
+                        if(this.answers[i].valid){
+                            correctAnswers++;
+                        }
+                    }
+                    log.debug("Valid: "+typeof this.answers[0].valid);
+                    log.debug("Title: "+typeof this.answers[0].title);
+                    //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
+                    if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
+                        err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
+                    }
+
+                    //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error
+                    if("MULTI_CHOICE"===this.type && 0===correctAnswers){
+                        err= new Error("A question with type 'MULTI_CHOICE' must have at least one valid answer");
+                    }
+                }
+                else{
+                    //ERROR. La pregunta debe tener por lo menos una opción
+                    err= new Error("The question must have at least one answer");
+                }
+            }
+               
         }
     }
     
@@ -204,7 +201,7 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
     else{
         cb();
     }
-});*/
+});
 
 // Export the Mongoose model
 module.exports = mongoose.model('Question', QuestionSchema);
