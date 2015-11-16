@@ -31,6 +31,10 @@ module.exports = function(router) {
 		.get(authRole.isTechRole, questionController.getQuestion)
 		.put(authRole.isTechRole, questionController.putQuestion)
 		.delete(authRole.isTechRole, questionController.deleteQuestion);*/
+    
+    router.route('/tag')
+        .get()
+        .post()
 	
-	return router;
+	return router; 
 };
