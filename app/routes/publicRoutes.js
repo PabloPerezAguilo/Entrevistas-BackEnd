@@ -98,6 +98,9 @@ module.exports = function(router,app) {
 		.put(questionController.putQuestion)
 		.delete(questionController.deleteQuestion);
 	
+	 router.route("/questionByTag")
+		.post(questionController.postQuestionByTag);
+	
 // --------------------------------------------------------------------------------------------------------------------------
 
 	

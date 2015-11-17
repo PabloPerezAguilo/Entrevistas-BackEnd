@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var log4js = require('log4js');
 var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
-var log=log4js.getLogger("server");
+var log=log4js.getLogger("questionModel");
 
 
 var QuestionSchema = new mongoose.Schema({
@@ -122,6 +122,30 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
   	});
 });
 
+QuestionSchema.static("postQuestionByTag", function(tags, cb){
+    //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
+	log.debug("----------------------------"+typeof tags);
+	
+	
+	if(typeof tags==="string"){
+		this.find({tags:tags}, function(err, result){
+			if(err){
+			   log.debug("Error at getting the question which tag is "+question+": "+err);
+			}
+			cb(err, result);
+		});
+	}else{
+		log.debug("--------------DENTRO--------------"+ tags[0] + "" + tags[1]);
+		this.find({tags:{ $elemMatch: { tags[0],tags[1]}}}, function(err, result){
+			if(err){
+			   log.debug("Error at getting the question which tag is "+question+": "+err);
+			}
+			cb(err, result);
+		});
+	}
+});
+
+
 
 
 //------------------------------------Mongoose methods----------------------------------------------------
@@ -139,23 +163,16 @@ QuestionSchema.pre('save', function(cb){
         //Comprobamos que el array de tags :
         //1)Exista y se haya incluido
         //2)no esté vacío
-        if(null===this.tags || undefined===this.tags || 
-           0===this.tags.length){
+        if(null===this.tags || undefined===this.tags || 0===this.tags.length){
             err= new Error("tags field is required and cannot be empty");
         }
         //Seguimos con las comprobaciones
         if("FREE"===this.type){
             //Damos error si tiene opciones.
-
-        	if(null===this.directive || undefined===this.directive){
-                err=new Error("A FREE question must have a directive");
-            }
-            else{
-                if(null!==this.answers && undefined!==this.answers){
-                    err=new Error("A question with type 'FREE' cannot have answers");
-                }
-            }
-            
+        	
+			if(null!==this.answers && undefined!==this.answers && ""!==this.answers){
+				err=new Error("A question with type 'FREE' cannot have answers");
+			}
         }
         else{
             if(null!==this.directive && undefined!==this.directive){
@@ -173,9 +190,8 @@ QuestionSchema.pre('save', function(cb){
                     log.debug("Title: "+typeof this.answers[0].title);
                     //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
                     if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
-                        err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
+                        err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");             
                     }
-
                     //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error
                     if("MULTI_CHOICE"===this.type && 0===correctAnswers){
                         err= new Error("A question with type 'MULTI_CHOICE' must have at least one valid answer");
@@ -186,7 +202,6 @@ QuestionSchema.pre('save', function(cb){
                     err= new Error("The question must have at least one answer");
                 }
             }
-               
         }
     }
     
