@@ -3,6 +3,7 @@ var userController = require("../controllers/user");
 var User = require("../models/user");
 var interviewController = require("../controllers/interviewController");
 var questionController = require("../controllers/questionController");
+var tagController = require("../controllers/tagController");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -33,8 +34,6 @@ module.exports = function(router,app) {
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
 // -------------------------------------------------------------------------------------------------------------------------
-    
-    
 
 
 // http://localhost:9600/api/authenticate
@@ -75,7 +74,6 @@ module.exports = function(router,app) {
 						});
 					}
 				});		
-
 			}
 
 		});
@@ -97,11 +95,13 @@ module.exports = function(router,app) {
 		.get(questionController.getQuestion)
 		.put(questionController.putQuestion)
 		.delete(questionController.deleteQuestion);
+    
+    router.route('/tag')
+    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
+    .post(/*authRole.isTechRole, */ tagController.postTag);
 	
 // --------------------------------------------------------------------------------------------------------------------------
 
-	
-	
 	
 	return router;
 };

@@ -7,25 +7,37 @@ var log = log4js.getLogger("questionCtrl");
 
 // POST api/question
 rellenar = function (req, callback){
-	log.debug("*/***//*/*/*/*/*/*/FUnction /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[1].valid);
+	//log.debug("*/***//*/*/*/*/*/*/FUnction /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[1].valid);
 	var conjunto =[optionModel.option];
+	try{
+        for(var i = 0; i < req.body.answers.length; i++) {
+            if((typeof req.body.answers[i].valid)=="boolean"){
+                log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
+                conjunto[i]=(new optionModel({ valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
+            }else{
+                var mal=new Error();
+                mal.message = "No es un boolean";
+                mal.descripcion = req.body.answers[i].valid;
+                mal.tipo = typeof req.body.answers[i].valid;
+                callback(mal);
+            }
+        }
+    }
+    catch(ex){
+
+        if(ex instanceof TypeError){
+            conjunto=null;
+            
+        }
+    }
 	
-	for(var i = 0; i < req.body.answers.length; i++) {
-		if((typeof req.body.answers[i].valid)=="boolean"){
-			log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
-			conjunto[i]=(new optionModel({ valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
-		}else{
-			var mal=new Error();
-			mal.message = "No es un boolean";
-			log.debug("SALIO CON ERROR");
-			callback(mal);
-		}
-	}
 
 	callback(mal,conjunto);
 };
 
 exports.postQuestion = function(req, res) {
+    log.debug(req.body);
+    log.debug(req.body.tags.length);
 	rellenar(req,function(err,respuesta){
 		if (err){
 			res.status(500).send(err);
@@ -36,6 +48,7 @@ exports.postQuestion = function(req, res) {
 				level: req.body.level,
 				tags: req.body.tags,
 				type: req.body.type,
+                directive: req.body.directive,  
 				answers: respuesta
 			});
 			question.save(function(err) {
