@@ -4,7 +4,7 @@ var mongoose = require('mongoose');
 var log4js = require('log4js');
 var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
-var log=log4js.getLogger("server");
+var log=log4js.getLogger("questionModel");
 
 
 var QuestionSchema = new mongoose.Schema({
@@ -118,6 +118,30 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
   	});
 });
 
+QuestionSchema.static("postQuestionByTag", function(tags, cb){
+    //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
+	log.debug("----------------------------"+typeof tags);
+	
+	
+	if(typeof tags==="string"){
+		this.find({tags:tags}, function(err, result){
+			if(err){
+			   log.debug("Error at getting the question which tag is "+question+": "+err);
+			}
+			cb(err, result);
+		});
+	}else{
+		log.debug("--------------DENTRO--------------"+ tags[0] + "" + tags[1]);
+		this.find({tags:{ $elemMatch: { tags[0],tags[1]}}}, function(err, result){
+			if(err){
+			   log.debug("Error at getting the question which tag is "+question+": "+err);
+			}
+			cb(err, result);
+		});
+	}
+});
+
+
 
 
 //------------------------------------Mongoose methods----------------------------------------------------
@@ -151,6 +175,7 @@ QuestionSchema.pre('save', function(cb){
                 for (var i=0;i<this.answers.length;i++){
                     if(this.answers[i].valid){
                         correctAnswers++;
+
                     }
                 }
                 log.debug("Valid: "+typeof this.answers[0].valid);
@@ -169,6 +194,7 @@ QuestionSchema.pre('save', function(cb){
                 //ERROR. La pregunta debe tener por lo menos una opción
                 err= new Error("The question must have at least one answer");
             }
+
         }
 
     }

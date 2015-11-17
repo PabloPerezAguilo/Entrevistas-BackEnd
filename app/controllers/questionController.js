@@ -5,34 +5,25 @@ var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
 
-// POST api/question
+// gets the answers from the body and puts them in the array conjunto checking if the values are corrects
 rellenar = function (req, callback){
-	//log.debug("*/***//*/*/*/*/*/*/FUnction /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[1].valid);
+
 	var conjunto =[optionModel.option];
-	try{
-        for(var i = 0; i < req.body.answers.length; i++) {
-            if((typeof req.body.answers[i].valid)=="boolean"){
-                log.debug("*/***//*/*/*/*/*/*/DENTRO /*/*/*/*//*/*//*/*/*"+typeof req.body.answers[i].valid);
-                conjunto[i]=(new optionModel({ valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
-            }else{
-                var mal=new Error();
-                mal.message = "No es un boolean";
-                mal.descripcion = req.body.answers[i].valid;
-                mal.tipo = typeof req.body.answers[i].valid;
-                callback(mal);
-            }
-        }
-    }
-    catch(ex){
-
-        if(ex instanceof TypeError){
-            conjunto=null;
-            
-        }
-    }
-	
-
-	callback(mal,conjunto);
+	if(null!==req.body.answers && undefined!==req.body.answers && 0<req.body.answers.length){
+		for(var i = 0; i < req.body.answers.length; i++) {
+			if((typeof req.body.answers[i].valid)=="boolean"){
+				conjunto[i]=(new optionModel({valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
+			}else{
+				var error=new Error();
+				error.message = "The value must be boolean";
+				error.descripcion=typeof req.body.answers[i].valid;
+				callback(error);
+			}
+		}
+	}else{
+		conjunto=undefined;
+	};
+	callback(error,conjunto);
 };
 
 exports.postQuestion = function(req, res) {
@@ -72,6 +63,7 @@ exports.postQuestion = function(req, res) {
 // GET  api/question/:questionID
 exports.getQuestion = function(req, res) {
     var id=req.params.question_id;
+	
 	questionModel.getQuestion(id,function(err, question){
         if(err){
             res.status(500).send(err);
@@ -129,6 +121,26 @@ exports.putQuestion = function(req, res) {
         }
         else{
             res.json(question); 
+        }
+    });
+};
+
+exports.postQuestionByTag = function(req, res) {
+	
+    var tags=req.body.tags;
+	//$in: [ 5,  ObjectId("507c35dd8fada716c89d0013") ]
+	
+	questionModel.postQuestionByTag(tags,function(err, question){
+        if(err){
+            res.status(500).send(err);
+        }
+        else{
+            if(null===question){
+                res.status(400).json({success: false, message: "No question found with the ID "+id});
+            }
+            else{
+                res.json(question); 
+            }
         }
     });
 };

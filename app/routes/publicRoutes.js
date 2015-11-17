@@ -100,6 +100,9 @@ module.exports = function(router,app) {
     .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
     .post(/*authRole.isTechRole, */ tagController.postTag);
 	
+	 router.route("/questionByTag")
+		.post(questionController.postQuestionByTag);
+	
 // --------------------------------------------------------------------------------------------------------------------------
 
 	
