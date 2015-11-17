@@ -125,8 +125,6 @@ exports.putQuestion = function(req, res) {
 exports.postQuestionByTag = function(req, res) {
 	
     var tags=req.body.tags;
-	//$in: [ 5,  ObjectId("507c35dd8fada716c89d0013") ]
-	
 	questionModel.postQuestionByTag(tags,function(err, question){
         if(err){
             res.status(500).send(err);

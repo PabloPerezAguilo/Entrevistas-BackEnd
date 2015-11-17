@@ -122,23 +122,37 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
   	});
 });
 
-QuestionSchema.static("postQuestionByTag", function(tags, cb){
+QuestionSchema.static("postQuestionByTag", function(etiqueta, cb){
     //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
-	log.debug("----------------------------"+typeof tags);
+	log.debug("----------------------------"+typeof etiqueta);
 	
 	
-	if(typeof tags==="string"){
-		this.find({tags:tags}, function(err, result){
+	if(typeof etiqueta==="string"){
+		this.find({tags:etiqueta}, function(err, result){
 			if(err){
 			   log.debug("Error at getting the question which tag is "+question+": "+err);
 			}
 			cb(err, result);
 		});
 	}else{
-		log.debug("--------------DENTRO--------------"+ tags[0] + "" + tags[1]);
-		this.find({tags:{ $elemMatch: { tags[0],tags[1]}}}, function(err, result){
+		
+		var cadena;
+		cadena="";
+		for (var i=0;i<etiqueta.length;i++){
+			if(i==0){
+				cadena=etiqueta[i]	
+			}else{
+				
+				/*if(i==tags.length-1){
+					cadena=cadena + tags[i]
+				}*/
+				cadena = cadena+","+etiqueta[i]
+			}
+       	}
+		log.debug("--------------DENTRO--------------"+cadena);
+		this.find({tags:{ $in: [etiqueta] }}, function(err, result){
 			if(err){
-			   log.debug("Error at getting the question which tag is "+question+": "+err);
+			   log.debug("Error at getting the question which tag is "+etiqueta+": "+err);
 			}
 			cb(err, result);
 		});
