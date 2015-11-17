@@ -7,6 +7,7 @@ var log = log4js.getLogger("questionCtrl");
 
 // gets the answers from the body and puts them in the array conjunto checking if the values are corrects
 rellenar = function (req, callback){
+
 	var conjunto =[optionModel.option];
 	if(null!==req.body.answers && undefined!==req.body.answers && 0<req.body.answers.length){
 		for(var i = 0; i < req.body.answers.length; i++) {
@@ -26,6 +27,8 @@ rellenar = function (req, callback){
 };
 
 exports.postQuestion = function(req, res) {
+    log.debug(req.body);
+    log.debug(req.body.tags.length);
 	rellenar(req,function(err,respuesta){
 		if (err){
 			res.status(500).send(err);
@@ -36,7 +39,7 @@ exports.postQuestion = function(req, res) {
 				level: req.body.level,
 				tags: req.body.tags,
 				type: req.body.type,
-				directive: req.body.directive,
+                directive: req.body.directive,  
 				answers: respuesta
 			});
 			question.save(function(err) {

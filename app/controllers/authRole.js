@@ -23,3 +23,15 @@ exports.isTechRole = function (req, res, next){
         });
     }
 };
+
+exports.isAdminOrTech = function(req, res, next){
+    var role=req.decoded.role;
+    if("ROLE_TECH"==req.decoded.role || "ROLE_ADMIN"==req.decoded.role){
+        next();
+     }else{
+        return res.status(403).send({ 
+            success: false, 
+            message: 'Not permision.'
+        });
+    }
+}
