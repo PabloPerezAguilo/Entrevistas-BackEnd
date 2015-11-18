@@ -132,12 +132,7 @@ QuestionSchema.static("postQuestionByTag", function(tags, cb){
 		});
 	}else{
 		log.debug("--------------DENTRO--------------"+ tags[0] + "" + tags[1]);
-		this.find({tags:{ $elemMatch: { tags[0],tags[1]}}}, function(err, result){
-			if(err){
-			   log.debug("Error at getting the question which tag is "+question+": "+err);
-			}
-			cb(err, result);
-		});
+		
 	}
 });
 
