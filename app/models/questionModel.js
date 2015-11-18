@@ -29,7 +29,6 @@ var QuestionSchema = new mongoose.Schema({
     },
     answers:[optionModel.option]
 });
- 
 
 QuestionSchema.path('type').validate(function (value) {
     var result;
@@ -103,10 +102,6 @@ QuestionSchema.static("deleteQuestion", function(question, cb){
 
 // put question by id /api/products/:product_id 
 QuestionSchema.static("putQuestion", function(question, req, cb){
-	
-	log.debug("title "+req.body.title);
-	
-
 	this.update({_id:question}, {title: req.body.title, level: req.body.level, tech: req.body.tech, 
 								 type: req.body.type, answers: req.body.answers}, function(err, result) {
     	if (err){
@@ -118,45 +113,37 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
   	});
 });
 
-QuestionSchema.static("postQuestionByTag", function(etiqueta, cb){
-    //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
-	log.debug("----------------------------"+typeof etiqueta);
-	
-	
-	if(typeof etiqueta==="string"){
+QuestionSchema.static("getQuestionByTag", function(etiqueta, cb){
+	/*if(typeof etiqueta==="string"){
 		this.find({tags:etiqueta}, function(err, result){
 			if(err){
 			   log.debug("Error at getting the question which tag is "+question+": "+err);
 			}
 			cb(err, result);
 		});
-	}else{
-		
-		var cadena;
-		cadena="";
-		for (var i=0;i<etiqueta.length;i++){
-			if(i==0){
-				cadena=etiqueta[i]	
-			}else{
-				
-				/*if(i==tags.length-1){
-					cadena=cadena + tags[i]
-				}*/
-				cadena = cadena+","+etiqueta[i]
-			}
-       	}
-		log.debug("--------------DENTRO--------------"+cadena);
-		this.find({tags:{ $in: [etiqueta] }}, function(err, result){
+	}else{		
+		this.find({tags:{ $all: etiqueta }}, function(err, result){
 			if(err){
 			   log.debug("Error at getting the question which tag is "+etiqueta+": "+err);
 			}
 			cb(err, result);
 		});
+	}*/
+	if(etiqueta!==null && etiqueta!==undefined){
+		this.find({tags:{ $all: etiqueta }}, function(err, result){
+				if(err){
+				   log.debug("Error at getting the question which tag is "+etiqueta+": "+err);
+				}
+				cb(err, result);
+			});
+	}else{
+		err= new Error();
+		err.name="Tags cannot be null";
+		err.message="Tags cannot be null";
+		cb(err, null);
 	}
+	
 });
-
-
-
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
