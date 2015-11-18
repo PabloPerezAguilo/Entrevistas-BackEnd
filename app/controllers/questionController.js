@@ -27,8 +27,6 @@ rellenar = function (req, callback){
 };
 
 exports.postQuestion = function(req, res) {
-    log.debug(req.body);
-    log.debug(req.body.tags.length);
 	rellenar(req,function(err,respuesta){
 		if (err){
 			res.status(500).send(err);
@@ -125,18 +123,15 @@ exports.putQuestion = function(req, res) {
     });
 };
 
-exports.postQuestionByTag = function(req, res) {
-	
+exports.getQuestionByTag = function(req, res) {
     var tags=req.body.tags;
-	//$in: [ 5,  ObjectId("507c35dd8fada716c89d0013") ]
-	
-	questionModel.postQuestionByTag(tags,function(err, question){
+	questionModel.getQuestionByTag(tags,function(err, question){
         if(err){
             res.status(500).send(err);
         }
         else{
-            if(null===question){
-                res.status(400).json({success: false, message: "No question found with the ID "+id});
+            if(null===question || 0==question.length){
+                res.status(400).json({success: false, message: "No question found with the tags: "+tags});
             }
             else{
                 res.json(question); 

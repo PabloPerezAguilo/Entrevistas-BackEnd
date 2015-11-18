@@ -83,7 +83,6 @@ module.exports = function(router,app) {
 //              DEVELOPE ROUTES
 //  This routes should be private, but for developing, are public until the feature is done
 //-----------------------------------------------------------------------------------------------------
-
 	
 // --------------------------------------------------------------------------------------------------------------------------
 // 													question
@@ -101,7 +100,7 @@ module.exports = function(router,app) {
     .post(/*authRole.isTechRole, */ tagController.postTag);
 	
 	 router.route("/questionByTag")
-		.post(questionController.postQuestionByTag);
+		.post(questionController.getQuestionByTag);
 	
 // --------------------------------------------------------------------------------------------------------------------------
 

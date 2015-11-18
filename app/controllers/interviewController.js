@@ -23,7 +23,9 @@ exports.postInterview = function(req, res){
 // returns the interview (unique) for the candidate for the searched DNI
 exports.getInterview = function(req, res){
     var dni=req.params.DNI;
-    if(dni.length===9 ||dni.length===10){
+    var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
+    log.debug(dni.match(pattern));
+    if(pattern.test(dni)){
         Interview.getInterview(dni, function(err, result){
             if(err){
                 res.status(500).json({success:false,message: err.message});

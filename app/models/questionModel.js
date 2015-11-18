@@ -29,7 +29,6 @@ var QuestionSchema = new mongoose.Schema({
     },
     answers:[optionModel.option]
 });
- 
 
 QuestionSchema.path('type').validate(function (value) {
     var result;
@@ -103,10 +102,6 @@ QuestionSchema.static("deleteQuestion", function(question, cb){
 
 // put question by id /api/products/:product_id 
 QuestionSchema.static("putQuestion", function(question, req, cb){
-	
-	log.debug("title "+req.body.title);
-	
-
 	this.update({_id:question}, {title: req.body.title, level: req.body.level, tech: req.body.tech, 
 								 type: req.body.type, answers: req.body.answers}, function(err, result) {
     	if (err){
@@ -118,26 +113,23 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
   	});
 });
 
-QuestionSchema.static("postQuestionByTag", function(tags, cb){
-    //Por el momento se busca por el id de la pregunta. Se puede adaptar a buscar por el enunciado
-	log.debug("----------------------------"+typeof tags);
+QuestionSchema.static("getQuestionByTag", function(etiqueta, cb){
 	
-	
-	if(typeof tags==="string"){
-		this.find({tags:tags}, function(err, result){
-			if(err){
-			   log.debug("Error at getting the question which tag is "+question+": "+err);
-			}
-			cb(err, result);
-		});
+	if(etiqueta!==null && etiqueta!==undefined){
+		this.find({tags:{ $all: etiqueta }}, function(err, result){
+				if(err){
+				   log.debug("Error at getting the question which tag is "+etiqueta+": "+err);
+				}
+				cb(err, result);
+			});
 	}else{
-		log.debug("--------------DENTRO--------------"+ tags[0] + "" + tags[1]);
-		
+		err= new Error();
+		err.name="Tags cannot be null";
+		err.message="Tags cannot be null";
+		cb(err, null);
 	}
+	
 });
-
-
-
 
 //------------------------------------Mongoose methods----------------------------------------------------
 
