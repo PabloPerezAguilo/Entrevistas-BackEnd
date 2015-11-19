@@ -114,21 +114,6 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 });
 
 QuestionSchema.static("getQuestionByTag", function(etiqueta, cb){
-	/*if(typeof etiqueta==="string"){
-		this.find({tags:etiqueta}, function(err, result){
-			if(err){
-			   log.debug("Error at getting the question which tag is "+question+": "+err);
-			}
-			cb(err, result);
-		});
-	}else{		
-		this.find({tags:{ $all: etiqueta }}, function(err, result){
-			if(err){
-			   log.debug("Error at getting the question which tag is "+etiqueta+": "+err);
-			}
-			cb(err, result);
-		});
-	}*/
 	if(etiqueta!==null && etiqueta!==undefined){
 		this.find({tags:{ $all: etiqueta }}, function(err, result){
 				if(err){
@@ -142,11 +127,9 @@ QuestionSchema.static("getQuestionByTag", function(etiqueta, cb){
 		err.message="Tags cannot be null";
 		cb(err, null);
 	}
-	
 });
 
 //------------------------------------Mongoose methods----------------------------------------------------
-
 
 QuestionSchema.pre('save', function(cb){
     var err=null;
@@ -176,11 +159,8 @@ QuestionSchema.pre('save', function(cb){
                 for (var i=0;i<this.answers.length;i++){
                     if(this.answers[i].valid){
                         correctAnswers++;
-
                     }
                 }
-                log.debug("Valid: "+typeof this.answers[0].valid);
-                log.debug("Title: "+typeof this.answers[0].title);
                 //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
                 if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
                     err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    

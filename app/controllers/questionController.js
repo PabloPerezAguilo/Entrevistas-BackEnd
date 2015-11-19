@@ -130,7 +130,7 @@ exports.getQuestionByTag = function(req, res) {
             res.status(500).send(err);
         }
         else{
-            if(null===question || 0==question.length){
+            if(null===question || 0==question.length || undefined===question ){
                 res.status(400).json({success: false, message: "No question found with the tags: "+tags});
             }
             else{
