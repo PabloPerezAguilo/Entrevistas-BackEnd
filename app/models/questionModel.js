@@ -114,6 +114,7 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
 });
 
 QuestionSchema.static("getQuestionByTag", function(etiqueta, cb){
+
 	if(etiqueta!==null && etiqueta!==undefined){
 		this.find({tags:{ $all: etiqueta }}, function(err, result){
 				if(err){
