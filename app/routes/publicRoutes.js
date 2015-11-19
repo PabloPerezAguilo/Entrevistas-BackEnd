@@ -26,8 +26,8 @@ module.exports = function(router,app) {
 	
 	//--------
 	 router.route("/interview")
-	 	.get(interviewController.getInterviews)
-        .post(interviewController.postInterview);
+	 	.get(/*authRole.isAdmin, */interviewController.getInterviews)
+        .post(/*authRole.isAdmin, */interviewController.postInterview);
 	 
 	//----------
 
@@ -87,20 +87,20 @@ module.exports = function(router,app) {
 // --------------------------------------------------------------------------------------------------------------------------
 // 													question
 	router.route("/question")
-		.get(questionController.getQuestions)
-		.post(questionController.postQuestion);
+		.get(/*authrole.isAdminOrTech, */questionController.getQuestions)
+		.post(/*authrole.isAdmin, */questionController.postQuestion);
 	
     router.route("/question/:question_id")
-		.get(questionController.getQuestion)
-		.put(questionController.putQuestion)
-		.delete(questionController.deleteQuestion);
+		.get(/*authrole.isAdminOrTech, */questionController.getQuestion)
+		.delete(/*authrole.isAdmin, */
+        questionController.deleteQuestion);
     
     router.route('/tag')
     .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
     .post(/*authRole.isTechRole, */ tagController.postTag);
 	
-	 router.route("/questionByTag")
-		.post(questionController.getQuestionByTag);
+	 router.route("/questionByTags")
+		.post(/*authrole.isAdminOrTech, */questionController.getQuestionByTag);
 	
 // --------------------------------------------------------------------------------------------------------------------------
 
