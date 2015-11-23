@@ -3,7 +3,5 @@ var uuidgen=uuid.v4();
 module.exports = {
 	'secret': uuidgen,
 	'database': 'mongodb://localhost/MagniDB',
-	'cacheEnabled':true,
-    'ROLE_ADMIN':'ROLE_ADMIN',
-    'ROLE_TECH': 'ROLE_TECH'
+	'cacheEnabled':true
 };

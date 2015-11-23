@@ -1,6 +1,9 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
 var User = require("../models/user");
+var interviewController = require("../controllers/interviewController");
+var questionController = require("../controllers/questionController");
+var tagController = require("../controllers/tagController");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -10,14 +13,28 @@ module.exports = function(router,app) {
 // --------------------------------------------------------------------------------------------------------------------------
 // 															User
 // --------------------------------------------------------------------------------------------------------------------------
-	
+
 // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
+	
+//-------------------------------------------------------------------------------------------------------
+//  					                           Interview
+//-------------------------------------------------------------------------------------------------------
+	router.route("/interview/:DNI")
+        .get(interviewController.getInterview);
+	
+	//--------
+	 router.route("/interview")
+	 	.get(/*authRole.isAdmin, */interviewController.getInterviews)
+        .post(/*authRole.isAdmin, */interviewController.postInterview);
+	 
+	//----------
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
 // -------------------------------------------------------------------------------------------------------------------------
+
 
 // http://localhost:9600/api/authenticate
 	router.route("/authenticate").post(function(req, res) {
@@ -57,11 +74,36 @@ module.exports = function(router,app) {
 						});
 					}
 				});		
-
 			}
 
 		});
 	});
+    
+    //-----------------------------------------------------------------------------------------------------
+//              DEVELOPE ROUTES
+//  This routes should be private, but for developing, are public until the feature is done
+//-----------------------------------------------------------------------------------------------------
+	
+// --------------------------------------------------------------------------------------------------------------------------
+// 													question
+	router.route("/question")
+		.get(/*authrole.isAdminOrTech, */questionController.getQuestions)
+		.post(/*authrole.isAdmin, */questionController.postQuestion);
+	
+    router.route("/question/:question_id")
+		.get(/*authrole.isAdminOrTech, */questionController.getQuestion)
+		.delete(/*authrole.isAdmin, */
+        questionController.deleteQuestion);
+    
+    router.route('/tag')
+    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
+    .post(/*authRole.isTechRole, */ tagController.postTag);
+	
+	 router.route("/questionByTags")
+		.post(/*authrole.isAdminOrTech, */questionController.getQuestionByTag);
+	
+// --------------------------------------------------------------------------------------------------------------------------
+
 	
 	return router;
 };
