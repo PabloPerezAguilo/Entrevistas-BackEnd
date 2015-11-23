@@ -30,7 +30,8 @@ describe('server', function () {
         		tag: "hola"
     		});
 			
-			superagent.get('localhost:9600/api/interview')
+			superagent
+			.get('localhost:9600/api/interview')
 			.send(objeto)
 			.end(function(err,res){
 				expect(res.status).to.equal(200);

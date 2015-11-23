@@ -9,8 +9,19 @@ var log=log4js.getLogger("server");
 var InterviewSchema = new mongoose.Schema({
     DNI: {
         type: String,
-        required: true
-    }
+        required: true,
+		unique: true
+    },
+	name: {
+		type: String,
+		required: true
+	},
+	surname:{
+		type: String,
+		required: true
+	},
+	date: String
+	//resources:[optionModel.option]	
 });
 
 
