@@ -16,7 +16,10 @@ exports.postUsers = function(req, res) {
 
   user.save(function(err) {
     if (err){
-      res.send(err);
+      res.status(400).json({
+          success: false,
+          message: err.message
+      });
     }
     else{
        res.json({ message: 'New user created!', data: user }); 

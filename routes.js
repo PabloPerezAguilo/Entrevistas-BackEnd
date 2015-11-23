@@ -1,4 +1,3 @@
-var productController = require('./app/controllers/product');
 var authRole = require('./app/controllers/authRole');
 
 var log4js = require('log4js');

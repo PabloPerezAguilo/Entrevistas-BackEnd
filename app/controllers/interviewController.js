@@ -1,35 +1,58 @@
 // Load required packages
-var User = require('../models/user');
+var Interview = require('../models/interviewModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
 
+// POST api/interview
 exports.postInterview = function(req, res){
-    //Testing code to know if the ADMIN_ROLE is able to use this method
-    log.debug("posting Interview");
-    res.status(200).json({ message: 'posting Interview!'});
+    interview=new Interview({
+        DNI:req.body.DNI
+    });
+    
+    interview.save(function(err) {
+        if (err){
+          res.send(err);
+        }
+        else{
+           res.json({ message: 'New interview created!', data: interview }); 
+        }
+    });
 };
 
+// GET api/interview/:DNI
+// returns the interview (unique) for the candidate for the searched DNI
 exports.getInterview = function(req, res){
-    //Testing code to know if the ADMIN_ROLE is able to use this method
-    log.debug("getting the Interview ");
-    res.status(200).json({ message: 'getting the Interview!'});
+    var dni=req.params.DNI;
+    var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
+    log.debug(dni.match(pattern));
+    if(pattern.test(dni)){
+        Interview.getInterview(dni, function(err, result){
+            if(err){
+                res.status(500).json({success:false,message: err.message});
+            }
+            else{
+                if(null!=result && undefined!=result){
+                    res.json(result);
+                }
+                else{
+                    res.status(400).json({success:false,
+                                          message: "No interview found with the DNI "+dni});
+                }
+            }
+        });
+    }
+    else{
+        res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
+    }
 };
 
-exports.getInterviews = function(req, res){
-    //Testing code to know if the ADMIN_ROLE is able to use this method
-    log.debug("getting all interviews");
-    res.status(200).json({ message: 'getting all interviews!'});
-};
-
-
-exports.putInterview = function(req, res){
-    //Testing code to know if the ADMIN_ROLE is able to use this method
-    log.debug("updating the Interview");
-    res.status(200).json({ message: 'updating the Interview!'});
-};
-
-exports.deleteInterview = function(req, res){
-    //Testing code to know if the ADMIN_ROLE is able to use this method
-    log.debug("deleting the Interview");
-    res.status(200).json({ message: 'deleting the Interview!'});
+exports.getInterviews = function(req, res) {
+        Interview.getInterviews(function(err, interviews){
+          if(err){
+              res.status(400).send(err);
+          }
+          else{
+              res.json(interviews);
+          }
+        });
 };
