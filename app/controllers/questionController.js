@@ -15,8 +15,8 @@ rellenar = function (req, callback){
 				conjunto[i]=(new optionModel({valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
 			}else{
 				var error=new Error();
+                error.name="InvalidType";
 				error.message = "The value must be boolean";
-				error.descripcion=typeof req.body.answers[i].valid;
 				callback(error);
 			}
 		}
