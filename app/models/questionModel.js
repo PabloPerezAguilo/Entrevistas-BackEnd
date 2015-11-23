@@ -94,9 +94,7 @@ QuestionSchema.static("deleteQuestion", function(question, cb){
     	if (err){
 			log.debug("Error deleting the question which ID is "+question+": "+err);
         }
-		
-		log.debug("Deleted question "+question);
-		cb(err, result);
+        cb(err, result);
   	});
 });
 
@@ -107,8 +105,6 @@ QuestionSchema.static("putQuestion", function(question, req, cb){
     	if (err){
 			log.debug("Error updating the question which ID is "+question+": "+err);
         }
-		
-		log.debug("Updated question "+question);
 		cb(err, result);
   	});
 });
