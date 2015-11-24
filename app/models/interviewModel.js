@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
+var leveledTagsModel = require("../models/resourceModel");
 
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
@@ -20,8 +21,9 @@ var InterviewSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	date: String
-	//resources:[optionModel.option]	
+	//date: Date,
+	status: String,
+	leveledTags:[leveledTagsModel.leveledTags]	
 });
 
 

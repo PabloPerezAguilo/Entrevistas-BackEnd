@@ -7,9 +7,11 @@ var log = log4js.getLogger("interviewCtrl");
 exports.postInterview = function(req, res){
     interview=new Interview({
         DNI:req.body.DNI,
-        name:req.body.name,
-        surname: req.body.surname,
-        date: new Date(req.body.date)       
+		name: req.body.name,
+		surname: req.body.surname,
+		//date: req.body.date,
+		status: req.body.status,
+		leveledTags: req.body.leveledTags
     });
     
     interview.save(function(err) {
