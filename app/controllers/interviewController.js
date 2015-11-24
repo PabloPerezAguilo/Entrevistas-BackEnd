@@ -6,7 +6,12 @@ var log = log4js.getLogger("interviewCtrl");
 // POST api/interview
 exports.postInterview = function(req, res){
     interview=new Interview({
-        DNI:req.body.DNI
+        DNI:req.body.DNI,
+		name: req.body.name,
+		surname: req.body.surname,
+		//date: req.body.date,
+		status: req.body.status,
+		leveledTags: req.body.leveledTags
     });
     
     interview.save(function(err) {
