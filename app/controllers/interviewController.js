@@ -6,7 +6,10 @@ var log = log4js.getLogger("interviewCtrl");
 // POST api/interview
 exports.postInterview = function(req, res){
     interview=new Interview({
-        DNI:req.body.DNI
+        DNI:req.body.DNI,
+        name:req.body.name,
+        surname: req.body.surname,
+        date: new Date(req.body.date)       
     });
     
     interview.save(function(err) {
@@ -24,7 +27,6 @@ exports.postInterview = function(req, res){
 exports.getInterview = function(req, res){
     var dni=req.params.DNI;
     var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
-    log.debug(dni.match(pattern));
     if(pattern.test(dni)){
         Interview.getInterview(dni, function(err, result){
             if(err){
