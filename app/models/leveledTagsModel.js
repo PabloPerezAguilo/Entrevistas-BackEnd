@@ -10,11 +10,15 @@ var leveledTagsSchema =  new SchemaObject({
     },
     max: {
         required: true,
-        type: Number
+        type: Number,
+        min: 1,
+        max: 10
     },
 	min: {
         required: true,
-        type: Number
+        type: Number,
+        min: 1,
+        max: 10
     }
 });
 

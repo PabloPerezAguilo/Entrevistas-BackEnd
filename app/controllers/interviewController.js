@@ -10,13 +10,19 @@ exports.postInterview = function(req, res){
 		name: req.body.name,
 		surname: req.body.surname,
 		//date: req.body.date,
-		status: req.body.status,
+		status: "PENDING",
 		leveledTags: req.body.leveledTags
     });
     
     interview.save(function(err) {
         if (err){
-          res.send(err);
+            if("ValidationError"===err.name){
+                res.status(400);
+            }
+            else{
+                res.staus(500);
+            }
+            res.send(err);
         }
         else{
            res.json({ message: 'New interview created!', data: interview }); 
