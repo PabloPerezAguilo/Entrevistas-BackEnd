@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
-var leveledTagsModel = require("../models/resourceModel");
+var leveledTagsModel = require("../models/leveledTagsModel");
 
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");

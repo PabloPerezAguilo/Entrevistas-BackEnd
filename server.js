@@ -89,3 +89,5 @@ app.listen(port,function(err, res) {
   if(err) throw err;
   log.info('Start Server!');
 });
+
+exports.apli = app; // needed to start de server from the tests index.js
