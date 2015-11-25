@@ -30,12 +30,23 @@ var QuestionSchema = new mongoose.Schema({
     answers:[optionModel.option]
 });
 
+//------------------------------Validations--------------------------------------------------------------
+
 QuestionSchema.path('type').validate(function (value) {
     var result;
     result = "SINGLE_CHOICE"===value ||  "MULTI_CHOICE"===value || "FREE"===value;    
     return result;
     
 }, 'Invalid type');
+
+QuestionSchema.path('tags').validate(function(value){
+    result=true;
+    if(null===this.tags || undefined===this.tags || 
+       0===this.tags.length){
+        result=false;
+    }
+    return result;
+}, "tags field is required and cannot be empty");
 
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
@@ -134,10 +145,7 @@ QuestionSchema.pre('save', function(cb){
     //Comprobamos que el array de tags :
     //1)Exista y se haya incluido
     //2)no esté vacío
-    if(null===this.tags || undefined===this.tags || 
-       0===this.tags.length){
-        err= new Error("tags field is required and cannot be empty");
-    }
+    
     //Seguimos con las comprobaciones
     if("FREE"===this.type){
         //Damos error si tiene opciones.

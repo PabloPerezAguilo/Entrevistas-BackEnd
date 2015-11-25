@@ -29,7 +29,6 @@ exports.postInterview = function(req, res){
 exports.getInterview = function(req, res){
     var dni=req.params.DNI;
     var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
-    log.debug(dni.match(pattern));
     if(pattern.test(dni)){
         Interview.getInterview(dni, function(err, result){
             if(err){
