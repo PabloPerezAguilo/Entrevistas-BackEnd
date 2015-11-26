@@ -16,11 +16,35 @@ exports.postInterview = function(req, res){
     
     interview.save(function(err) {
         if (err){
-            if("ValidationError"===err.name){
-                res.status(400);
-            }
-            else{
-                res.staus(500);
+            
+            switch(err.name){
+                case "ValidationError":{
+                    var validationErrors=[];
+                    for(value in err.errors){
+                        validationErrors.push(err.errors[value].message);
+                    }
+                    err=new Error();
+                    err.name='ValidationError';
+                    err.message=validationErrors;
+                    res.status(400);
+                    break;
+                }
+                case 'MongoError':{
+                    log.error(err);
+                    console.log();
+                    if(-1!==err.err.indexOf("duplicate key error")){
+                        err =new Error();
+                        err.name="MongoError";
+                        err.message="The interview "+interview.DNI+ " already exists";
+                    }
+                    res.status(400);
+                    break;
+                }
+                default:{
+                    //log.error(err);
+                    res.status(500);
+                    break;
+                }
             }
             res.send(err);
         }
