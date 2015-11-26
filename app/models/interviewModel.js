@@ -22,11 +22,25 @@ var InterviewSchema = new mongoose.Schema({
 		required: true
 	},
 	//date: Date,
-	status: String,
+	status:{
+        type: String,
+        required: true
+    },
 	leveledTags:[leveledTagsModel.leveledTags]	
 });
 
+//--------------------------------------- Validators -----------------------------------------------------
+InterviewSchema.path('leveledTags').validate(function(value){
+    var result= undefined!==value && null!==value && 0<value.length;
+    return result;
+}, "Invalid leveled tags(s) input");
 
+InterviewSchema.path('DNI').validate(function(value){
+    var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
+    return pattern.test(value);
+}, "Invalid DNI format");
+
+//-------------------------------- Statics and methods----------------------------------------------------------
 //get all interviews
 InterviewSchema.static("getInterviews", function(cb){
     this.find(function(err, result){

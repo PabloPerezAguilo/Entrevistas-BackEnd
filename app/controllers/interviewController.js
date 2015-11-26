@@ -10,13 +10,43 @@ exports.postInterview = function(req, res){
 		name: req.body.name,
 		surname: req.body.surname,
 		//date: req.body.date,
-		status: req.body.status,
+		status: "PENDING",
 		leveledTags: req.body.leveledTags
     });
     
     interview.save(function(err) {
         if (err){
-          res.send(err);
+            
+            switch(err.name){
+                case "ValidationError":{
+                    var validationErrors=[];
+                    for(value in err.errors){
+                        validationErrors.push(err.errors[value].message);
+                    }
+                    err=new Error();
+                    err.name='ValidationError';
+                    err.message=validationErrors;
+                    res.status(400);
+                    break;
+                }
+                case 'MongoError':{
+                    log.error(err);
+                    console.log();
+                    if(-1!==err.err.indexOf("duplicate key error")){
+                        err =new Error();
+                        err.name="MongoError";
+                        err.message="The interview "+interview.DNI+ " already exists";
+                    }
+                    res.status(400);
+                    break;
+                }
+                default:{
+                    //log.error(err);
+                    res.status(500);
+                    break;
+                }
+            }
+            res.send(err);
         }
         else{
            res.json({ message: 'New interview created!', data: interview }); 
