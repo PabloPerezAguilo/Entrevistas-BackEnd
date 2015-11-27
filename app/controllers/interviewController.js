@@ -4,6 +4,29 @@ var LeveledTag = require('../models/leveledTagsModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
 
+function tagsValidate (req, callback){
+	var conjunto =[LeveledTag.leveledTags];
+	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
+        var max;
+        var min;
+		for(var i = 0; i < req.body.leveledTags.length; i++) {
+            max=req.body.leveledTags[i].max;
+            min=req.body.leveledTags[i].min;
+			if((typeof min)=="number" && (typeof max)=="number" && max>min){
+				conjunto[i]=(new LeveledTag({max: max, min: min, tag:req.body.leveledTags[i].tag}));
+			}else{
+				var error=new Error();
+                error.name="InvalidType";
+				error.message = "The value must be boolean";
+				callback(error);
+			}
+		}
+	}else{
+		conjunto=undefined;
+	}
+	callback(error,conjunto);
+};
+
 // POST api/interview
 //auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
 tagsValidate =function(req, callback){
@@ -35,13 +58,14 @@ tagsValidate =function(req, callback){
 
 exports.postInterview = function(req, res){
     
-    tagsValidate(req, function(err, tags){
+
+    
+	tagsValidate(req, function(err, tags){
         if(err){
-            log.debug("****************************************ODIN!!!");
-            res.status(400).send(err);
+			res.status(400).send(err);
         }
         else{
-            log.debug("****************************************ELSE!!!");
+
             interview=new Interview({
                 DNI:req.body.DNI,
                 name: req.body.name,
