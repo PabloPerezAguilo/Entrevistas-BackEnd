@@ -6,16 +6,19 @@ var log = log4js.getLogger("interviewCtrl");
 
 // POST api/interview
 //auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
-function tagsValidate (req, callback){
+tagsValidate =function(req, callback){
+   
 	var conjunto =[LeveledTag.leveledTags];
 	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
+         log.debug("****************************************DENTRO!!!");
         var max;
         var min;
-		for(var i = 0; i < req.body.leveledTags; i++) {
+		for(var i = 0; i < req.body.leveledTags.length; i++) {
+            log.debug('-----------------------------Validando tags ------------------------------------');
             max=req.body.leveledTags[i].max;
             min=req.body.leveledTags[i].min;
 			if((typeof min)=="number" && (typeof max)=="number" && max>min){
-				conjunto[i]=(new interviewModel({max: max, min: min, tag:req.body.tag}));
+				conjunto[i]=(new LeveledTag({max: max, min: min, tag:req.body.leveledTags[i].tag}));
 			}else{
 				var error=new Error();
                 error.name="InvalidType";
@@ -34,9 +37,11 @@ exports.postInterview = function(req, res){
     
     tagsValidate(req, function(err, tags){
         if(err){
-            //WHATEVER
+            log.debug("****************************************ODIN!!!");
+            res.status(400).send(err);
         }
         else{
+            log.debug("****************************************ELSE!!!");
             interview=new Interview({
                 DNI:req.body.DNI,
                 name: req.body.name,
@@ -52,8 +57,9 @@ exports.postInterview = function(req, res){
     
     
     interview.save(function(err) {
+        log.debug(err);
         if (err){
-            
+             log.debug("**************************************** WOLOLO!!!");
             switch(err.name){
                 case "ValidationError":{
                     var validationErrors=[];
@@ -86,6 +92,7 @@ exports.postInterview = function(req, res){
             res.send(err);
         }
         else{
+            log.debug("Node es un bastardo");
            res.json({ message: 'New interview created!', data: interview }); 
         }
     });

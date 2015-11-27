@@ -124,6 +124,7 @@ describe('Interview Services tests', function() {
             .end(function(err, res) {           
                 // this is should.js syntax, very clear
                 assert.equal(res.statusCode, 400);
+                assert.equal(res.name, "InvalidType")
                 done();
             });
         });
