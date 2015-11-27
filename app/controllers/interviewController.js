@@ -62,8 +62,8 @@ exports.postInterview = function(req, res){
                     break;
                 }
                 case 'MongoError':{
-                    log.error(err);
-                    console.log();
+                    /*log.error(err);
+                    console.log();*/
                     if(-1!==err.err.indexOf("duplicate key error")){
                         err =new Error();
                         err.name="MongoError";
