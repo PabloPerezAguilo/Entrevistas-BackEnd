@@ -28,13 +28,44 @@ function tagsValidate (req, callback){
 };
 
 // POST api/interview
+//auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
+tagsValidate =function(req, callback){
+   
+	var conjunto =[LeveledTag.leveledTags];
+	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
+         log.debug("****************************************DENTRO!!!");
+        var max;
+        var min;
+		for(var i = 0; i < req.body.leveledTags.length; i++) {
+            log.debug('-----------------------------Validando tags ------------------------------------');
+            max=req.body.leveledTags[i].max;
+            min=req.body.leveledTags[i].min;
+			if((typeof min)=="number" && (typeof max)=="number" && max>min){
+				conjunto[i]=(new LeveledTag({max: max, min: min, tag:req.body.leveledTags[i].tag}));
+			}else{
+				var error=new Error();
+                error.name="InvalidType";
+				error.message = "The value must be boolean";
+				callback(error);
+			}
+		}
+	}else{
+		conjunto=undefined;
+	}
+	callback(error,conjunto);
+};
+
+
 exports.postInterview = function(req, res){
+    
+
     
 	tagsValidate(req, function(err, tags){
         if(err){
 			res.status(400).send(err);
         }
         else{
+
             interview=new Interview({
                 DNI:req.body.DNI,
                 name: req.body.name,
@@ -46,9 +77,13 @@ exports.postInterview = function(req, res){
         }
     });
     
+    
+    
+    
     interview.save(function(err) {
+        log.debug(err);
         if (err){
-            
+             log.debug("**************************************** WOLOLO!!!");
             switch(err.name){
                 case "ValidationError":{
                     var validationErrors=[];
@@ -81,6 +116,7 @@ exports.postInterview = function(req, res){
             res.send(err);
         }
         else{
+            log.debug("Node es un bastardo");
            res.json({ message: 'New interview created!', data: interview }); 
         }
     });

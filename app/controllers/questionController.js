@@ -7,7 +7,6 @@ var log = log4js.getLogger("questionCtrl");
 
 // gets the answers from the body and puts them in the array conjunto checking if the values are corrects
 rellenar = function (req, callback){
-
 	var conjunto =[optionModel.option];
 	if(null!==req.body.answers && undefined!==req.body.answers && 0<req.body.answers.length){
 		for(var i = 0; i < req.body.answers.length; i++) {
@@ -22,7 +21,7 @@ rellenar = function (req, callback){
 		}
 	}else{
 		conjunto=undefined;
-	};
+	}
 	callback(error,conjunto);
 };
 

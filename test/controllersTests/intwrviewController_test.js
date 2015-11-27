@@ -11,7 +11,7 @@ describe('Interview Services tests', function() {
     describe('POST tests', function() {
         
         //Body vacío
-        it('No body parameter test', function(done) {
+        it.skip('No body parameter test', function(done) {
             var interview={
             }
             request(url)
@@ -26,7 +26,7 @@ describe('Interview Services tests', function() {
         });
         
         //Body incompleto
-        it('lack of body parameters test', function(done) {
+        it.skip('lack of body parameters test', function(done) {
             var interview={
                 DNI:"123456789",
                 name: "Selma",
@@ -75,7 +75,7 @@ describe('Interview Services tests', function() {
                 done();
             });
         });
-        /*it('Invalid number type test', function(done) {
+        it('Invalid number type test', function(done) {
             var interview={
                 DNI:"123456789",
                 name: "Selma",
@@ -84,7 +84,7 @@ describe('Interview Services tests', function() {
                 leveledTags: [
                     {
                         tag: "tag",
-                        min: 5,
+                        min: "Leroyyy",
                         max: 7
                     }
                 ]
@@ -100,7 +100,87 @@ describe('Interview Services tests', function() {
                 assert.equal(res.statusCode, 400);
                 done();
             });
-        });*/
+        });
+        it('min>max', function(done) {
+            var interview={
+                DNI:"123456789",
+                name: "Selma",
+                surname:"Bubie",
+                status:"PENDING",
+                leveledTags: [
+                    {
+                        tag: "tag",
+                        min: 9,
+                        max: 6
+                    }
+                ]
+                
+            }
+
+            request(url)
+            .post('/api/interview')
+            .send(interview)
+            // end handles the response
+            .end(function(err, res) {           
+                // this is should.js syntax, very clear
+                assert.equal(res.statusCode, 400);
+                assert.equal(res.name, "InvalidType")
+                done();
+            });
+        });
+        
+        it('number limits exceed test', function(done) {
+            var interview={
+                DNI:"123456789",
+                name: "Selma",
+                surname:"Bubie",
+                status:"PENDING",
+                leveledTags: [
+                    {
+                        tag: "tag",
+                        min: 5,
+                        max: 11
+                    }
+                ]
+                
+            }
+
+            request(url)
+            .post('/api/interview')
+            .send(interview)
+            // end handles the response
+            .end(function(err, res) {           
+                // this is should.js syntax, very clear
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+        });
+        it('number lower limit exceed test', function(done) {
+            var interview={
+                DNI:"123456789",
+                name: "Selma",
+                surname:"Bubie",
+                status:"PENDING",
+                leveledTags: [
+                    {
+                        tag: "tag",
+                        min: 0,
+                        max: 7
+                    }
+                ]
+                
+            }
+
+            request(url)
+            .post('/api/interview')
+            .send(interview)
+            // end handles the response
+            .end(function(err, res) {           
+                // this is should.js syntax, very clear
+                assert.equal(res.statusCode, 400);
+                done();
+            });
+        });
         
         it('Correct create', function(done){
              var interview={
@@ -129,7 +209,7 @@ describe('Interview Services tests', function() {
             });
         });
         
-        it('duplicated key create', function(done){
+        it.skip('duplicated key create', function(done){
              var interview={
                 DNI:"123456789",
                 name: "Selma",
