@@ -5,6 +5,8 @@ var log4js = require('log4js');
 var config = require('../config/config');
 //Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("questionModel");
+var validator = require('../utils/validator'); 
+
 
 
 var QuestionSchema = new mongoose.Schema({
@@ -41,13 +43,27 @@ QuestionSchema.path('type').validate(function (value) {
 
 QuestionSchema.path('tags').validate(function(value){
     result=true;
-    if(null===this.tags || undefined===this.tags || 
-       0===this.tags.length){
+    if(!validator.notEmptyArray(this.answers)){
         result=false;
     }
     return result;
 }, "tags field is required and cannot be empty");
 
+QuestionSchema.path('title').validate(function(value){
+    result=true;
+    if(!validator.strValidator(value, 1000)){
+        result=false;
+    }
+    return result;
+}, "Too long title");
+
+QuestionSchema.path('directive').validate(function(value){
+    result=true;
+    if(!validator.strValidator(value, 300)){
+        result=false;
+    }
+    return result;
+}, "Too long title");
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
 //get all questions
@@ -158,7 +174,7 @@ QuestionSchema.pre('save', function(cb){
             err=new Error("A question with type '"+this.type+"' cannot have a directive");
         }
         else{
-            if(null!==this.answers && undefined!==this.answers && 0<this.answers.length){
+            if(validator.notEmptyArray(this.answers)){
                 var correctAnswers=0;
                 for (var i=0;i<this.answers.length;i++){
                     if(this.answers[i].valid){

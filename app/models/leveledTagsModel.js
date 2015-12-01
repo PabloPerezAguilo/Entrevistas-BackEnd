@@ -22,4 +22,5 @@ var leveledTagsSchema =  new SchemaObject({
     }
 });
 
+
 module.exports = ('leveledTags', leveledTagsSchema);

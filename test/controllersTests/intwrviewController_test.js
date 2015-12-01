@@ -1,6 +1,8 @@
 var should = require('should'); 
 var assert = require('assert');
 var request = require('supertest');
+var log4js = require('log4js');
+var log = log4js.getLogger("Mocha del demonio");
 
 
 describe('Interview Services tests', function() {
@@ -11,7 +13,7 @@ describe('Interview Services tests', function() {
     describe('POST tests', function() {
         
         //Body vacío
-        it.skip('No body parameter test', function(done) {
+        it('No body parameter test', function(done) {
             var interview={
             }
             request(url)
@@ -26,7 +28,7 @@ describe('Interview Services tests', function() {
         });
         
         //Body incompleto
-        it.skip('lack of body parameters test', function(done) {
+        it('lack of body parameters test', function(done) {
             var interview={
                 DNI:"123456789",
                 name: "Selma",
@@ -45,7 +47,6 @@ describe('Interview Services tests', function() {
             });
         });
         
-        // -------------------------------Invalid types test and limits
         it('Invalid dni format test', function(done) {
             var interview={
                 DNI:"12345---678ASOAasmaAOSJXALSKJCA SÑOKJDASJDPÑAOJSPDAOSDUJASJ9",
@@ -97,7 +98,11 @@ describe('Interview Services tests', function() {
             // end handles the response
             .end(function(err, res) {           
                 // this is should.js syntax, very clear
+                log.debug(err);
+                log.debug(res.body);
                 assert.equal(res.statusCode, 400);
+                assert.equal(res.body.name, "ValidationError");
+                assert.equal(res.body.message ,"The min and max values must be numbers");
                 done();
             });
         });
@@ -124,12 +129,40 @@ describe('Interview Services tests', function() {
             .end(function(err, res) {           
                 // this is should.js syntax, very clear
                 assert.equal(res.statusCode, 400);
-                assert.equal(res.name, "InvalidType")
+                assert.equal(res.body.name, "ValidationError");
+                assert.equal(res.body.message ,"The min value must be lower or equal to the max one");
+                done();
+            });
+        });
+        it('min=max', function(done) {
+            var interview={
+                DNI:"12345abc6789",
+                name: "Selma",
+                surname:"Bubie",
+                status:"PENDING",
+                leveledTags: [
+                    {
+                        tag: "tag",
+                        min: 6,
+                        max: 6
+                    }
+                ]
+                
+            }
+
+            request(url)
+            .post('/api/interview')
+            .send(interview)
+            // end handles the response
+            .end(function(err, res) {           
+                // this is should.js syntax, very clear
+                assert.equal(res.statusCode, 200);
+                assert.equal(res.body.message, "New interview created!")
                 done();
             });
         });
         
-        it('number limits exceed test', function(done) {
+        it('number upper limit exceed test', function(done) {
             var interview={
                 DNI:"123456789",
                 name: "Selma",
@@ -152,6 +185,8 @@ describe('Interview Services tests', function() {
             .end(function(err, res) {           
                 // this is should.js syntax, very clear
                 assert.equal(res.statusCode, 400);
+                assert.equal(res.body.name, "ValidationError");
+                assert.equal(res.body.message ,"The min and max values must be in the interval [1,10]");
                 done();
             });
         });
@@ -178,6 +213,8 @@ describe('Interview Services tests', function() {
             .end(function(err, res) {           
                 // this is should.js syntax, very clear
                 assert.equal(res.statusCode, 400);
+                assert.equal(res.body.name, "ValidationError");
+                assert.equal(res.body.message ,"The min and max values must be in the interval [1,10]");
                 done();
             });
         });
@@ -209,7 +246,7 @@ describe('Interview Services tests', function() {
             });
         });
         
-        it.skip('duplicated key create', function(done){
+        it('duplicated key create', function(done){
              var interview={
                 DNI:"123456789",
                 name: "Selma",
