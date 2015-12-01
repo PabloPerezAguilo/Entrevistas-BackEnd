@@ -3,21 +3,48 @@ var Interview = require('../models/interviewModel');
 var LeveledTag = require('../models/leveledTagsModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
+var validator = require('../utils/validator'); 
+
+function strExists(str){
+    return undefined!==str && null!==str && 0<str.length;
+}
+
+
 
 function tagsValidate (req, callback){
 	var conjunto =[LeveledTag.leveledTags];
-	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
+	if(validator.notEmptyArray(req.body.leveledTags)){
         var max;
         var min;
+        var tag;
 		for(var i = 0; i < req.body.leveledTags.length; i++) {
+            tag=req.body.leveledTags[i].tag;
             max=req.body.leveledTags[i].max;
             min=req.body.leveledTags[i].min;
-			if((typeof min)=="number" && (typeof max)=="number" && max>min){
-				conjunto[i]=(new LeveledTag({max: max, min: min, tag:req.body.leveledTags[i].tag}));
+			if((typeof min)=="number" && (typeof max)=="number" && max>=min &&
+                    validator.valueInRange(min, 1, 10) && validator.valueInRange(max, 1, 10) &&
+                    strExists(tag) && validator.strValidator(tag, 50)){
+				conjunto[i]=(new LeveledTag({max: max, min: min, tag:tag}));
+                
 			}else{
 				var error=new Error();
-                error.name="InvalidType";
-				error.message = "The value must be boolean";
+                error.name="ValidationError";
+                if((typeof min)!="number" || (typeof max)!="number"){
+                    error.message="The min and max values must be numbers"   
+                }
+                if(max<min){
+                    error.message = "The min value must be lower or equal to the max one";
+                }
+                if(validator.valueInRange(min, 1, 10) || validator.valueInRange(max, 1, 10)){
+                    error.message= "The min and max values must be in the interval [1,10]";
+                }
+                if(!strExists(tag)){
+                    error.message= "The field tag must not be empty";
+                }
+                if(!validator.strValidator(tag, 50)){
+                    error.message="Thge tag is longer than it should"
+                }
+				
 				callback(error);
 			}
 		}
@@ -29,31 +56,6 @@ function tagsValidate (req, callback){
 
 // POST api/interview
 //auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
-tagsValidate =function(req, callback){
-   
-	var conjunto =[LeveledTag.leveledTags];
-	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
-         log.debug("****************************************DENTRO!!!");
-        var max;
-        var min;
-		for(var i = 0; i < req.body.leveledTags.length; i++) {
-            log.debug('-----------------------------Validando tags ------------------------------------');
-            max=req.body.leveledTags[i].max;
-            min=req.body.leveledTags[i].min;
-			if((typeof min)=="number" && (typeof max)=="number" && max>min){
-				conjunto[i]=(new LeveledTag({max: max, min: min, tag:req.body.leveledTags[i].tag}));
-			}else{
-				var error=new Error();
-                error.name="InvalidType";
-				error.message = "The value must be boolean";
-				callback(error);
-			}
-		}
-	}else{
-		conjunto=undefined;
-	}
-	callback(error,conjunto);
-};
 
 
 exports.postInterview = function(req, res){
@@ -62,6 +64,7 @@ exports.postInterview = function(req, res){
     
 	tagsValidate(req, function(err, tags){
         if(err){
+            log.debug(err);
 			res.status(400).send(err);
         }
         else{

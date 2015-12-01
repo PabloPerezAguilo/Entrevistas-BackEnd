@@ -36,9 +36,14 @@ InterviewSchema.path('leveledTags').validate(function(value){
 }, "Invalid leveled tags(s) input");
 
 InterviewSchema.path('DNI').validate(function(value){
+    log.debug(typeof value);
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     return pattern.test(value);
 }, "Invalid DNI format");
+
+/*InterviewSchema.on('index', function(err){
+    log.debug("WIIII"+err);
+});*/
 
 //-------------------------------- Statics and methods----------------------------------------------------------
 //get all interviews
@@ -55,7 +60,7 @@ InterviewSchema.static("getInterviews", function(cb){
 InterviewSchema.static("getInterview", function(dni, cb){
     this.findOne({DNI:dni}, function(err, result){
         if(err){
-           log.debug("Error at getting the interview which DNI is "+dni+": "+err);
+           log.debug("Error at getting the interview which dni is "+dni+": "+err);
         }
         cb(err, result);
     });
