@@ -66,7 +66,7 @@ QuestionSchema.static("getQuestions", function(cb){
 //get all questions for a certain technology
 QuestionSchema.static("getQuestionsByTech", function(tech, cb){
     
-    this.find({tech: tech},function(err, result){
+    this.find({tags: tech},function(err, result){
        if(err){
            //Tratamiento de excepciones de consulta a la base de datos.
             //Imprimimos un mensaje de error en el log y delegamos la excepción para que lo trate quien lo llame.
@@ -100,7 +100,6 @@ QuestionSchema.static("getQuestionsByLevelRange", function (minLevel, maxLevel, 
 
 // delete question by id /api/products/:product_id
 QuestionSchema.static("deleteQuestion", function(question, cb){
-	
 	this.remove({_id:question}, function(err, result) {
     	if (err){
 			log.debug("Error deleting the question which ID is "+question+": "+err);

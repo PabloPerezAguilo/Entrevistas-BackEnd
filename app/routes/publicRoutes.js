@@ -22,13 +22,13 @@ module.exports = function(router,app) {
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
 	router.route("/interview/:DNI")
-        .get(interviewController.getInterview);
+        .get(interviewController.getInterview)
+		.delete(/*authRole.isAdmin, */interviewController.deleteInterview);;
 	
 	//--------
 	 router.route("/interview")
 	 	.get(/*authRole.isAdmin, */interviewController.getInterviews)
         .post(/*authRole.isAdmin, */interviewController.postInterview);
-	 
 	//----------
 
 // -------------------------------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ module.exports = function(router,app) {
 		});
 	});
     
-    //-----------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------
 //              DEVELOPE ROUTES
 //  This routes should be private, but for developing, are public until the feature is done
 //-----------------------------------------------------------------------------------------------------
@@ -92,8 +92,7 @@ module.exports = function(router,app) {
 	
     router.route("/question/:question_id")
 		.get(/*authrole.isAdminOrTech, */questionController.getQuestion)
-		.delete(/*authrole.isAdmin, */
-        questionController.deleteQuestion);
+		.delete(/*authrole.isAdmin, */questionController.deleteQuestion);
     
     router.route('/tag')
     .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)

@@ -1,6 +1,7 @@
 // Load required packages
 var questionModel = require('../models/questionModel');
 var optionModel = require('../models/optionModel');
+var tagModel = require('../models/tagModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 
@@ -91,6 +92,18 @@ exports.getQuestions = function(req, res) {
 // DELETE  api/question/:questionID
 exports.deleteQuestion = function(req, res) {
     var id=req.params.question_id;
+	var questionTags = null;
+	
+	//almacena los tags de la pregunta que se va a eliminar
+	questionModel.find({_id:id }, { tags:1,_id:0 }, function(err, resultado ) {
+    	if (err){
+			log.debug("Error " + err);
+        }
+		else{
+			questionTags= resultado[0].tags;
+		}	
+  	});
+	
 	questionModel.deleteQuestion(id,function(err, result){
         if(err){
             res.status(400).send(err);
@@ -105,7 +118,28 @@ exports.deleteQuestion = function(req, res) {
                 response={success:false , message:"No Question with ID "+id +" found"};
                 res.status(400);
             }
-            res.json(response); 
+            res.json(response);
+			
+			//busca si existen mas preguntas con esos tag, si no elimina el tag de la BD
+			questionTags.forEach(function(value) {
+				questionModel.find({tags: value},  function(err, result) {
+					if (err){
+						log.debug("Error " + err);
+					}
+					else{
+						if(null===result || undefined===result || 0===result.length){
+							tagModel.remove({tag:value}, function(err, result) {
+								if (err){
+									log.debug("Error deleting the tag which ID is "+value+": "+err);
+								}
+								else{
+									log.debug("The tag "+value+" has been deleted");
+								}
+							});
+						}
+					}
+				});
+			});
         }
     });
 };

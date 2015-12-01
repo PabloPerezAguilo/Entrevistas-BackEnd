@@ -33,11 +33,10 @@ tagsValidate =function(req, callback){
    
 	var conjunto =[LeveledTag.leveledTags];
 	if(null!==req.body.leveledTags && undefined!==req.body.leveledTags && 0<req.body.leveledTags.length){
-         log.debug("****************************************DENTRO!!!");
+        log.debug("****************************************DENTRO!!!");
         var max;
         var min;
 		for(var i = 0; i < req.body.leveledTags.length; i++) {
-            log.debug('-----------------------------Validando tags ------------------------------------');
             max=req.body.leveledTags[i].max;
             min=req.body.leveledTags[i].min;
 			if((typeof min)=="number" && (typeof max)=="number" && max>min){
@@ -83,7 +82,6 @@ exports.postInterview = function(req, res){
     interview.save(function(err) {
         log.debug(err);
         if (err){
-             log.debug("**************************************** WOLOLO!!!");
             switch(err.name){
                 case "ValidationError":{
                     var validationErrors=[];
@@ -126,7 +124,7 @@ exports.postInterview = function(req, res){
 // returns the interview (unique) for the candidate for the searched DNI
 exports.getInterview = function(req, res){
     var dni=req.params.DNI;
-    var pattern = new RegExp("^([0-9, a-z]{6,30})$", "gi");
+    var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     if(pattern.test(dni)){
         Interview.getInterview(dni, function(err, result){
             if(err){
@@ -157,4 +155,26 @@ exports.getInterviews = function(req, res) {
               res.json(interviews);
           }
         });
+};
+
+// DELETE  api/interview/:DNI
+exports.deleteInterview = function(req, res) {
+    var id=req.params.DNI;
+	Interview.deleteInterview(id,function(err, result){
+        if(err){
+            res.status(400).send(err);
+        }
+        else{
+            var response;
+            if(0<result){
+                response={success:true , message:"Interview with DNI "+id +" deleted"};
+                
+            }
+            else{
+                response={success:false , message:"No interview with DNI "+id +" found"};
+                res.status(400);
+            }
+            res.json(response); 
+        }
+    });
 };
