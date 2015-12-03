@@ -27,4 +27,13 @@ TagSchema.static("getTags", function(cb){
     });
 });
 
+TagSchema.static("deleteTag", function(id, cb){
+	this.remove({tag:id}, function(err, result) {
+    	if (err){
+			log.debug("Error deleting the tag "+id+": "+err);
+        }
+        cb(err, result);
+  	});
+});
+
 module.exports = mongoose.model('Tag', TagSchema);

@@ -43,7 +43,7 @@ QuestionSchema.path('type').validate(function (value) {
 
 QuestionSchema.path('tags').validate(function(value){
     result=true;
-    if(!validator.notEmptyArray(this.answers)){
+    if(!validator.notEmptyArray(value)){
         result=false;
     }
     return result;
@@ -57,13 +57,13 @@ QuestionSchema.path('title').validate(function(value){
     return result;
 }, "Too long title");
 
-QuestionSchema.path('directive').validate(function(value){
+/*QuestionSchema.path('directive').validate(function(value){
     result=true;
     if(!validator.strValidator(value, 300)){
         result=false;
     }
     return result;
-}, "Too long title");
+}, "Too long directive");*/
 
 //------------------STATIC METHODS (for acces to the data base)------------------------------------------
 //get all questions
@@ -164,7 +164,12 @@ QuestionSchema.pre('save', function(cb){
     //Seguimos con las comprobaciones
     if("FREE"===this.type){
         //Damos error si tiene opciones.
-
+        if (this.directive!==undefined && this.directive!==null){
+            if(!validator.strValidator(this.directive, 300)){
+                 err=new Error( "Too long directive");
+            }
+        }
+       
         if(null!==this.answers && undefined!==this.answers){
             err=new Error("A question with type 'FREE' cannot have answers");
         }
@@ -183,7 +188,7 @@ QuestionSchema.pre('save', function(cb){
                 }
                 //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
                 if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
-                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
+                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");
                 }
 
                 //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error

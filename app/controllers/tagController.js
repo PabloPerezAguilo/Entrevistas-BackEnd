@@ -27,3 +27,24 @@ exports.getTags = function(req, res) {
         }
     });
 };
+
+exports.deleteTag = function(req, res) {
+    var id=req.params.tag_id;
+	tagModel.deleteTag(id,function(err, result){
+        if(err){
+            res.status(400).send(err);
+        }
+        else{
+            var response;
+            if(0<result){
+                response={success:true , message:"Tag "+id +" deleted"};
+                
+            }
+            else{
+                response={success:false , message:"No tag with id "+id +" found"};
+                res.status(400);
+            }
+            res.json(response); 
+        }
+    });
+};

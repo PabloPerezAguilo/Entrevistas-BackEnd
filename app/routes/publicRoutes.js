@@ -95,8 +95,11 @@ module.exports = function(router,app) {
 		.delete(/*authrole.isAdmin, */questionController.deleteQuestion);
     
     router.route('/tag')
-    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
-    .post(/*authRole.isTechRole, */ tagController.postTag);
+        .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
+        .post(/*authRole.isTechRole, */ tagController.postTag);
+    
+    router.route("/tag/:tag_id")
+		.delete(/*authrole.isAdmin, */tagController.deleteTag);
 	
 	 router.route("/questionByTags")
 		.post(/*authrole.isAdminOrTech, */questionController.getQuestionByTag);

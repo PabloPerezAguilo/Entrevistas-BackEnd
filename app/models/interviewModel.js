@@ -3,8 +3,6 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 var leveledTagsModel = require("../models/leveledTagsModel");
-
-//Common utils for all Schemas and their statics and methods
 var log=log4js.getLogger("server");
 
 var InterviewSchema = new mongoose.Schema({
@@ -21,7 +19,10 @@ var InterviewSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	//date: Date,
+	date: {
+		type: Date,
+		default: Date.now 
+	},
 	status:{
         type: String,
         required: true
@@ -69,7 +70,6 @@ InterviewSchema.static("getInterview", function(dni, cb){
 });
 
 InterviewSchema.static("deleteInterview", function(dni, cb){
-	
 	this.remove({DNI:dni}, function(err, result) {
 		//borrar los tags si no quedan mas preguntas con ese tag
     	if (err){

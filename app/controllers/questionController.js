@@ -44,6 +44,7 @@ exports.postQuestion = function(req, res) {
 			});
 			question.save(function(err) {
 				if (err){
+                    log.debug(err);
 					res.status(400).json({
 						success: false,
 						message: err.message

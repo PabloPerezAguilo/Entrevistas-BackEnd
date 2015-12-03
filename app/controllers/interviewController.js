@@ -9,8 +9,6 @@ function strExists(str){
     return undefined!==str && null!==str && 0<str.length;
 }
 
-
-
 function tagsValidate (req, callback){
 	var conjunto =[LeveledTag.leveledTags];
 	if(validator.notEmptyArray(req.body.leveledTags)){
@@ -21,11 +19,11 @@ function tagsValidate (req, callback){
             tag=req.body.leveledTags[i].tag;
             max=req.body.leveledTags[i].max;
             min=req.body.leveledTags[i].min;
+			
 			if((typeof min)=="number" && (typeof max)=="number" && max>=min &&
                     validator.valueInRange(min, 1, 10) && validator.valueInRange(max, 1, 10) &&
                     strExists(tag) && validator.strValidator(tag, 50)){
-				conjunto[i]=(new LeveledTag({max: max, min: min, tag:tag}));
-                
+				conjunto[i]=(new LeveledTag({max: max, min: min, tag:tag}));           
 			}else{
 				var error=new Error();
                 error.name="ValidationError";
@@ -58,30 +56,23 @@ function tagsValidate (req, callback){
 //auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
 
 exports.postInterview = function(req, res){
-    
-
-    
 	tagsValidate(req, function(err, tags){
         if(err){
             log.debug(err);
 			res.status(400).send(err);
         }
         else{
-
             interview=new Interview({
                 DNI:req.body.DNI,
                 name: req.body.name,
                 surname: req.body.surname,
-                //date: req.body.date,
+                date: req.body.date,
                 status: "PENDING",
                 leveledTags: tags
             });
         }
     });
-    
-    
-    
-    
+	
     interview.save(function(err) {
         log.debug(err);
         if (err){
@@ -98,8 +89,6 @@ exports.postInterview = function(req, res){
                     break;
                 }
                 case 'MongoError':{
-                    /*log.error(err);
-                    console.log();*/
                     if(-1!==err.err.indexOf("duplicate key error")){
                         err =new Error();
                         err.name="MongoError";
@@ -109,7 +98,6 @@ exports.postInterview = function(req, res){
                     break;
                 }
                 default:{
-                    //log.error(err);
                     res.status(500);
                     break;
                 }
@@ -117,7 +105,6 @@ exports.postInterview = function(req, res){
             res.send(err);
         }
         else{
-            log.debug("Node es un bastardo");
            res.json({ message: 'New interview created!', data: interview }); 
         }
     });
