@@ -3,7 +3,8 @@ var Interview = require('../models/interviewModel');
 var LeveledTag = require('../models/leveledTagsModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
-var validator = require('../utils/validator'); 
+var validator = require('../utils/validator');
+var daoInterview = require("../DAO/daoInterview");
 
 function strExists(str){
     return undefined!==str && null!==str && 0<str.length;
@@ -66,14 +67,14 @@ exports.postInterview = function(req, res){
                 DNI:req.body.DNI,
                 name: req.body.name,
                 surname: req.body.surname,
-                date: req.body.date,
+                date: req.body.date,//"2020-12-20T22:22",
                 status: "PENDING",
                 leveledTags: tags
             });
         }
     });
 	
-    interview.save(function(err) {
+    daoInterview.postInterview(interview,function(err) {
         log.debug(err);
         if (err){
             switch(err.name){
@@ -105,6 +106,7 @@ exports.postInterview = function(req, res){
             res.send(err);
         }
         else{
+            log.debug("Node es un bastardo");
            res.json({ message: 'New interview created!', data: interview }); 
         }
     });
@@ -116,8 +118,9 @@ exports.getInterview = function(req, res){
     var dni=req.params.DNI;
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     if(pattern.test(dni)){
-        Interview.getInterview(dni, function(err, result){
+        daoInterview.getInterview(dni, function(err, result){
             if(err){
+                log.debug("Error at getting the interview which DNI is " + dni + ": "+err);
                 res.status(500).json({success:false,message: err.message});
             }
             else{
@@ -137,31 +140,32 @@ exports.getInterview = function(req, res){
 };
 
 exports.getInterviews = function(req, res) {
-        Interview.getInterviews(function(err, interviews){
-          if(err){
-              res.status(400).send(err);
-          }
-          else{
-              res.json(interviews);
-          }
-        });
+    daoInterview.getInterviews(function(err, interviews){
+        if(err){
+            log.debug("Error at getting all interviews: "+err);
+        }
+        else{
+            res.json(interviews);
+        }
+    });
 };
 
 // DELETE  api/interview/:DNI
 exports.deleteInterview = function(req, res) {
     var id=req.params.DNI;
-	Interview.deleteInterview(id,function(err, result){
+	daoInterview.deleteInterview(id,function(err, result){
         if(err){
+			log.debug("Error deleting the interview which DNI is " + dni + ": " + err);
             res.status(400).send(err);
         }
         else{
             var response;
             if(0<result){
-                response={success:true , message:"Interview with DNI "+id +" deleted"};
+                response={success:true , message:"Interview with DNI " + id +" deleted"};
                 
             }
             else{
-                response={success:false , message:"No interview with DNI "+id +" found"};
+                response={success:false , message:"No interview with DNI " + id +" found"};
                 res.status(400);
             }
             res.json(response); 

@@ -14,26 +14,6 @@ var TagSchema = new mongoose.Schema({
 
 TagSchema.path('tag').validate(function(value){
     var result = null!==value && undefined!==value && 0<value.length;
-    
 }, "tag must not be empty");
-
-TagSchema.static("getTags", function(cb){
-    
-    this.find(function(err, result){
-       if(err){
-         log.debug("Error at getting all tags: "+err);
-       }
-        cb(err, result);
-    });
-});
-
-TagSchema.static("deleteTag", function(id, cb){
-	this.remove({tag:id}, function(err, result) {
-    	if (err){
-			log.debug("Error deleting the tag "+id+": "+err);
-        }
-        cb(err, result);
-  	});
-});
 
 module.exports = mongoose.model('Tag', TagSchema);

@@ -1,5 +1,5 @@
 var log4js = require('log4js');
-var log=log4js.getLogger("validatr");
+var log = log4js.getLogger("validator");
 
 exports.strValidator=function(str, maxlength){
     var result=false;

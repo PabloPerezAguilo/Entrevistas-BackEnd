@@ -5,7 +5,7 @@ var tagModel = require('../models/tagModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("questionCtrl");
 var validator = require('../utils/validator'); 
-
+var daoQuestion = require("../DAO/daoQuestion");
 
 
 // gets the answers from the body and puts them in the array conjunto checking if the values are corrects
@@ -42,31 +42,28 @@ exports.postQuestion = function(req, res) {
                 directive: req.body.directive,  
 				answers: respuesta
 			});
-			question.save(function(err) {
-				if (err){
-                    log.debug(err);
-					res.status(400).json({
+            
+            daoQuestion.postQuestion(question,function(err) {
+                if (err){
+                    res.status(400).json({
 						success: false,
 						message: err.message
-					});
-				}
-				else{
-					res.json({ message: 'New question created!', data: question }); 
-				}
-			});  
+					});  
+                }else {
+                    res.json({ message: 'New question created!', data: question });
+                }
+            });   
 		}
-
-		
 	});
-	
 };
 
 // GET  api/question/:questionID
 exports.getQuestion = function(req, res) {
     var id=req.params.question_id;
 	
-	questionModel.getQuestion(id,function(err, question){
+	daoQuestion.getQuestion(id,function(err, question){
         if(err){
+            log.debug("Error at getting the question which ID is "+id+": "+err);
             res.status(500).send(err);
         }
         else{
@@ -82,8 +79,9 @@ exports.getQuestion = function(req, res) {
 
 // GET  api/question
 exports.getQuestions = function(req, res) {
-	questionModel.getQuestions(function(err, result){
+	daoQuestion.getQuestions(function(err, result){
         if(err){
+            log.debug("Error at getting all users from data base: "+err); 
             res.status(500).send(err);
         }
         else{
@@ -107,7 +105,7 @@ exports.deleteQuestion = function(req, res) {
 		}	
   	});
 	
-	questionModel.deleteQuestion(id,function(err, result){
+	daoQuestion.deleteQuestion(id,function(err, result){
         if(err){
             res.status(400).send(err);
         }
@@ -123,7 +121,7 @@ exports.deleteQuestion = function(req, res) {
             }
             res.json(response);
 			
-			//busca si existen mas preguntas con esos tag, si no elimina el tag de la BD
+			//busca si existen mas preguntas con esos tag, si no, elimina el tag de la BD
 			questionTags.forEach(function(value) {
 				questionModel.find({tags: value},  function(err, result) {
 					if (err){
@@ -149,8 +147,9 @@ exports.deleteQuestion = function(req, res) {
 
 // PUT  api/question/:questionID
 exports.putQuestion = function(req, res) {
-	questionModel.putQuestion(req.params.question_id,req,function(err, question){
+	daoQuestion.putQuestion(req.params.question_id,req,function(err, question){
         if(err){
+			log.debug("Error updating the question which ID is "+question+": "+err);
             res.status(400).send(err);
         }
         else{
@@ -161,17 +160,26 @@ exports.putQuestion = function(req, res) {
 
 exports.getQuestionByTag = function(req, res) {
     var tags=req.body.tags;
-	questionModel.getQuestionByTag(tags,function(err, question){
-        if(err){
-            res.status(500).send(err);
-        }
-        else{
-            if(null===question || 0==question.length || undefined===question ){
-                res.status(400).json({success: false, message: "No question found with the tags: "+tags});
+    
+    if(tags!==null && tags!==undefined){
+		daoQuestion.getQuestionByTag(tags,function(err, question){
+            if(err){
+                log.debug("Error at getting the question which tag is "+tags+": "+err);
+                res.status(500).send(err);
             }
             else{
-                res.json(question); 
+                if(null===question || 0==question.length || undefined===question ){
+                    res.status(400).json({success: false, message: "No question found with the tags: "+tags});
+                }
+                else{
+                    res.json(question); 
+                }
             }
-        }
-    });
+        });
+	}else{
+		err= new Error();
+		err.name="Tags cannot be null";
+		err.message="Tags cannot be null";
+		cb(err, null);
+	}
 };

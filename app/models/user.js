@@ -51,16 +51,6 @@ UserSchema.methods.verifyPassword = function(password, cb) {
   });
 };
 
-UserSchema.static("getUsers", function(callBack){
-    this.find(function(err, users) {
-        if (err){
-            //Tratamiento de excepciones de consulta a la base de datos.
-            //Imprimimos un mensaje de error en el log y delegamos la excepción para que lo trate quien lo llame.
-         log.debug("Error at getting all users from data base: "+err);   
-        }
-        callBack(err, users);
-  });
-});
 
 UserSchema.static("getUser", function(username, callBack){
     this.findOne({username: username},function(err, user) {
@@ -74,4 +64,3 @@ UserSchema.static("getUser", function(username, callBack){
 });
 // Export the Mongoose model
 module.exports = mongoose.model('User', UserSchema);
-

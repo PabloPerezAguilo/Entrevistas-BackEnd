@@ -1,9 +1,10 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
-var User = require("../models/user");
+var userModel = require("../models/user");
 var interviewController = require("../controllers/interviewController");
 var questionController = require("../controllers/questionController");
 var tagController = require("../controllers/tagController");
+var daoUser = require("../DAO/daoUser");
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
@@ -17,6 +18,8 @@ module.exports = function(router,app) {
 // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
+     router.route("/user")
+		.get(/*authRole.isAdminRole,*/userController.getUsers);
 	
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
@@ -40,7 +43,7 @@ module.exports = function(router,app) {
 	router.route("/authenticate").post(function(req, res) {
 		
 		// find the user
-		User.getUser(req.body.username, function(err, user) {
+		daoUser.getUser(req.body.username, function(err, user) {
 			if (err){
              throw err;   
             }
@@ -49,7 +52,7 @@ module.exports = function(router,app) {
 			} else if (user) {
 
 				// check if password matches
-				user.verifyPassword(req.body.password, function(err,cb) {
+				userModel.verifyPassword(req.body.password, function(err,cb) {
 					if(err){
 					  res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
 					}
@@ -95,8 +98,8 @@ module.exports = function(router,app) {
 		.delete(/*authrole.isAdmin, */questionController.deleteQuestion);
     
     router.route('/tag')
-        .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
-        .post(/*authRole.isTechRole, */ tagController.postTag);
+    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
+    .post(/*authRole.isTechRole, */ tagController.postTag);
     
     router.route("/tag/:tag_id")
 		.delete(/*authrole.isAdmin, */tagController.deleteTag);

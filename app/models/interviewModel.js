@@ -46,37 +46,4 @@ InterviewSchema.path('DNI').validate(function(value){
     log.debug("WIIII"+err);
 });*/
 
-//-------------------------------- Statics and methods----------------------------------------------------------
-
-//get all interviews
-InterviewSchema.static("getInterviews", function(cb){
-    this.find(function(err, result){
-       if(err){
-         log.debug("Error at getting all interviews: "+err);
-       }
-        cb(err, result);
-    });
-});
-
-//get a certain interview by DNI
-InterviewSchema.static("getInterview", function(dni, cb){
-    this.findOne({DNI:dni}, function(err, result){
-        if(err){
-           log.debug("Error at getting the interview which DNI is " + dni + ": "+err);
-
-        }
-        cb(err, result);
-    });
-});
-
-InterviewSchema.static("deleteInterview", function(dni, cb){
-	this.remove({DNI:dni}, function(err, result) {
-		//borrar los tags si no quedan mas preguntas con ese tag
-    	if (err){
-			log.debug("Error deleting the interview which DNI is " + dni + ": " + err);
-        }
-        cb(err, result);
-  	});
-});
-
 module.exports = mongoose.model('Interview', InterviewSchema);

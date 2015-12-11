@@ -2,40 +2,47 @@
 var User = require('../models/user');
 var log4js = require('log4js');
 var log = log4js.getLogger("userCtrl");
+var daoUser = require("../DAO/daoUser");
 
 // Create endpoint /api/users for POST
 exports.postUsers = function(req, res) {
-  log.debug("postUsers with Content-Type: "+req.get('Content-Type'));
-  //var isJson=req.is('application/json');
-   //log.debug("Is JSON: "+isJson);
   var user = new User({
     username: req.body.username,
     password: req.body.password,
     role: req.body.role 
   });
 
-  user.save(function(err) {
-    if (err){
-      res.status(400).json({
-          success: false,
-          message: err.message
-      });
-    }
-    else{
-       res.json({ message: 'New user created!', data: user }); 
-    }
-  });
+  daoUser.postUser(user,function(err) {
+        if (err){
+           	log.debug("Error at possting the user which username is "+user.username+" from data base: "+err); 
+            res.status(400).send(err);
+        }else {
+			res.json(datos);
+		}
+  	}); 
 };
 
 // Create endpoint /api/users for GET
 exports.getUsers = function(req, res) {
         console.log("getUsers with Permision Admin!");
-        User.getUsers(function(err, users){
-          if(err){
-              res.status(400).send(err);
-          }
-          else{
-              res.json(users);
-          }
+        daoUser.getUsers(res,function(err, datos) {
+            if (err){
+                log.debug("Error at getting the users"); 
+                res.status(400).send(err);
+            }else {
+                res.json(datos);
+            }
         });
 };
+
+/*exports.getUser = function(req, res) {
+    var id=req.params.question_id;.
+        daoUser.getUsers(id,function(err, datos) {
+            if (err){
+                log.debug("Error at getting the "+id+" from data base: "+err); 
+                res.status(400).send(err);
+            }else {
+                res.json(datos);
+            }
+        });
+};*/
