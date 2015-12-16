@@ -48,11 +48,11 @@ exports.postQuestion = function(req, res) {
                     res.status(400).json({
 						success: false,
 						message: err.message
-					});  
+					});
                 }else {
                     res.json({ message: 'New question created!', data: question });
                 }
-            });   
+            });
 		}
 	});
 };
@@ -102,7 +102,7 @@ exports.deleteQuestion = function(req, res) {
         }
 		else{
 			questionTags= resultado[0].tags;
-		}	
+		}
   	});
 	
 	daoQuestion.deleteQuestion(id,function(err, result){
@@ -158,9 +158,27 @@ exports.putQuestion = function(req, res) {
     });
 };
 
+exports.getQuestionsByLevelRange = function(req, res) {
+	daoQuestion.getQuestionsByLevelRange(req.body.tag, req.body.min, req.body.max, function(err, questions){
+        if(err){
+			log.debug("Error leveling the question which ID is "+questions+": "+err);
+            res.status(400).send(err);
+        }
+        else{
+            if(questions===null || questions.length==0 || questions===undefined ){
+                    res.status(400).json({success: false, message: "No question found with level between " + req.body.max + " and " + req.body.min});
+                }
+                else{
+                    res.json(questions); 
+                }
+        }
+    });
+};
+
+
 exports.getQuestionByTag = function(req, res) {
     var tags=req.body.tags;
-    
+
     if(tags!==null && tags!==undefined){
 		daoQuestion.getQuestionByTag(tags,function(err, question){
             if(err){

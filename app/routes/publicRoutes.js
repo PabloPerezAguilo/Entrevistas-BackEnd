@@ -1,6 +1,5 @@
 var jwt    = require('jsonwebtoken'); // used to create, sign, and verify tokens
 var userController = require("../controllers/user");
-var userModel = require("../models/user");
 var interviewController = require("../controllers/interviewController");
 var questionController = require("../controllers/questionController");
 var tagController = require("../controllers/tagController");
@@ -18,21 +17,8 @@ module.exports = function(router,app) {
 // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
-     router.route("/user")
-		.get(/*authRole.isAdminRole,*/userController.getUsers);
+     
 	
-//-------------------------------------------------------------------------------------------------------
-//  					                           Interview
-//-------------------------------------------------------------------------------------------------------
-	router.route("/interview/:DNI")
-        .get(interviewController.getInterview)
-		.delete(/*authRole.isAdmin, */interviewController.deleteInterview);;
-	
-	//--------
-	 router.route("/interview")
-	 	.get(/*authRole.isAdmin, */interviewController.getInterviews)
-        .post(/*authRole.isAdmin, */interviewController.postInterview);
-	//----------
 
 // -------------------------------------------------------------------------------------------------------------------------
 // 														authentication 
@@ -40,74 +26,93 @@ module.exports = function(router,app) {
 
 
 // http://localhost:9600/api/authenticate
-	router.route("/authenticate").post(function(req, res) {
-		
-		// find the user
-		daoUser.getUser(req.body.username, function(err, user) {
-			if (err){
-             throw err;   
-            }
-			if (!user) {
-				res.status(400).json({ success: false, message: 'Authentication failed. User not found.' });
-			} else if (user) {
+	router.route("/authenticate")
+        .post(function(req, res) {
+            // find the user
+            daoUser.getUser(req.body.username, function(err, user) {
+                if (err){
+                 throw err;   
+                }
+                if (!user) {
+                    res.status(400).json({ success: false, message: 'Authentication failed. User not found.' });
+                } else if (user) {
 
-				// check if password matches
-				userModel.verifyPassword(req.body.password, function(err,cb) {
-					if(err){
-					  res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
-					}
-					if(!cb){
-					  res.status(400).json({ success: false, message: 'Authentication failed. Wrong password.' });
-					}
+                    // check if password matches
+                    user.verifyPassword(req.body.password, function(err,cb) {
+                        if(err){
+                          res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
+                        }
+                        if(!cb){
+                          res.status(400).json({ success: false, message: 'Authentication failed. Wrong password.' });
+                        }
 
-				   else{
-					var userJWT= {username: user.username, role:user.role, _id: user._id };
-					// if user is found and password is right
-					// create a token
-						var token = jwt.sign(userJWT, app.get('superSecret'), {
-						expiresInMinutes: 1440 // 1440 min - expires in 24 hours
-						});
+                       else{
+                        var userJWT= {username: user.username, role:user.role, _id: user._id };
+                        // if user is found and password is right
+                        // create a token
+                            var token = jwt.sign(userJWT, app.get('superSecret'), {
+                            expiresInMinutes: 1440 // 1440 min - expires in 24 hours
+                            });
 
-						console.log(token);
-						res.json({
-							success: true,
-							message: 'Enjoy your token!',
-							role: user.role,
-							token: token
-						});
-					}
-				});		
-			}
+                            console.log(token);
+                            res.json({
+                                success: true,
+                                message: 'Enjoy your token!',
+                                role: user.role,
+                                token: token
+                            });
+                        }
+                    });		
+                }
 
-		});
-	});
+            });
+	   });
     
 //-----------------------------------------------------------------------------------------------------
 //              DEVELOPE ROUTES
 //  This routes should be private, but for developing, are public until the feature is done
 //-----------------------------------------------------------------------------------------------------
 	
-// --------------------------------------------------------------------------------------------------------------------------
-// 													question
-	router.route("/question")
-		.get(/*authrole.isAdminOrTech, */questionController.getQuestions)
-		.post(/*authrole.isAdmin, */questionController.postQuestion);
-	
-    router.route("/question/:question_id")
-		.get(/*authrole.isAdminOrTech, */questionController.getQuestion)
-		.delete(/*authrole.isAdmin, */questionController.deleteQuestion);
+router.route("/interview/:DNI")
+    .get(interviewController.getInterview)
     
-    router.route('/tag')
+
+router.route('/tag')
     .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
-    .post(/*authRole.isTechRole, */ tagController.postTag);
+    .post(/*authRole.isTechRole,*/  tagController.postTag);
+
+router.route("/tag/:tag_id")
+    .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
     
-    router.route("/tag/:tag_id")
-		.delete(/*authrole.isAdmin, */tagController.deleteTag);
-	
-	 router.route("/questionByTags")
-		.post(/*authrole.isAdminOrTech, */questionController.getQuestionByTag);
-	
-// --------------------------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
+// 													question
+// ------------------------------------------------------------------------------------------------------
+router.route("/question")
+    .get(/*authRole.isTechRole,*/ questionController.getQuestions)
+    .post(/*authRole.isTechRole,*/ questionController.postQuestion);
+
+router.route("/question/:question_id")
+    .get(/*authRole.isTechRole,*/ questionController.getQuestion)
+    .put(/*authRole.isTechRole,*/ questionController.putQuestion)
+    .delete(/*authRole.isTechRole,*/ questionController.deleteQuestion);
+
+router.route("/questionByTags")
+    .post(/*authRole.isAdminOrTech,*/ questionController.getQuestionByTag);
+    
+router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
+    .post(/*authRole.isAdminOrTech ,*/ questionController.getQuestionsByLevelRange);
+    
+    	
+//-------------------------------------------------------------------------------------------------------
+//  					                           Interview
+//-------------------------------------------------------------------------------------------------------
+router.route("/interview/:DNI")
+    .delete(/*authRole.isAdminRole,*/ interviewController.deleteInterview);
+
+ router.route("/interview")
+    .post(/*authRole.isAdminRole,*/ interviewController.postInterview)
+    .get(/*authRole.isAdminRole,*/ interviewController.getInterviews);
+
 
 	
 	return router;

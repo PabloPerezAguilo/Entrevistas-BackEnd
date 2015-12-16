@@ -27,6 +27,7 @@ var InterviewSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    questions:[String],
 	leveledTags:[leveledTagsModel.leveledTags]	
 });
 

@@ -52,7 +52,7 @@ UserSchema.methods.verifyPassword = function(password, cb) {
 };
 
 
-UserSchema.static("getUser", function(username, callBack){
+/*UserSchema.static("getUser", function(username, callBack){
     this.findOne({username: username},function(err, user) {
         if (err){
             //Tratamiento de excepciones de consulta a la base de datos.
@@ -61,6 +61,6 @@ UserSchema.static("getUser", function(username, callBack){
         }
         callBack(err, user);
   });
-});
+});*/
 // Export the Mongoose model
 module.exports = mongoose.model('User', UserSchema);

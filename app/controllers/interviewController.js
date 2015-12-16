@@ -5,6 +5,7 @@ var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
 var validator = require('../utils/validator');
 var daoInterview = require("../DAO/daoInterview");
+var daoQuestion = require("../DAO/daoQuestion");
 
 function strExists(str){
     return undefined!==str && null!==str && 0<str.length;
@@ -71,9 +72,48 @@ exports.postInterview = function(req, res){
                 status: "PENDING",
                 leveledTags: tags
             });
+            //interview.questions="FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
         }
     });
 	
+    var i = 0;
+    var seguir = true;
+    
+   /* while ( i < interview.leveledTags.length && seguir==true) {
+        seguir=false;
+        i++;
+        daoQuestion.getQuestionsByLevelRange(interview.leveledTags[i].tag,
+                    interview.leveledTags[i].min, interview.leveledTags[i].max, function(err, result, tag){
+            
+            log.debug("Preguntas para " + tag + " " + result);
+            //si es el ultimo ejecutar el post
+            if(result!==null && result.length!=0 && result!==undefined ){
+                
+                interview.questions = interview.questions.concat(result);
+            }
+            
+            log.debug("QUESTIONS " + interview.questions + "LONGITUD " + interview.questions.length);
+            seguir=true;
+        });
+    }*/
+    
+    //añadir preguntas con esos niveles
+    for(var i = 0; i < interview.leveledTags.length; i++) {
+        
+        daoQuestion.getQuestionsByLevelRange(interview.leveledTags[i].tag,
+                    interview.leveledTags[i].min, interview.leveledTags[i].max, function(err, result, tag){
+            
+            log.debug("Preguntas para " + tag + " " + result);
+            //si es el ultimo ejecutar el post
+            if(result!==null && result.length!=0 && result!==undefined ){
+                
+                interview.questions = interview.questions.concat(result);
+            }
+            
+            log.debug("QUESTIONS " + interview.questions + "LONGITUD " + interview.questions.length);
+        });
+    }
+    
     daoInterview.postInterview(interview,function(err) {
         log.debug(err);
         if (err){
@@ -106,7 +146,6 @@ exports.postInterview = function(req, res){
             res.send(err);
         }
         else{
-            log.debug("Node es un bastardo");
            res.json({ message: 'New interview created!', data: interview }); 
         }
     });
@@ -153,6 +192,7 @@ exports.getInterviews = function(req, res) {
 // DELETE  api/interview/:DNI
 exports.deleteInterview = function(req, res) {
     var id=req.params.DNI;
+    
 	daoInterview.deleteInterview(id,function(err, result){
         if(err){
 			log.debug("Error deleting the interview which DNI is " + dni + ": " + err);

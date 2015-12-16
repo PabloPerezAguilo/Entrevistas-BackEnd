@@ -31,9 +31,9 @@ exports.getQuestionByTag = function (etiqueta,cb){
     });
 };
 
-exports.getQuestionsByLevelRange = function (minLevel, maxLevel, cb){
-	questionModel.find({level: {$gte: minLevel, $lte: maxLevel}}, function(err, result){
-        cb(err, result);
+exports.getQuestionsByLevelRange = function (tag , minLevel, maxLevel, cb){
+	questionModel.find({tags: tag, level: {$gte: minLevel, $lte: maxLevel}},{_id:1}, function(err, result){
+        cb(err, result , tag);
     });
 };
 
