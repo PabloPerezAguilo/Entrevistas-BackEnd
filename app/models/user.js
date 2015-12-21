@@ -4,7 +4,7 @@ var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 
 //Common utils for all Schemas and their statics and methods
-var log=log4js.getLogger("server");
+var log=log4js.getLogger("userModel");
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({

@@ -2,7 +2,7 @@
 var mongoose = require('mongoose');
 var log4js = require('log4js');
 //Common utils for all Schemas and their statics and methods
-var log=log4js.getLogger("server");
+var log=log4js.getLogger("tagModel");
 
 var TagSchema = new mongoose.Schema({
     tag :{

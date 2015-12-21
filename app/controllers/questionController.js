@@ -187,7 +187,7 @@ exports.getQuestionByTag = function(req, res) {
             }
             else{
                 if(null===question || 0==question.length || undefined===question ){
-                    res.status(400).json({success: false, message: "No question found with the tags: "+tags});
+                    res.json({success: false, message: "No question found with the tags: "+tags});
                 }
                 else{
                     res.json(question); 
@@ -195,9 +195,6 @@ exports.getQuestionByTag = function(req, res) {
             }
         });
 	}else{
-		err= new Error();
-		err.name="Tags cannot be null";
-		err.message="Tags cannot be null";
-		cb(err, null);
+        res.status(400).json({success: false, message: "Tags cannot be null"});
 	}
 };

@@ -75,14 +75,7 @@ module.exports = function(router,app) {
 	
 router.route("/interview/:DNI")
     .get(interviewController.getInterview)
-    
 
-router.route('/tag')
-    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
-    .post(/*authRole.isTechRole,*/  tagController.postTag);
-
-router.route("/tag/:tag_id")
-    .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
     
 // ------------------------------------------------------------------------------------------------------
 // 													question
@@ -102,7 +95,8 @@ router.route("/questionByTags")
 router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
     .post(/*authRole.isAdminOrTech ,*/ questionController.getQuestionsByLevelRange);
     
-    	
+    
+
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
@@ -113,7 +107,16 @@ router.route("/interview/:DNI")
     .post(/*authRole.isAdminRole,*/ interviewController.postInterview)
     .get(/*authRole.isAdminRole,*/ interviewController.getInterviews);
 
+//-------------------------------------------------------------------------------------------------------
+//  					                           TAG
+//-------------------------------------------------------------------------------------------------------
+router.route('/tag')
+    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
+    .post(/*authRole.isTechRole,*/  tagController.postTag);
 
-	
+router.route("/tag/:tag_id")
+    .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
+
+    	
 	return router;
 };

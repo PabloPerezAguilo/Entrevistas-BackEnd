@@ -3,7 +3,7 @@ var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 var leveledTagsModel = require("../models/leveledTagsModel");
-var log=log4js.getLogger("server");
+var log=log4js.getLogger("InterviewModel");
 
 var InterviewSchema = new mongoose.Schema({
     DNI: {
@@ -38,7 +38,6 @@ InterviewSchema.path('leveledTags').validate(function(value){
 }, "Invalid leveled tags(s) input");
 
 InterviewSchema.path('DNI').validate(function(value){
-    log.debug(typeof value);
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     return pattern.test(value);
 }, "Invalid DNI format");

@@ -6,9 +6,24 @@ var log = log4js.getLogger("interviewCtrl");
 var validator = require('../utils/validator');
 var daoInterview = require("../DAO/daoInterview");
 var daoQuestion = require("../DAO/daoQuestion");
+var config = require('../../app/config/config');
+var q = require('q');
 
 function strExists(str){
     return undefined!==str && null!==str && 0<str.length;
+}
+
+function randomIntInc (low, high) {
+    return Math.floor(Math.random() * (high - low + 1) + low);
+}
+
+//coge n elementos aleatorios de un array source y los guarda en un array dest
+function randomElems (num, source, dest){
+    
+    for(var i = 0; i < num; i++) {
+        dest.push(source[randomIntInc(0,source.length-1)]);
+    }
+
 }
 
 function tagsValidate (req, callback){
@@ -54,6 +69,53 @@ function tagsValidate (req, callback){
 	callback(error,conjunto);
 };
 
+function rellenarPreguntas (objeto){
+    var deferred = q.defer();
+    var numeroConsulta = 0;
+    var preguntas = [];
+    var numeroPreguntas = Math.floor(config.numeropreguntas / objeto.leveledTags.length);
+    
+    log.debug("DIVISIONN: Nº PREGUNTAS: " +config.numeropreguntas + " Nº TAGS: " + objeto.leveledTags.length + " = " + Math.floor(config.numeropreguntas / objeto.leveledTags.length));
+    
+    for(var i = 0; i < objeto.leveledTags.length; i++) {
+        daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
+                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
+            
+            numeroConsulta++;
+            
+            log.debug("Preguntas para " + tag + " " + result.slice(0,numeroPreguntas));
+            
+            if (result.length < numeroPreguntas){
+                err =new Error();
+                err.name="Question error";
+                err.message="There are not enough questios with the tag" + tag;
+                deferred.reject(err);
+            }
+            
+            //si se devuelve alguna pregunta se añade
+            if(result!==null && result.length!=0 && result!==undefined ){
+                //log.debug("RESULTADO " + result[1]._id);
+                preguntas.push(result);
+                //objeto.questions = objeto.questions.concat(result.slice(0,numeroPreguntas));
+            }
+            
+            //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
+            if (numeroConsulta == interview.leveledTags.length){
+                
+                deferred.resolve(preguntas);
+                
+                //log.debug("QUESTIONS " + objeto.questions + "LONGITUD " + objeto.questions.length);
+                log.debug("PREGUNTAS " + preguntas + "LONGITUD " + preguntas.length);
+                log.debug("SE HAN ENCONTRADO PREGUNTAS DE " + preguntas.length + " TEMAS ");
+            }
+            
+        });
+    }
+    
+    return deferred.promise;
+
+};
+
 // POST api/interview
 //auxiliar function. Validates the fields of the leveledTags and inserts them into the array that will set the field leveledTags of the Interview
 
@@ -72,83 +134,70 @@ exports.postInterview = function(req, res){
                 status: "PENDING",
                 leveledTags: tags
             });
-            //interview.questions="FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU";
         }
     });
-	
-    var i = 0;
-    var seguir = true;
     
-   /* while ( i < interview.leveledTags.length && seguir==true) {
-        seguir=false;
-        i++;
-        daoQuestion.getQuestionsByLevelRange(interview.leveledTags[i].tag,
-                    interview.leveledTags[i].min, interview.leveledTags[i].max, function(err, result, tag){
-            
-            log.debug("Preguntas para " + tag + " " + result);
-            //si es el ultimo ejecutar el post
-            if(result!==null && result.length!=0 && result!==undefined ){
-                
-                interview.questions = interview.questions.concat(result);
-            }
-            
-            log.debug("QUESTIONS " + interview.questions + "LONGITUD " + interview.questions.length);
-            seguir=true;
-        });
-    }*/
     
-    //añadir preguntas con esos niveles
-    for(var i = 0; i < interview.leveledTags.length; i++) {
+    //busca las preguntas en la BD para los tags de la entrevista
+    rellenarPreguntas(interview)
+        .then(function(val) {
         
-        daoQuestion.getQuestionsByLevelRange(interview.leveledTags[i].tag,
-                    interview.leveledTags[i].min, interview.leveledTags[i].max, function(err, result, tag){
-            
-            log.debug("Preguntas para " + tag + " " + result);
-            //si es el ultimo ejecutar el post
-            if(result!==null && result.length!=0 && result!==undefined ){
-                
-                interview.questions = interview.questions.concat(result);
+            var numeroPreguntas = Math.floor(config.numeropreguntas / interview.leveledTags.length);
+            var resultado = [];
+        
+            for(var i = 0; i < val.length; i++) {
+                randomElems(numeroPreguntas, val[i], resultado, err);
+                log.debug(" ");
+                log.debug("RANDOM " + numeroPreguntas + " -DE- " + val[i] + " -TOTAL- " + resultado);
+                log.debug(" ");
             }
+
+            log.debug("RESULTADO " + resultado + " LONGITUD " + resultado.length);
+            interview.questions=resultado;
+            log.debug("ESTO " + interview.questions[1]);
+        
+            daoInterview.postInterview(interview,function(err) {
+                log.debug("INSERTAR");
+                if (err){
+                    switch(err.name){
+                        case "ValidationError":{
+                            var validationErrors=[];
+                            for(value in err.errors){
+                                validationErrors.push(err.errors[value].message);
+                            }
+                            err=new Error();
+                            err.name='ValidationError';
+                            err.message=validationErrors;
+                            res.status(400);
+                            break;
+                        }
+                        case 'MongoError':{
+                            if(-1!==err.err.indexOf("duplicate key error")){
+                                err =new Error();
+                                err.name="MongoError";
+                                err.message="The interview " + interview.DNI + " already exists";
+                            }
+                            res.status(400);
+                            break;
+                        }
+                        default:{
+                            res.status(500);
+                            break;
+                        }
+                    }
+                    res.send(err);
+                }
+                else{
+                   res.json({ message: 'New interview created!', data: interview }); 
+                }
+            });
+         
+        })
+        .fail(function (err) {
             
-            log.debug("QUESTIONS " + interview.questions + "LONGITUD " + interview.questions.length);
-        });
-    }
-    
-    daoInterview.postInterview(interview,function(err) {
-        log.debug(err);
-        if (err){
-            switch(err.name){
-                case "ValidationError":{
-                    var validationErrors=[];
-                    for(value in err.errors){
-                        validationErrors.push(err.errors[value].message);
-                    }
-                    err=new Error();
-                    err.name='ValidationError';
-                    err.message=validationErrors;
-                    res.status(400);
-                    break;
-                }
-                case 'MongoError':{
-                    if(-1!==err.err.indexOf("duplicate key error")){
-                        err =new Error();
-                        err.name="MongoError";
-                        err.message="The interview "+interview.DNI+ " already exists";
-                    }
-                    res.status(400);
-                    break;
-                }
-                default:{
-                    res.status(500);
-                    break;
-                }
-            }
+            res.status(405);
             res.send(err);
-        }
-        else{
-           res.json({ message: 'New interview created!', data: interview }); 
-        }
-    });
+        });
 };
 
 // GET api/interview/:DNI
