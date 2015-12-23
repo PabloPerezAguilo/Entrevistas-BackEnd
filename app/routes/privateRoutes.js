@@ -14,7 +14,28 @@ module.exports = function(router) {
 // ------------------------------------------------------------------------------------------------------
 	router.route("/user")
 		.get(authRole.isAdminRole,userController.getUsers);
+    
+    
+    
+// ------------------------------------------------------------------------------------------------------
+// 													question
+// ------------------------------------------------------------------------------------------------------
+router.route("/question")
+    .get(authRole.isTechRole, questionController.getQuestions)
+    .post(authRole.isTechRole, questionController.postQuestion);
 
+router.route("/question/:question_id")
+    .get(authRole.isTechRole, questionController.getQuestion)
+    .put(authRole.isTechRole, questionController.putQuestion)
+    .delete(authRole.isTechRole, questionController.deleteQuestion);
+
+router.route("/questionByTags")
+    .post(authRole.isAdminOrTech, questionController.getQuestionByTag);
+    
+router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
+    .post(authRole.isAdminOrTech , questionController.getQuestionsByLevelRange);
+    
+    
 
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
@@ -35,23 +56,8 @@ router.route('/tag')
 
 router.route("/tag/:tag_id")
     .delete(authRole.isAdminOrTech, tagController.deleteTag);
-    
-// ------------------------------------------------------------------------------------------------------
-// 													question
-// ------------------------------------------------------------------------------------------------------
-router.route("/question")
-    .get(authRole.isTechRole, questionController.getQuestions)
-    .post(authRole.isTechRole, questionController.postQuestion);
 
-router.route("/question/:question_id")
-    .get(authRole.isTechRole, questionController.getQuestion)
-    .put(authRole.isTechRole, questionController.putQuestion)
-    .delete(authRole.isTechRole, questionController.deleteQuestion);
+    	
 
-router.route("/questionByTags")
-    .post(authRole.isAdminOrTech, questionController.getQuestionByTag);
-    
-router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
-    .post(authRole.isAdminOrTech , questionController.getQuestionsByLevelRange);
 	return router; 
 };

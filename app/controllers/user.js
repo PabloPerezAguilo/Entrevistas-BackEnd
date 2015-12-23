@@ -17,7 +17,7 @@ exports.postUsers = function(req, res) {
            	log.debug("Error at possting the user which username is "+user.username+" from data base: "+err); 
             res.status(400).send(err);
         }else {
-			res.json(datos);
+			res.json({ message: 'New user created!', data: user });
 		}
   	}); 
 };

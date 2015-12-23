@@ -43,6 +43,8 @@ exports.postQuestion = function(req, res) {
 				answers: respuesta
 			});
             
+            log.debug(" QUESTIOM " +question +" TEMAS " + question.tags + " LONGITUD " + question.tags.length);
+            
             daoQuestion.postQuestion(question,function(err) {
                 if (err){
                     res.status(400).json({
@@ -187,7 +189,8 @@ exports.getQuestionByTag = function(req, res) {
             }
             else{
                 if(null===question || 0==question.length || undefined===question ){
-                    res.json({success: false, message: "No question found with the tags: "+tags});
+                    res.status(404);
+                    res.json({success: false, message: "No question found with the tags: " + tags});
                 }
                 else{
                     res.json(question); 
