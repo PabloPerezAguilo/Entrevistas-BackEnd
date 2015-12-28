@@ -13,7 +13,7 @@ exports.postInterview = function (interview,cb){
 
 //get all interviews
 exports.getInterviews = function (cb){
-	interviewModel.find(function(err, result){
+	interviewModel.find({}, null, {sort: {date: -1 }}, function(err, result){
         cb(err, result);
     });	
 };
@@ -30,4 +30,10 @@ exports.deleteInterview = function (dni, cb){
 	interviewModel.remove({DNI:dni}, function(err, result) {
         cb(err, result);
   	});
+};
+
+exports.getNames = function (cb){
+	interviewModel.find( { }, { name:1}, function(err, result){
+        cb(err, result);
+    });
 };

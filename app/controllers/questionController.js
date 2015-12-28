@@ -42,8 +42,7 @@ exports.postQuestion = function(req, res) {
                 directive: req.body.directive,  
 				answers: respuesta
 			});
-            
-            log.debug(" QUESTIOM " +question +" TEMAS " + question.tags + " LONGITUD " + question.tags.length);
+        
             
             daoQuestion.postQuestion(question,function(err) {
                 if (err){

@@ -32,7 +32,7 @@ exports.getQuestionByTag = function (etiqueta,cb){
 };
 
 exports.getQuestionsByLevelRange = function (tag , minLevel, maxLevel, cb){
-	questionModel.find({tags: tag, level: {$gte: minLevel, $lte: maxLevel}},{_id:1}, function(err, result){
+	questionModel.find({tags: tag, level: {$gte: minLevel, $lte: maxLevel}}, {_id:1}, function(err, result){
         
         cb(err, result , tag);
     });

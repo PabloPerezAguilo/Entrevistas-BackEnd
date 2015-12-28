@@ -109,7 +109,7 @@ function rellenarPreguntas (objeto){
     var deferred = q.defer();
     var numeroConsulta = 0;
     var preguntas = [];
-    var numeroPreguntas = Math.floor(config.numeropreguntas / objeto.leveledTags.length);
+    //var numeroPreguntas = Math.floor(config.numeropreguntas / objeto.leveledTags.length);
     var totalPreguntas = 0;
     var recuentoPreguntas = [];
     
@@ -129,7 +129,7 @@ function rellenarPreguntas (objeto){
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
             if (numeroConsulta == interview.leveledTags.length){
                 
-                json={"preguntas": preguntas, "total": totalPreguntas};
+                json={"preguntas": preguntas, "total": totalPreguntas, "recuento":recuentoPreguntas};
                 
                 if(totalPreguntas < config.numeropreguntas){
                     err =new Error();
@@ -139,7 +139,6 @@ function rellenarPreguntas (objeto){
                             + recuentoPreguntas[j].preguntas;
                     }
                     
-                    err.tag=tag;
                     deferred.reject(err);
                 }
                 
@@ -162,11 +161,14 @@ exports.postInterview = function(req, res){
 			res.status(400).send(err);
         }
         else{
+            var fecha = new Date().toISOString().replace(/\..+/, '');
+            log.debug("FECHA " + fecha);
+            
             interview=new Interview({
                 DNI:req.body.DNI,
                 name: req.body.name,
                 surname: req.body.surname,
-                date: req.body.date,//"2020-12-20T22:22",
+                date: req.body.date,//"2020-12-20T22:22",//fecha,
                 status: "PENDING",
                 leveledTags: tags
             });
@@ -192,7 +194,7 @@ exports.postInterview = function(req, res){
         
             log.debug( " UNO " + val.total + " DOS " +  config.numeropreguntas + " : " + (config.numeropreguntas < val.total) );
         
-            if ((config.numeropreguntas < val.total) ){
+            if ((config.numeropreguntas <= val.total) ){
                 
                 log.debug(" ENTRA para coger " + config.numeropreguntas  + " PREGUNTAS " );
                 //for(var i = 0; i < numeroPreguntas; i++){
@@ -259,19 +261,19 @@ exports.postInterview = function(req, res){
                     res.send(err);
                 }
                 else{
-                   res.json({ message: 'New interview created!', data: interview }); 
+                    res.json({ message: 'New interview created!', data: interview}); 
                 }
             });
         
             //devolver el numero de preguntas para cada tag
-            res.json({ message: 'New interview created!', data: interview }); 
+            //res.json({ message: 'New interview created!', data: interview }); 
          
         })
         .fail(function (err) {
             var min = 1;
             var max = 2;
             
-            /*while(max<11){
+            /*while(min>0 && max<11){
                 buscarPreguntas(max,min, errBuscar);
                 if(errBuscar){
                     err=errBuscar
@@ -280,8 +282,7 @@ exports.postInterview = function(req, res){
                 max++;
             }*/
 
-            res.status(405);
-            res.send(err);
+            res.status(405).send(err);
         });
 };
 
@@ -343,6 +344,17 @@ exports.deleteInterview = function(req, res) {
                 res.status(400);
             }
             res.json(response); 
+        }
+    });
+};
+
+exports.getNames = function(req, res) {
+    daoInterview.getNames(function(err, nombres){
+        if(err){
+            log.debug("Error at getting all names: "+err);
+        }
+        else{
+            res.json(nombres);
         }
     });
 };

@@ -15,10 +15,10 @@ var InterviewSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	surname:{
+	/*surname:{
 		type: String,
 		required: true
-	},
+	},*/
 	date: {
 		type: Date,
 		default: Date.now 
