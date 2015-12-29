@@ -8,7 +8,7 @@ var log=log4js.getLogger("InterviewModel");
 var InterviewSchema = new mongoose.Schema({
     DNI: {
         type: String,
-        required: true,
+        //required: true,
 		unique: true
     },
 	name: {

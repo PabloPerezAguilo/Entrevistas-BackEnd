@@ -69,39 +69,59 @@ function tagsValidate (req, callback){
 	callback(error,conjunto);
 };
 
-function BuscarPreguntas (max, min, err){
+function buscarAlternativa (leveledTags, data){
+    
     var numeroConsulta = 0;
     var preguntas = [];
-    var numeroPreguntas = Math.floor(config.numeropreguntas / objeto.leveledTags.length);
+    var numeroPreguntas = Math.floor(config.numeropreguntas / leveledTags.length);
     var totalPreguntas = 0;
+    var continuar = true;
+    log.debug("AQUI ");
     
-    for(var i = 0; i < objeto.leveledTags.length; i++) {
-        daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
-                    min ,max ,function(err, result, tag){
-            
-            numeroConsulta++;
-            
-            log.debug("Preguntas para " + tag + " " + result.slice(0,numeroPreguntas));
-            
-            //si se devuelve alguna pregunta se añade
-            if(result!==null && result.length!=0 && result!==undefined ){
-                totalPreguntas = totalPreguntas + result.length;
-                preguntas.push(result);
-                //objeto.questions = objeto.questions.concat(result.slice(0,numeroPreguntas));
-            }
-            
-            //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
-            if (numeroConsulta == interview.leveledTags.length){
-                
-                json={"preguntas": preguntas, "total": totalPreguntas};
-                
-                if(totalPreguntas > config.numeropreguntas){
-                    err =new Error();
-                    err.name="Si se han encontrado suficientes preguntas para la entrevista entre los niveles " + min + " y " + max;
+    while(continuar){
+        log.debug(" IN while");
+        continuar = false;
+        
+        
+        for(var i = 0; i < leveledTags.length; i++) {
+            log.debug("MAX " +  leveledTags[i].max + " MIN " +  leveledTags[i].min);
+            daoQuestion.getQuestionsByLevelRange(leveledTags[i].tag,
+                        leveledTags[i].min ,leveledTags[i].max ,function(err, result, tag){
+
+                numeroConsulta++;
+
+                log.debug("Preguntas para " + tag + " " + result.slice(0,numeroPreguntas));
+
+                //si se devuelve alguna pregunta se añade
+                if(result!==null && result.length!=0 && result!==undefined ){
+                    totalPreguntas = totalPreguntas + result.length;
+                    preguntas.push(result);
+                    //objeto.questions = objeto.questions.concat(result.slice(0,numeroPreguntas));
                 }
+
+                //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
+                if (numeroConsulta == interview.leveledTags.length){
+
+                    json={"preguntas": preguntas, "total": totalPreguntas};
+
+                    if(totalPreguntas >= config.numeropreguntas){
+                        data="SI se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
+                    }
+                    else{
+                        data="NO se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
+                    }
+                }
+
+            });
+        }
+        
+        for(var i = 0; i < leveledTags.length; i++) {
+            if(leveledTags[i].min >1 && leveledTags[i].max < 10){
+                leveledTags[i].max ++;
+                leveledTags[i].min --;
+                continuar = true
             }
-            
-        });
+        }
     }
 };
 
@@ -129,7 +149,7 @@ function rellenarPreguntas (objeto){
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
             if (numeroConsulta == interview.leveledTags.length){
                 
-                json={"preguntas": preguntas, "total": totalPreguntas, "recuento":recuentoPreguntas};
+                json={"preguntas": preguntas, "total": totalPreguntas};
                 
                 if(totalPreguntas < config.numeropreguntas){
                     err =new Error();
@@ -137,7 +157,8 @@ function rellenarPreguntas (objeto){
                     for(var j = 0; j < recuentoPreguntas.length; j++){
                         err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " prguntas " 
                             + recuentoPreguntas[j].preguntas;
-                    }
+                    };
+                    err.leveledTags=objeto.leveledTags;
                     
                     deferred.reject(err);
                 }
@@ -213,12 +234,15 @@ exports.postInterview = function(req, res){
             };
         
             log.debug(" TOTAL PREGUNTAS " + preguntasFinal + " LONGITUS " + preguntasFinal.length);
-            interview.questions=preguntasFinal;
-            
+            interview.questions=preguntasFinal;   
+        
+            var recuentoPreguntas = {};
+        
             for(var i = 0; i < contadorTags.length; i++) {
                 log.debug( contadorTags[i] + " ELEMENTOS DE " + interview.leveledTags[i].tag);
+                recuentoPreguntas[interview.leveledTags[i].tag] = contadorTags[i];
             }
-        
+            
             /*for(var i = 0; i < val.length; i++) {
                 randomElems(numeroPreguntas, val[i], resultado, err);
                 log.debug(" ");
@@ -261,7 +285,7 @@ exports.postInterview = function(req, res){
                     res.send(err);
                 }
                 else{
-                    res.json({ message: 'New interview created!', data: interview}); 
+                    res.json({ message: 'New interview created!', data: interview, recuento: recuentoPreguntas}); 
                 }
             });
         
@@ -270,18 +294,23 @@ exports.postInterview = function(req, res){
          
         })
         .fail(function (err) {
-            var min = 1;
+            var data = "";
             var max = 2;
             
+            log.debug("ENTRA " + err.leveledTags + " " + data);
+            buscarAlternativa(err.leveledTags, data);
+            log.debug("SALE " + data);
             /*while(min>0 && max<11){
-                buscarPreguntas(max,min, errBuscar);
+                buscarAlternativa(max,min, errBuscar);
                 if(errBuscar){
                     err=errBuscar
                     break;
                 }
                 max++;
             }*/
-
+            err.data=data
+            
+            log.debug("ERROR "+ err );
             res.status(405).send(err);
         });
 };
