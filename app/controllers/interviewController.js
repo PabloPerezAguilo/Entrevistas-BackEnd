@@ -69,28 +69,26 @@ function tagsValidate (req, callback){
 	callback(error,conjunto);
 };
 
-function buscarAlternativa (leveledTags, data){
-    
+function buscarAlternativa (leveledTags){
+    var deferred = q.defer();
+    var data = "";
     var numeroConsulta = 0;
     var preguntas = [];
     var numeroPreguntas = Math.floor(config.numeropreguntas / leveledTags.length);
     var totalPreguntas = 0;
     var continuar = true;
     log.debug("AQUI ");
-    
-    while(continuar){
-        log.debug(" IN while");
-        continuar = false;
         
         
         for(var i = 0; i < leveledTags.length; i++) {
             log.debug("MAX " +  leveledTags[i].max + " MIN " +  leveledTags[i].min);
             daoQuestion.getQuestionsByLevelRange(leveledTags[i].tag,
                         leveledTags[i].min ,leveledTags[i].max ,function(err, result, tag){
-
+                
+                log.debug("Preguntas para TU " + tag + " " + result.slice(0,numeroPreguntas));
+                
                 numeroConsulta++;
-
-                log.debug("Preguntas para " + tag + " " + result.slice(0,numeroPreguntas));
+               
 
                 //si se devuelve alguna pregunta se añade
                 if(result!==null && result.length!=0 && result!==undefined ){
@@ -110,19 +108,14 @@ function buscarAlternativa (leveledTags, data){
                     else{
                         data="NO se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
                     }
+                    deferred.resolve(data);
                 }
-
+                
             });
         }
-        
-        for(var i = 0; i < leveledTags.length; i++) {
-            if(leveledTags[i].min >1 && leveledTags[i].max < 10){
-                leveledTags[i].max ++;
-                leveledTags[i].min --;
-                continuar = true
-            }
-        }
-    }
+
+    
+    return deferred.promise;
 };
 
 function rellenarPreguntas (objeto){
@@ -132,6 +125,7 @@ function rellenarPreguntas (objeto){
     //var numeroPreguntas = Math.floor(config.numeropreguntas / objeto.leveledTags.length);
     var totalPreguntas = 0;
     var recuentoPreguntas = [];
+        
     
     for(var i = 0; i < objeto.leveledTags.length; i++) {
         daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
@@ -148,18 +142,18 @@ function rellenarPreguntas (objeto){
             
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
             if (numeroConsulta == interview.leveledTags.length){
-                
+                        
                 json={"preguntas": preguntas, "total": totalPreguntas};
                 
                 if(totalPreguntas < config.numeropreguntas){
                     err =new Error();
                     err.name="No se han encontrado suficientes preguntas para la entrevista ";
                     for(var j = 0; j < recuentoPreguntas.length; j++){
-                        err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " prguntas " 
+                        err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " preguntas: " 
                             + recuentoPreguntas[j].preguntas;
                     };
                     err.leveledTags=objeto.leveledTags;
-                    
+    
                     deferred.reject(err);
                 }
                 
@@ -169,7 +163,8 @@ function rellenarPreguntas (objeto){
                 //log.debug("SE HAN ENCONTRADO PREGUNTAS DE " + preguntas.length + " TEMAS ");
             }
         });
-    } 
+    }
+    
     return deferred.promise;
 };
 
@@ -178,6 +173,7 @@ function rellenarPreguntas (objeto){
 exports.postInterview = function(req, res){
 	tagsValidate(req, function(err, tags){
         if(err){
+                    
             log.debug(err);
 			res.status(400).send(err);
         }
@@ -200,7 +196,8 @@ exports.postInterview = function(req, res){
     //busca las preguntas en la BD para los tags de la entrevista
     rellenarPreguntas(interview)
         .then(function(val) {
-        
+            
+                            log.debug("DENTRO THEN");
             //var numeroPreguntas = Math.floor(config.numeropreguntas / interview.leveledTags.length);
             //var resultado = [];
             //var contador = 0;
@@ -236,11 +233,12 @@ exports.postInterview = function(req, res){
             log.debug(" TOTAL PREGUNTAS " + preguntasFinal + " LONGITUS " + preguntasFinal.length);
             interview.questions=preguntasFinal;   
         
-            var recuentoPreguntas = {};
+            var recuentoPreguntas = [];
         
             for(var i = 0; i < contadorTags.length; i++) {
                 log.debug( contadorTags[i] + " ELEMENTOS DE " + interview.leveledTags[i].tag);
-                recuentoPreguntas[interview.leveledTags[i].tag] = contadorTags[i];
+                recuentoPreguntas.push({tag : interview.leveledTags[i].tag, num : contadorTags[i]});
+                //recuentoPreguntas[interview.leveledTags[i].tag] = contadorTags[i];
             }
             
             /*for(var i = 0; i < val.length; i++) {
@@ -294,37 +292,49 @@ exports.postInterview = function(req, res){
          
         })
         .fail(function (err) {
-            var data = "";
-            var max = 2;
+            var continuar = true;
             
-            log.debug("ENTRA " + err.leveledTags + " " + data);
-            buscarAlternativa(err.leveledTags, data);
-            log.debug("SALE " + data);
-            /*while(min>0 && max<11){
-                buscarAlternativa(max,min, errBuscar);
-                if(errBuscar){
-                    err=errBuscar
-                    break;
+            log.debug("ENTRA " + err.leveledTags + " " + err);
+            /*while(continuar){
+                log.debug(" IN while");
+                continuar = false;
+                
+                buscarAlternativa(err.leveledTags)
+                    .then( function(data){
+                        log.debug("SALE BIEN " + data);
+
+                        err.data=data
+
+                        log.debug("ERROR "+ err );
+                        //res.send(err);
+                    })
+                    .fail( function(err){
+                        log.debug("SALE MAL " + err);
+                    });  
+                    
+                for(var i = 0; i < leveledTags.length; i++) {
+                    if(err.leveledTags[i].min >2 && err.leveledTags[i].max < 10){
+                        err.leveledTags[i].max ++;
+                        err.leveledTags[i].min --;
+                        continuar = true
+                    }
                 }
-                max++;
             }*/
-            err.data=data
-            
-            log.debug("ERROR "+ err );
-            res.status(405).send(err);
+        
+            res.send(err).status(400);
         });
 };
 
 // GET api/interview/:DNI
 // returns the interview (unique) for the candidate for the searched DNI
 exports.getInterview = function(req, res){
-    var dni=req.params.DNI;
+    var fullName=req.params.fullName;
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     
-    if(pattern.test(dni)){
-        daoInterview.getInterview(dni, function(err, result){
+    //if(pattern.test(dni)){
+        daoInterview.getInterview(fullName, function(err, result){
             if(err){
-                log.debug("Error at getting the interview which DNI is " + dni + ": "+err);
+                log.debug("Error at getting the interview which name is " + fullName + ": "+err);
                 res.status(500).json({success:false,message: err.message});
             }
             else{
@@ -332,34 +342,68 @@ exports.getInterview = function(req, res){
                     res.json(result);
                 }
                 else{
-                    res.status(400).json({success:false, message: "No interview found with the DNI "+dni});
+                    res.status(400).json({success:false, message: "No interview found with the name "+ fullName});
                 }
             }
         });
-    }
-    else{
-        res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
-    }
+    //}
+    //else{
+        //res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
+    //}
 };
 
 exports.getInterviews = function(req, res) {
-    daoInterview.getInterviews(function(err, interviews){
-        if(err){
-            log.debug("Error at getting all interviews: "+err);
+    var fecha = req.param("fecha");
+    var nombre = req.query.nombre;
+    
+    if (fecha == null || fecha == undefined){
+        daoInterview.getInterviews(function(err, interviews){
+            if(err){
+                log.debug("Error at getting all interviews: "+err);
+            }
+            else{
+                res.json(interviews);
+            }
+        });
+    }else{
+        var mes = parseInt(fecha.slice(5,7));
+        var ano = parseInt(fecha.slice(0,4));
+        var dia = parseInt(fecha.slice(8,10));
+        
+        var fechamin = new Date(ano,mes-1,dia).toISOString();
+        var fechamax = new Date(ano,mes-1,dia+1).toISOString();
+        
+        if (nombre == null || nombre == undefined || nombre === ""){
+            
+            daoInterview.getInterviewsByDate(fechamin, fechamax, function(err, interviews){
+                if(err){
+                    log.debug("Error at getting interviews: "+err);
+                }
+                else{
+                    res.json(interviews);
+                }
+            });
+        }else{
+            
+            daoInterview.getInterviewsByDateAndName(fechamin, fechamax,nombre, function(err, interviews){
+                if(err){
+                    log.debug("Error at getting interviews: "+err);
+                }
+                else{
+                    res.json(interviews);
+                }
+            });
         }
-        else{
-            res.json(interviews);
-        }
-    });
+    }
 };
 
-// DELETE  api/interview/:DNI
+// DELETE  api/interview/:ID
 exports.deleteInterview = function(req, res) {
-    var id=req.params.DNI;
+    var id=req.params.ID;
     
 	daoInterview.deleteInterview(id,function(err, result){
         if(err){
-			log.debug("Error deleting the interview which DNI is " + dni + ": " + err);
+			log.debug("Error deleting the interview which DNI is " + id + ": " + err);
             res.status(400).send(err);
         }
         else{
@@ -378,12 +422,45 @@ exports.deleteInterview = function(req, res) {
 };
 
 exports.getNames = function(req, res) {
-    daoInterview.getNames(function(err, nombres){
-        if(err){
-            log.debug("Error at getting all names: "+err);
-        }
-        else{
-            res.json(nombres);
-        }
-    });
+    var fecha = req.param("fecha");
+    
+    if (fecha == null || fecha == undefined){
+        
+        daoInterview.getNames( function(err, nombres){
+            if(err){
+                log.debug("Error at getting all names: "+err);
+            }
+            else{
+                var listaNombres = [];
+
+                for(var i = 0; i < nombres.length; i++) {
+                    listaNombres.push({"name":nombres[i]});
+                }
+
+                res.json(listaNombres);
+            }
+        });
+    }else{
+        var mes = parseInt(fecha.slice(5,7));
+        var ano = parseInt(fecha.slice(0,4));
+        var dia = parseInt(fecha.slice(8,10));
+
+        var fechamin = new Date(ano,mes-1,dia).toISOString();
+        var fechamax = new Date(ano,mes-1,dia+1).toISOString();
+        
+        daoInterview.getNamesByDate(fechamin,fechamax, function(err, nombres){
+            if(err){
+                log.debug("Error at getting all names: "+err);
+            }
+            else{
+                var listaNombres = [];
+
+                for(var i = 0; i < nombres.length; i++) {
+                    listaNombres.push({"name":nombres[i]});
+                }
+
+                res.json(listaNombres);
+            }
+        });        
+    }
 };

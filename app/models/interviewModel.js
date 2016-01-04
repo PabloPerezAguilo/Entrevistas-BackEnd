@@ -9,7 +9,7 @@ var InterviewSchema = new mongoose.Schema({
     DNI: {
         type: String,
         //required: true,
-		unique: true
+		//unique: true
     },
 	name: {
 		type: String,
@@ -37,10 +37,10 @@ InterviewSchema.path('leveledTags').validate(function(value){
     return result;
 }, "Invalid leveled tags(s) input");
 
-InterviewSchema.path('DNI').validate(function(value){
+/*InterviewSchema.path('DNI').validate(function(value){
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     return pattern.test(value);
-}, "Invalid DNI format");
+}, "Invalid DNI format");*/
 
 /*InterviewSchema.on('index', function(err){
     log.debug("WIIII"+err);

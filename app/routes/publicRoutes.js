@@ -102,7 +102,7 @@ router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
-router.route("/interview/:DNI")
+router.route("/interview/:ID")
     .delete(/*authRole.isAdminRole,*/ interviewController.deleteInterview);
 
  router.route("/interview")
@@ -123,7 +123,7 @@ router.route("/tag/:tag_id")
     .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
     
 	
-router.route("/interview/:DNI")
+router.route("/interview/:fullName")
     .get(interviewController.getInterview)
     
 	return router;

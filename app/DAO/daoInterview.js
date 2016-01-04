@@ -13,27 +13,45 @@ exports.postInterview = function (interview,cb){
 
 //get all interviews
 exports.getInterviews = function (cb){
-	interviewModel.find({}, null, {sort: {date: -1 }}, function(err, result){
+	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
+        cb(err, result);
+    });	
+};
+
+exports.getInterviewsByDateAndName = function (datemin, datemax, nombre, cb){
+	interviewModel.find({date: {$gte: datemin,$lt: datemax}, name:nombre}, null, {sort: {date: 1}}, function(err, result){
+        cb(err, result);
+    });	
+};
+
+exports.getInterviewsByDate = function (datemin, datemax, cb){
+	interviewModel.find({date: {$gte: datemin,$lt: datemax}}, null, {sort: {date: 1}}, function(err, result){
+        cb(err, result);
+    });	
+};
+
+//get a certain interview by name
+exports.getInterview = function (fullName, cb){
+	interviewModel.find({name:fullName}, function(err, result){
         cb(err, result);
     });	
 };
 
 //get a certain interview by DNI
-exports.getInterview = function (dni, cb){
-	interviewModel.findOne({DNI:dni}, function(err, result){
-        cb(err, result);
-    });	
-};
-
-//get a certain interview by DNI
-exports.deleteInterview = function (dni, cb){
-	interviewModel.remove({DNI:dni}, function(err, result) {
+exports.deleteInterview = function (id, cb){
+	interviewModel.remove({_id:id}, function(err, result) {
         cb(err, result);
   	});
 };
 
+exports.getNamesByDate = function (datemin, datemax,cb){
+	interviewModel.distinct("name", {date: {$gte: datemin,$lt: datemax}}, function(err, result){
+        cb(err, result);
+    });
+};
+
 exports.getNames = function (cb){
-	interviewModel.find( { }, { name:1}, function(err, result){
+	interviewModel.distinct("name", function(err, result){
         cb(err, result);
     });
 };
