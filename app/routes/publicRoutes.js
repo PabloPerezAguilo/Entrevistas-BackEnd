@@ -68,15 +68,15 @@ module.exports = function(router,app) {
             });
 	   });
     
-//-----------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
 //              DEVELOPE ROUTES
 //  This routes should be private, but for developing, are public until the feature is done
-//-----------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------
     
-    // ------------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------------
 // 													User
 // ------------------------------------------------------------------------------------------------------
-	router.route("/user")
+router.route("/user")
 		.get(/*authRole.isAdminRole,*/userController.getUsers);
 
 // ------------------------------------------------------------------------------------------------------
@@ -94,16 +94,12 @@ router.route("/question/:question_id")
 router.route("/questionByTags")
     .post(/*authRole.isAdminOrTech,*/ questionController.getQuestionByTag);
     
-router.route('/QuestionsByLevel')//este servicio no se usa en version nfinal
+router.route('/questionsByLevel')//este servicio no se usa en version nfinal
     .post(/*authRole.isAdminOrTech ,*/ questionController.getQuestionsByLevelRange);
-    
-    
 
 //-------------------------------------------------------------------------------------------------------
 //  					                           Interview
 //-------------------------------------------------------------------------------------------------------
-router.route("/interview/:ID")
-    .delete(/*authRole.isAdminRole,*/ interviewController.deleteInterview);
 
  router.route("/interview")
     .post(/*authRole.isAdminRole,*/ interviewController.postInterview)
@@ -111,6 +107,15 @@ router.route("/interview/:ID")
 
 router.route("/interviewNames")
     .get(/*authRole.isAdminRole,*/ interviewController.getNames);
+    
+router.route("/interview/:fullName")
+    .get(/*authRole.isAdminRole,*/ interviewController.getInterview);
+    
+router.route("/interview/:ID")
+    .delete(/*authRole.isAdminRole,*/ interviewController.deleteInterview);
+    
+router.route("/interviewQuestions/:ID")
+    .get(/*authRole.isAdminRole,*/ interviewController.getinterviewQuestions);
 
 //-------------------------------------------------------------------------------------------------------
 //  					                           TAG
@@ -121,10 +126,10 @@ router.route('/tag')
 
 router.route("/tag/:tag_id")
     .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
-    
-	
-router.route("/interview/:fullName")
-    .get(interviewController.getInterview)
+
+router.route("/pepe")
+    .get(/*authRole.isAdminOrTech,*/ interviewController.pepe);
+
     
 	return router;
 };

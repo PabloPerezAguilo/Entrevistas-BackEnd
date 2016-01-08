@@ -18,8 +18,8 @@ exports.getQuestions = function (cb){
 };
 
 //get a certain question
-exports.getQuestion = function (question,cb){
-	questionModel.findOne({_id:question}, function(err, result){
+exports.getQuestion = function (id,cb){
+	questionModel.findOne({_id:id}, function(err, result){
         cb(err, result);
     });
 };

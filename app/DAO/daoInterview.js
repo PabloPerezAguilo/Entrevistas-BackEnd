@@ -11,6 +11,12 @@ exports.postInterview = function (interview,cb){
   	});	
 };
 
+exports.pepe = function (cb){
+	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
+        cb(err, result);
+    });	
+};
+
 //get all interviews
 exports.getInterviews = function (cb){
 	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
@@ -37,6 +43,12 @@ exports.getInterview = function (fullName, cb){
     });	
 };
 
+exports.getInterviewById = function (id, cb){
+	interviewModel.find({_id:id}, function(err, result){
+        cb(err, result);
+    });	
+};
+
 //get a certain interview by DNI
 exports.deleteInterview = function (id, cb){
 	interviewModel.remove({_id:id}, function(err, result) {
@@ -44,14 +56,14 @@ exports.deleteInterview = function (id, cb){
   	});
 };
 
-exports.getNamesByDate = function (datemin, datemax,cb){
+exports.getNamesByDate = function (res, datemin, datemax,cb){
 	interviewModel.distinct("name", {date: {$gte: datemin,$lt: datemax}}, function(err, result){
-        cb(err, result);
+        cb(res, err, result);
     });
 };
 
-exports.getNames = function (cb){
+exports.getNames = function (res, cb){
 	interviewModel.distinct("name", function(err, result){
-        cb(err, result);
+        cb(res, err, result);
     });
 };

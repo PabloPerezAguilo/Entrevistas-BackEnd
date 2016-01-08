@@ -11,7 +11,7 @@ exports.postUser = function (user,cb){
   	});	
 };
 
-exports.getUsers = function (res,cb){
+exports.getUsers = function (cb){
 	userModel.find({ },function(err, datos) {
         cb(err,datos);
   	});	
