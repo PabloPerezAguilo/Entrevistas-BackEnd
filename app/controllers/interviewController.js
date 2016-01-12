@@ -87,6 +87,7 @@ function tagsValidate(req, callback) {
 	callback(error,conjunto);
 };
 
+//esto de momento no se usa
 function buscarAlternativa(leveledTags) {
     var deferred = q.defer();
     var data = "";
@@ -129,7 +130,6 @@ function buscarAlternativa(leveledTags) {
             });
         }
 
-    
     return deferred.promise;
 };
 
@@ -140,10 +140,13 @@ function rellenarPreguntas(objeto) {
     var preguntas = [];
     var totalPreguntas = 0;
     var recuentoPreguntas = [];
-        
+    var tags = [];
     
     for (var i = 0; i < objeto.leveledTags.length; i++) {
-        daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
+        
+        tags.push(objeto.leveledTags[i].tag);
+        
+        daoQuestion.getQuestionsByLevelRange([objeto.leveledTags[i].tag],
                     objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
             
             numeroConsulta++;
@@ -174,7 +177,11 @@ function rellenarPreguntas(objeto) {
                     deferred.reject(err);
                 }
                 
+                log.debug("Antes " + preguntas.length);
+                log.debug("YOYOYOYU " + tags);
+                
                 deferred.resolve(json);
+                
             }
         });
     }
@@ -242,9 +249,11 @@ exports.postInterview = function(req, res){
                     switch(err.name){
                         case "ValidationError":{
                             var validationErrors=[];
+                            
                             for (value in err.errors) {
                                 validationErrors.push(err.errors[value].message);
                             }
+                            
                             err=new Error();
                             err.name='ValidationError';
                             err.message=validationErrors;
@@ -252,11 +261,13 @@ exports.postInterview = function(req, res){
                             break;
                         }
                         case 'MongoError':{
+                            
                             if (-1!==err.err.indexOf("duplicate key error")) {
                                 err =new Error();
                                 err.name="MongoError";
                                 err.message="The interview " + interview.DNI + " already exists";
                             }
+                            
                             res.status(400);
                             break;
                         }
@@ -273,10 +284,10 @@ exports.postInterview = function(req, res){
             });         
         })
         .fail(function (err) {
-            var continuar = true;
+            /*var continuar = true;
             
             log.debug("ENTRA " + err.leveledTags + " " + err);
-            /*while(continuar){
+            while(continuar){
                 log.debug(" IN while");
                 continuar = false;
                 
@@ -353,7 +364,8 @@ exports.getInterviews = function(req, res) {
         var fechamin = new Date(ano,mes-1,dia).toISOString();
         var fechamax = new Date(ano,mes-1,dia+1).toISOString();
         
-        if (nombre == null || nombre == undefined || nombre === "") {
+        //nombre == null || nombre == undefined || nombre === ""
+        if (!strExists(nombre)) {
             daoInterview.getInterviewsByDate(fechamin, fechamax, function(err, interviews){
                 if(err){
                     log.debug("Error at getting interviews: "+err);
@@ -363,7 +375,7 @@ exports.getInterviews = function(req, res) {
                 }
             });
         }else{
-            daoInterview.getInterviewsByDateAndName(fechamin, fechamax,nombre, function(err, interviews){
+            daoInterview.getInterviewsByDateAndName(fechamin, fechamax, nombre, function(err, interviews){
                 if(err){
                     log.debug("Error at getting interviews: "+err);
                 }
@@ -377,7 +389,7 @@ exports.getInterviews = function(req, res) {
 
 // DELETE  api/interview/:ID
 exports.deleteInterview = function(req, res) {
-    var id=req.params.ID;
+    var id=req.params.interview_id;
     
 	daoInterview.deleteInterview(id,function(err, result){
         if(err){
@@ -400,8 +412,8 @@ exports.deleteInterview = function(req, res) {
     });
 };
 
-exports.getinterviewQuestions = function(req, res) {
-    var id = req.params.ID;
+exports.getInterviewQuestions = function(req, res) {
+    var id = req.params.interview_id;
     var questions = [];
     var numConsulta = 0;
     
@@ -426,11 +438,11 @@ exports.getinterviewQuestions = function(req, res) {
                     
                     if ( numConsulta === result[0].questions.length ) {
                         res.json(questions);    
-                    }
+                    }   
                     
                 });
             }
-             
+
         }
     });
 };
@@ -450,18 +462,4 @@ exports.getNames = function(req, res) {
         
         daoInterview.getNamesByDate(res, fechamin, fechamax, callbackGetNames);        
     }
-};
-
-exports.pepe = function(req, res) {
-    var id=req.params.ID;
-    
-	daoInterview.pepe(function(err, result){
-        if(err){
-			log.debug("Error deleting the interview which DNI is " + id + ": " + err);
-            res.status(400).send(err);
-        }
-        else{
-            res.json(result); 
-        }
-    });
 };

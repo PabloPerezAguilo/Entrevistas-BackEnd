@@ -37,6 +37,12 @@ exports.getQuestionsByLevelRange = function (tag , minLevel, maxLevel, cb){
     });
 };
 
+exports.getQuestionsWithManyTags = function (data , cb){
+	questionModel.find({tags:{$size: data.length, $all:data }}, function(err, result){    
+        cb(err, result);
+    });
+};
+
 exports.deleteQuestion = function (question, cb){
 	questionModel.remove({_id:question}, function(err, result) {
         cb(err, result);

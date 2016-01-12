@@ -15,10 +15,6 @@ var InterviewSchema = new mongoose.Schema({
 		type: String,
 		required: true
 	},
-	/*surname:{
-		type: String,
-		required: true
-	},*/
 	date: {
 		type: Date,
 		default: Date.now 
@@ -28,6 +24,7 @@ var InterviewSchema = new mongoose.Schema({
         required: true
     },
     questions:[String],
+    answers:[],
     nquestions:[],
 	leveledTags:[leveledTagsModel.leveledTags]
 });

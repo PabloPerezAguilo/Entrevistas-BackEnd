@@ -10,22 +10,22 @@ var log = log4js.getLogger("publicRoutes");
 
 module.exports = function(router,app) {
 	 log.debug("Load public!");
-// --------------------------------------------------------------------------------------------------------------------------
-// 															User
-// --------------------------------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------------------------------
+    // 															User
+    // ------------------------------------------------------------------------------------------------------
 
-// http://localhost:9600/api/user
+    // http://localhost:9600/api/user
 	router.route("/user")
 		.post(userController.postUsers);
-     
-	
-
-// -------------------------------------------------------------------------------------------------------------------------
-// 														authentication 
-// -------------------------------------------------------------------------------------------------------------------------
 
 
-// http://localhost:9600/api/authenticate
+
+    // ------------------------------------------------------------------------------------------------------
+    // 														authentication 
+    // ------------------------------------------------------------------------------------------------------
+
+
+    // http://localhost:9600/api/authenticate
 	router.route("/authenticate")
         .post(function(req, res) {
             // find the user
@@ -69,67 +69,63 @@ module.exports = function(router,app) {
 	   });
     
 //-------------------------------------------------------------------------------------------------------
-//              DEVELOPE ROUTES
-//  This routes should be private, but for developing, are public until the feature is done
-//-------------------------------------------------------------------------------------------------------
-    
-// ------------------------------------------------------------------------------------------------------
-// 													User
-// ------------------------------------------------------------------------------------------------------
-router.route("/user")
-		.get(/*authRole.isAdminRole,*/userController.getUsers);
+    //              DEVELOPE ROUTES
+    //  This routes should be private, but for developing, are public until the feature is done
+    //-------------------------------------------------------------------------------------------------------
 
-// ------------------------------------------------------------------------------------------------------
-// 													question
-// ------------------------------------------------------------------------------------------------------
-router.route("/question")
-    .get(/*authRole.isTechRole,*/ questionController.getQuestions)
-    .post(/*authRole.isTechRole,*/ questionController.postQuestion);
+    // ------------------------------------------------------------------------------------------------------
+    // 													User
+    // ------------------------------------------------------------------------------------------------------
+    router.route("/user")
+            .get(userController.getUsers);
 
-router.route("/question/:question_id")
-    .get(/*authRole.isTechRole,*/ questionController.getQuestion)
-    .put(/*authRole.isTechRole,*/ questionController.putQuestion)
-    .delete(/*authRole.isTechRole,*/ questionController.deleteQuestion);
+    // ------------------------------------------------------------------------------------------------------
+    // 													question
+    // ------------------------------------------------------------------------------------------------------
+    router.route("/question")
+        .get(questionController.getQuestions)
+        .post(questionController.postQuestion);
 
-router.route("/questionByTags")
-    .post(/*authRole.isAdminOrTech,*/ questionController.getQuestionByTag);
-    
-router.route('/questionsByLevel')//este servicio no se usa en version nfinal
-    .post(/*authRole.isAdminOrTech ,*/ questionController.getQuestionsByLevelRange);
+    router.route("/question/:question_id")
+        .get(questionController.getQuestion)
+        .put(questionController.putQuestion)
+        .delete(questionController.deleteQuestion);
 
-//-------------------------------------------------------------------------------------------------------
-//  					                           Interview
-//-------------------------------------------------------------------------------------------------------
+    router.route("/questionByTags")
+        .post(questionController.getQuestionByTag);
 
- router.route("/interview")
-    .post(/*authRole.isAdminRole,*/ interviewController.postInterview)
-    .get(/*authRole.isAdminRole,*/ interviewController.getInterviews);
+    router.route('/questionsByLevel')//este servicio no se usa en version nfinal
+        .post(questionController.getQuestionsByLevelRange);
 
-router.route("/interviewNames")
-    .get(/*authRole.isAdminRole,*/ interviewController.getNames);
-    
-router.route("/interview/:fullName")
-    .get(/*authRole.isAdminRole,*/ interviewController.getInterview);
-    
-router.route("/interview/:ID")
-    .delete(/*authRole.isAdminRole,*/ interviewController.deleteInterview);
-    
-router.route("/interviewQuestions/:ID")
-    .get(/*authRole.isAdminRole,*/ interviewController.getinterviewQuestions);
+    //-------------------------------------------------------------------------------------------------------
+    //  					                           Interview
+    //-------------------------------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------------------------------
-//  					                           TAG
-//-------------------------------------------------------------------------------------------------------
-router.route('/tag')
-    .get(/*authRole.isAdminOrTech ,*/ tagController.getTags)
-    .post(/*authRole.isTechRole,*/  tagController.postTag);
+     router.route("/interview")
+        .post(interviewController.postInterview)
+        .get(interviewController.getInterviews);
 
-router.route("/tag/:tag_id")
-    .delete(/*authRole.isAdminOrTech,*/ tagController.deleteTag);
+    router.route("/interviewNames")
+        .get(interviewController.getNames);
 
-router.route("/pepe")
-    .get(/*authRole.isAdminOrTech,*/ interviewController.pepe);
+    router.route("/interview/:fullName")
+        .get(interviewController.getInterview);
 
+    router.route("/interview/:interview_id")
+        .delete(interviewController.deleteInterview);
+
+    router.route("/interviewQuestions/:interview_id")
+        .get(interviewController.getInterviewQuestions);
+
+    //-------------------------------------------------------------------------------------------------------
+    //  					                           TAG
+    //-------------------------------------------------------------------------------------------------------
+    router.route('/tag')
+        .get(tagController.getTags)
+        .post(tagController.postTag);
+
+    router.route("/tag/:tag_id")
+        .delete(tagController.deleteTag);
     
 	return router;
 };

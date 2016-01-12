@@ -11,12 +11,6 @@ exports.postInterview = function (interview,cb){
   	});	
 };
 
-exports.pepe = function (cb){
-	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
-        cb(err, result);
-    });	
-};
-
 //get all interviews
 exports.getInterviews = function (cb){
 	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
@@ -25,7 +19,7 @@ exports.getInterviews = function (cb){
 };
 
 exports.getInterviewsByDateAndName = function (datemin, datemax, nombre, cb){
-	interviewModel.find({date: {$gte: datemin,$lt: datemax}, name:nombre}, null, {sort: {date: 1}}, function(err, result){
+	interviewModel.find({date: {$gte: datemin, $lt: datemax}, name:nombre}, null, {sort: {date: 1}}, function(err, result){
         cb(err, result);
     });	
 };
