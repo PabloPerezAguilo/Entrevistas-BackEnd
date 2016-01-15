@@ -19,7 +19,6 @@ module.exports = function(router,app) {
 		.post(userController.postUsers);
 
 
-
     // ------------------------------------------------------------------------------------------------------
     // 														authentication 
     // ------------------------------------------------------------------------------------------------------
@@ -76,7 +75,7 @@ module.exports = function(router,app) {
     // ------------------------------------------------------------------------------------------------------
     // 													User
     // ------------------------------------------------------------------------------------------------------
-    router.route("/user")
+    /*router.route("/user")
             .get(userController.getUsers);
 
     // ------------------------------------------------------------------------------------------------------
@@ -116,6 +115,9 @@ module.exports = function(router,app) {
 
     router.route("/interviewQuestions/:interview_id")
         .get(interviewController.getInterviewQuestions);
+    
+    router.route("/answers/:interview_id")
+        .post(interviewController.saveAnswers);
 
     //-------------------------------------------------------------------------------------------------------
     //  					                           TAG
@@ -125,7 +127,7 @@ module.exports = function(router,app) {
         .post(tagController.postTag);
 
     router.route("/tag/:tag_id")
-        .delete(tagController.deleteTag);
+        .delete(tagController.deleteTag);*/
     
 	return router;
 };

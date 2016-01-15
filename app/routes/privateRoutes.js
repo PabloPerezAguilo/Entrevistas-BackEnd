@@ -9,16 +9,12 @@ var log = log4js.getLogger("userRoutes");
 
 module.exports = function(router) {
 	log.debug("Load private!");
-    
-    //-------------------------------------------------------------------------------------------------------
-    //              DEVELOPE ROUTES
-    //  This routes should be private, but for developing, are public until the feature is done
-    //-------------------------------------------------------------------------------------------------------
+
 
     // ------------------------------------------------------------------------------------------------------
     // 													User
     // ------------------------------------------------------------------------------------------------------
-    /*router.route("/user")
+    router.route("/user")
             .get(authRole.isAdminRole,userController.getUsers);
 
     // ------------------------------------------------------------------------------------------------------
@@ -58,6 +54,9 @@ module.exports = function(router) {
 
     router.route("/interviewQuestions/:interview_id")
         .get(authRole.isAdminRole, interviewController.getInterviewQuestions);
+        
+    router.route("/answers/:interview_id")
+        .post(authRole.isAdminRole, interviewController.saveAnswers);
 
     //-------------------------------------------------------------------------------------------------------
     //  					                           TAG
@@ -67,7 +66,7 @@ module.exports = function(router) {
         .post(authRole.isTechRole,  tagController.postTag);
 
     router.route("/tag/:tag_id")
-        .delete(authRole.isAdminOrTech, tagController.deleteTag);*/
+        .delete(authRole.isAdminOrTech, tagController.deleteTag);
     
 	return router; 
 };

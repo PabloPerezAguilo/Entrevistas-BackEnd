@@ -16,7 +16,7 @@ var config = require('./app/config/config'); // get our config file
 // =================================================================
 
 //configure log4js
-log4js.configure('./app/config/log4js.json');
+log4js.configure("./app/config/log4js.json");
 var log = log4js.getLogger("server");
 
 var port = process.env.PORT || 9600;
@@ -27,18 +27,18 @@ mongoose.connect(config.database, function(err, res) {
       log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
     }
     else{
-        log.info('Connected to Database');
+        log.info("Connected to Database");
     }
 });
 
-mongoose.connection.on('error', function(error) {
+mongoose.connection.on("error", function(error) {
   // Do something sane with error here
     
     log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
     mongoose.connect(config.database, function(err, res) {
     
         if(!err){
-            log.info('Connected to Database');
+            log.info("Connected to Database");
         }
     });
 });
@@ -50,7 +50,7 @@ var app = express();
 app.use(cors());
 
 // used to create, sign, and verify tokens
-app.set('superSecret', config.secret); // secret variable
+app.set("superSecret", config.secret); // secret variable
 // use body parser so we can get info from POST data and/or URL parameters
 app.use(bodyParser.urlencoded({ extended: true }));// for parsing application/x-www-form-urlencoded
 app.use(bodyParser.json());
@@ -63,8 +63,8 @@ app.use(morgan('dev'));
 // =================================================================
 
 // basic route (http://localhost:8080)
-app.get('/', function(req, res) {
-	res.send('Hello! The API is at http://localhost:' + port + '/api');
+app.get("/", function(req, res) {
+	res.send("Hello! The API is at http://localhost:" + port + "/api");
 });
 
 // ---------------------------------------------------------

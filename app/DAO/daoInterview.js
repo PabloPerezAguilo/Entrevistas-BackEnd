@@ -45,13 +45,13 @@ exports.getInterviewById = function (id, cb){
 
 //get a certain interview by DNI
 exports.deleteInterview = function (id, cb){
-	interviewModel.remove({_id:id}, function(err, result) {
+	interviewModel.remove({ _id: id }, function(err, result) {
         cb(err, result);
   	});
 };
 
 exports.getNamesByDate = function (res, datemin, datemax,cb){
-	interviewModel.distinct("name", {date: {$gte: datemin,$lt: datemax}}, function(err, result){
+	interviewModel.distinct("name", { date: { $gte: datemin, $lt: datemax} }, function(err, result){
         cb(res, err, result);
     });
 };
@@ -59,5 +59,17 @@ exports.getNamesByDate = function (res, datemin, datemax,cb){
 exports.getNames = function (res, cb){
 	interviewModel.distinct("name", function(err, result){
         cb(res, err, result);
+    });
+};
+
+exports.saveAnswers = function (id, ans, cb){
+	interviewModel.update({ _id: id }, { $set: { answers: ans } }, function(err, result){
+        cb(err, result);
+    });
+};
+
+exports.updateState = function (id, nuevoEstado, cb){
+	interviewModel.update({ _id: id }, { $set: { status: nuevoEstado } }, function(err, result){
+        cb(err, result);
     });
 };

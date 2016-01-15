@@ -11,11 +11,11 @@ var q = require('q');
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
-}
+};
 
 function randomIntInc(low, high) {
     return Math.floor(Math.random() * (high - low + 1) + low);
-}
+};
 
 //coge num elementos aleatorios de un array source y los guarda en un array dest
 function randomElems(num, source, dest) {
@@ -26,7 +26,25 @@ function randomElems(num, source, dest) {
     }
     
     source.splice(valor, 1);
-}
+};
+
+//elimina de la estructura1 los elementos que ya existan en la estructura2
+function buscarElementosRepetidos (estructura1, estructura2){
+    var estructuraFinal=[];
+    estructuraFinal = estructura1.slice();
+    
+    for (var i = 0; i < estructura1.length; i++){
+        for (var j = 0; j < estructura2.length; j++){  
+            for (var k = 0; k < estructura2[j].length; k++){
+                if (estructura1[i]._id.toString() == estructura2[j][k]._id.toString()){
+                    estructuraFinal.splice(i,1);
+                };
+            };
+        };
+    };
+    
+    return estructuraFinal
+};
 
 function callbackGetNames(res, err, nombres){
     if (err) {
@@ -111,7 +129,7 @@ function buscarAlternativa(leveledTags) {
                 if(result!==null && result.length!=0 && result!==undefined ){
                     totalPreguntas = totalPreguntas + result.length;
                     preguntas.push(result);
-                }
+                };
 
                 //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
                 if (numeroConsulta == interview.leveledTags.length){
@@ -122,16 +140,23 @@ function buscarAlternativa(leveledTags) {
                     }
                     else{
                         data="NO se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
-                    }
+                    };
                     
                     deferred.resolve(data);
-                }
+                };
                 
             });
         }
 
     return deferred.promise;
 };
+
+function bucle(tag, max, min){
+    daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
+                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
+        
+    });
+}
 
 //busca todas las preguntas en la BD para los tags de la entrevista
 function rellenarPreguntas(objeto) {
@@ -141,27 +166,32 @@ function rellenarPreguntas(objeto) {
     var totalPreguntas = 0;
     var recuentoPreguntas = [];
     var tags = [];
+    var resultSinRepetidos =[];
     
     for (var i = 0; i < objeto.leveledTags.length; i++) {
         
         tags.push(objeto.leveledTags[i].tag);
         
-        daoQuestion.getQuestionsByLevelRange([objeto.leveledTags[i].tag],
+        daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
                     objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
             
             numeroConsulta++;
             
+            //elimina preguntas que ya aparezcan
+            if (result !== null && result.length !== 0 && result !== undefined ) {
+                resultSinRepetidos = buscarElementosRepetidos(result, preguntas);
+            }; 
+            
             //si se devuelve alguna pregunta se añade al total
-            if (result !== null && result.length != 0 && result !== undefined ) {
+            if (resultSinRepetidos !== null && resultSinRepetidos.length != 0 && resultSinRepetidos !== undefined ) {
                 totalPreguntas = totalPreguntas + result.length;
                 preguntas.push(result);
-            }
+            };
             
             recuentoPreguntas.push({"tag":tag, "count":result.length});
             
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenas
-            
-            if (numeroConsulta == interview.leveledTags.length) {        
+            if (numeroConsulta == interview.leveledTags.length) {
                 json={"preguntas": preguntas, "total": totalPreguntas, "recuento":recuentoPreguntas};
                 
                 if (totalPreguntas < config.numeroPreguntas) {
@@ -175,13 +205,9 @@ function rellenarPreguntas(objeto) {
                     
                     err.leveledTags=objeto.leveledTags;
                     deferred.reject(err);
-                }
-                
-                log.debug("Antes " + preguntas.length);
-                log.debug("YOYOYOYU " + tags);
+                };
                 
                 deferred.resolve(json);
-                
             }
         });
     }
@@ -205,9 +231,9 @@ exports.postInterview = function(req, res){
                 status: "Pendiente",
                 leveledTags: tags
             });
-        }
-    });    
-   
+        };
+    });
+
     rellenarPreguntas(interview)
         .then(function(val) {
             var preguntasFinal = [];
@@ -217,7 +243,7 @@ exports.postInterview = function(req, res){
             for(var i = 0; i < val.preguntas.length; i++) {
                 contadorTags[i]=0;
             }
-            
+        
             log.debug(" PREGUNTAS " + val.preguntas + " TAGS " + val.preguntas.length + " TOTALPREGUNTAS " + val.total);
         
             log.debug( " UNO " + val.total + " DOS " +  config.numeroPreguntas + " : " + (config.numeroPreguntas < val.total) );
@@ -243,6 +269,7 @@ exports.postInterview = function(req, res){
 
             interview.nquestions=recuentoPreguntas;
             interview.questions=preguntasFinal; 
+        
         
             daoInterview.postInterview(interview, function(err) {
                 if (err){
@@ -279,7 +306,7 @@ exports.postInterview = function(req, res){
                     res.send(err);
                 }
                 else{
-                    res.json({ message: 'New interview created!', data: interview, recuento: recuentoPreguntas}); 
+                    res.json({ message: 'New interview created!', data: interview, recuento: interview.nquestions}); 
                 }
             });         
         })
@@ -417,32 +444,59 @@ exports.getInterviewQuestions = function(req, res) {
     var questions = [];
     var numConsulta = 0;
     
-	daoInterview.getInterviewById(id,function(err, result){
+	daoInterview.getInterviewById(id, function(err, result){
         if(err){
 			log.debug("Error at gettin the questions from the interview " + id + ": " + err);
             res.status(400).send(err);
         }
         else{
-            
-            for (var i = 0; i < result[0].questions.length; i++) {
-                daoQuestion.getQuestion(result[0].questions[i], function (err, data){
-                    numConsulta ++;
-                    
-                    if(err){
-                        log.debug("Error at getting the question which ID is " + id + ": " + err);
-                        res.status(500).send(err);
-                    }
-                    else{
-                        questions=questions.concat(data);
-                    }
-                    
-                    if ( numConsulta === result[0].questions.length ) {
-                        res.json(questions);    
-                    }   
-                    
-                });
-            }
+            if ( result.length > 0 ){
+                for (var i = 0; i < result[0].questions.length; i++) {
+                    daoQuestion.getQuestion(result[0].questions[i], function (err, data){
+                        numConsulta ++;
 
+                        if(err){
+                            log.debug("Error at getting the question which ID is " + id + ": " + err);
+                            res.status(500).send(err);
+                        }
+                        else{
+                            questions=questions.concat(data);
+                        }
+
+                        if ( numConsulta === result[0].questions.length ) {
+                            res.json(questions);
+                        }
+
+                    });
+                }
+            }else {
+                response={message:"No interview with the id " + id};
+                res.send(response);
+            }
+        }
+    });
+};
+
+exports.saveAnswers = function(req, res) {
+    var id = req.params.interview_id;
+    var answers = req.body.answers;
+    
+    daoInterview.saveAnswers(id, answers, function (err, data){
+        if(err){
+            log.debug("Error saving the answers for the interview " + id + ": " + err);
+            res.status(500).send(err);
+        }
+        else{
+            daoInterview.updateState(id, "Realizada" ,function (err, data){
+                if(err){
+
+                }
+                else{
+                    response={success:true , message:"Answers saved"};
+                    res.send(response);
+                }
+            });
+                    
         }
     });
 };
