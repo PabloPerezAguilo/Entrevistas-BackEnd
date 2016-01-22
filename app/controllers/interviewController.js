@@ -8,6 +8,8 @@ var daoInterview = require("../DAO/daoInterview");
 var daoQuestion = require("../DAO/daoQuestion");
 var config = require('../../app/config/config');
 var q = require('q');
+var math = require('mathjs');
+var async = require("async.js");
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
@@ -151,13 +153,6 @@ function buscarAlternativa(leveledTags) {
     return deferred.promise;
 };
 
-function bucle(tag, max, min){
-    daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
-                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
-        
-    });
-}
-
 //busca todas las preguntas en la BD para los tags de la entrevista
 function rellenarPreguntas(objeto) {
     var deferred = q.defer();
@@ -215,6 +210,43 @@ function rellenarPreguntas(objeto) {
     return deferred.promise;
 };
 
+function prueba(i, objeto) {
+    daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
+                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function (err, result, tag) {
+            log.debug("RESUL " + tag);
+            var trama = " Dentro " + i;
+            return trama;
+            
+        })
+    var trama = " Fuera " + i;
+    return trama;
+    
+};
+
+function rellenarPreguntasAll(objeto) {
+    var deferred = q.defer();
+    var numeroConsulta = 0;
+    var preguntas = [];
+    var totalPreguntas = 0;
+    var recuentoPreguntas = [];
+    var tags = [];
+    var resultSinRepetidos =[];
+    
+    var llamadas = [];
+    
+    for (var i = 0; i < objeto.leveledTags.length; i++) {
+        llamadas.push(daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
+                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function (err, result, tag){
+            log.debug("A VER QUE SALE " + tag)
+        }))
+    }
+    
+    async.parallel([llamadas], function(results){
+        log.debug("A VER QUE SALE " + results)
+    });
+    
+};
+
 // POST api/interview
 
 exports.postInterview = function(req, res){
@@ -227,6 +259,7 @@ exports.postInterview = function(req, res){
                 DNI:req.body.DNI,
                 name: req.body.name,
                 surname: req.body.surname,
+                feedback: req.body.feedback,
                 date: req.body.date,//"AAAA-MM-DDTHH:MM"
                 status: "Pendiente",
                 leveledTags: tags
@@ -234,7 +267,9 @@ exports.postInterview = function(req, res){
         };
     });
 
-    rellenarPreguntas(interview)
+    rellenarPreguntasAll(interview)    
+    
+    //rellenarPreguntas(interview)
         .then(function(val) {
             var preguntasFinal = [];
             var contadorTags = [];
@@ -346,13 +381,13 @@ exports.postInterview = function(req, res){
 // GET api/interview/:DNI
 // returns the interview (unique) for the candidate for the searched DNI
 exports.getInterview = function(req, res){
-    var fullName=req.params.fullName;
+    var id=req.params.interview_id;
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
     
     //if(pattern.test(dni)){
-        daoInterview.getInterview(fullName, function(err, result){
+        daoInterview.getInterview(id, function(err, result){
             if (err) {
-                log.debug("Error at getting the interview which name is " + fullName + ": "+err);
+                log.debug("Error at getting the interview which id is " + id + ": "+err);
                 res.status(500).json({success:false,message: err.message});
             }
             else{
@@ -360,7 +395,7 @@ exports.getInterview = function(req, res){
                     res.json(result);
                 }
                 else{
-                    res.status(400).json({success:false, message: "No interview found with the name "+ fullName});
+                    res.status(400).json({success:false, message: "No interview found with the id "+ id});
                 }
             }
         });
@@ -373,13 +408,19 @@ exports.getInterview = function(req, res){
 exports.getInterviews = function(req, res) {
     var fecha = req.param("fecha");
     var nombre = req.query.nombre;
+    var page = req.query.pagina;
+    
+    if (!strExists(page)){
+        page=1
+    }
     
     if (fecha == null || fecha == undefined) {
-        daoInterview.getInterviews(function(err, interviews){
+        daoInterview.getInterviews(page, function(err, interviews){
             if(err){
                 log.debug("Error at getting all interviews: "+err);
             }
             else{
+                interviews.total= math.ceil( interviews.total / config.paginacion);
                 res.json(interviews);
             }
         });
@@ -387,31 +428,49 @@ exports.getInterviews = function(req, res) {
         var mes = parseInt(fecha.slice(5,7));
         var ano = parseInt(fecha.slice(0,4));
         var dia = parseInt(fecha.slice(8,10));
-        
+
         var fechamin = new Date(ano,mes-1,dia).toISOString();
         var fechamax = new Date(ano,mes-1,dia+1).toISOString();
-        
-        //nombre == null || nombre == undefined || nombre === ""
+
         if (!strExists(nombre)) {
-            daoInterview.getInterviewsByDate(fechamin, fechamax, function(err, interviews){
+            daoInterview.getInterviewsByDate(page, fechamin, fechamax, function(err, interviews){
                 if(err){
-                    log.debug("Error at getting interviews: "+err);
+                    log.debug("Error at getting interviews: " + err);
                 }
                 else{
+                    interviews.total= math.ceil( interviews.total / config.paginacion);
                     res.json(interviews);
                 }
             });
         }else{
-            daoInterview.getInterviewsByDateAndName(fechamin, fechamax, nombre, function(err, interviews){
+            daoInterview.getInterviewsByDateAndName(page, fechamin, fechamax, nombre, function(err, interviews){
                 if(err){
-                    log.debug("Error at getting interviews: "+err);
+                    log.debug("Error at getting interviews: " + err);
                 }
                 else{
+                    interviews.total= math.ceil( interviews.total / config.paginacion);
                     res.json(interviews);
                 }
             });
         }
     }
+};
+
+exports.getInterviewsPaged = function(req, res) {
+    var page = req.query.pagina;
+    
+    daoInterview.getInterviewsPaged(page, function(err, interviews){
+        if(err){
+            log.debug("Error at getting all interviews: " + err);
+        }
+        else{
+            
+            log.debug(interviews.results[0]);
+            log.debug("Paginas " + math.ceil( interviews.total / config.paginacion) );
+            
+            res.json(interviews);
+        }
+    });
 };
 
 // DELETE  api/interview/:ID
@@ -482,6 +541,33 @@ exports.saveAnswers = function(req, res) {
     var answers = req.body.answers;
     
     daoInterview.saveAnswers(id, answers, function (err, data){
+        if(err){
+            log.debug("Error saving the answers for the interview " + id + ": " + err);
+            res.status(500).send(err);
+        }
+        else{
+            daoInterview.updateState(id, "Realizada" ,function (err, data){
+                if(err){
+
+                }
+                else{
+                    response={success:true , message:"Answers saved"};
+                    res.send(response);
+                }
+            });
+                    
+        }
+    });
+};
+
+exports.postFeedback = function(req, res) {
+    var id = req.params.interview_id;
+    var feedback = req.body.feedback;
+    
+    if (!strExists(feedback)){
+        feedback = "";
+    }
+    daoInterview.postFeedback(id, feedback, function (err, data){
         if(err){
             log.debug("Error saving the answers for the interview " + id + ": " + err);
             res.status(500).send(err);

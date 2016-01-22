@@ -1,8 +1,6 @@
-var mongoose = require('mongoose');
-var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 var log = log4js.getLogger("daoInterview");
-
+var config = require('../../app/config/config');
 var interviewModel = require('../models/interviewModel');
 
 exports.postInterview = function (interview,cb){
@@ -12,27 +10,66 @@ exports.postInterview = function (interview,cb){
 };
 
 //get all interviews
-exports.getInterviews = function (cb){
-	interviewModel.find({}, null, {sort: {date: 1}}, function(err, result){
-        cb(err, result);
-    });	
+exports.getInterviews = function (page, cb){
+	var options = {
+	   start : (page - 1) * config.paginacion,
+	   count : config.paginacion
+    };
+    
+	interviewModel
+        .find()
+        .sort({date: 1})
+        .page(options, function(err, result) {
+                cb(err, result);
+        });
 };
 
-exports.getInterviewsByDateAndName = function (datemin, datemax, nombre, cb){
-	interviewModel.find({date: {$gte: datemin, $lt: datemax}, name:nombre}, null, {sort: {date: 1}}, function(err, result){
-        cb(err, result);
-    });	
+exports.getInterviewsPaged = function (page, cb){
+    var options = {
+	   start : (page - 1) * config.paginacion,
+	   count : config.paginacion
+    };
+    
+	interviewModel
+        .find()
+        .sort({date: 1})
+        .page(options, function(err, result) {
+                cb(err, result);
+        });
 };
 
-exports.getInterviewsByDate = function (datemin, datemax, cb){
-	interviewModel.find({date: {$gte: datemin,$lt: datemax}}, null, {sort: {date: 1}}, function(err, result){
-        cb(err, result);
-    });	
+exports.getInterviewsByDateAndName = function (page, datemin, datemax, nombre, cb){    
+    var options = {
+	   start : (page - 1) * config.paginacion,
+	   count : config.paginacion
+    };
+    
+	interviewModel
+        .find({date: {$gte: datemin, $lt: datemax}, name:nombre})
+        .sort({date: 1})
+        .page(options, function(err, result) {
+                cb(err, result);
+        });
+    
+};
+
+exports.getInterviewsByDate = function (page, datemin, datemax, cb){
+    var options = {
+	   start : (page - 1) * config.paginacion,
+	   count : config.paginacion
+    };
+    
+	interviewModel
+        .find({date: {$gte: datemin,$lt: datemax}})
+        .sort({date: 1})
+        .page(options, function(err, result) {
+                cb(err, result);
+        });
 };
 
 //get a certain interview by name
-exports.getInterview = function (fullName, cb){
-	interviewModel.find({name:fullName}, function(err, result){
+exports.getInterview = function (id, cb){
+	interviewModel.findOne({_id: id}, function(err, result){
         cb(err, result);
     });	
 };
@@ -64,6 +101,12 @@ exports.getNames = function (res, cb){
 
 exports.saveAnswers = function (id, ans, cb){
 	interviewModel.update({ _id: id }, { $set: { answers: ans } }, function(err, result){
+        cb(err, result);
+    });
+};
+
+exports.postFeedback = function (id, anotations, cb){
+	interviewModel.update({ _id: id }, { $set: { feedback: anotations } }, function(err, result){
         cb(err, result);
     });
 };

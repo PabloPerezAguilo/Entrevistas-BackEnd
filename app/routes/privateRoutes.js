@@ -14,7 +14,7 @@ module.exports = function(router) {
     // ------------------------------------------------------------------------------------------------------
     // 													User
     // ------------------------------------------------------------------------------------------------------
-    router.route("/user")
+    /*router.route("/user")
             .get(authRole.isAdminRole,userController.getUsers);
 
     // ------------------------------------------------------------------------------------------------------
@@ -46,10 +46,11 @@ module.exports = function(router) {
     router.route("/interviewNames")
         .get(authRole.isAdminRole, interviewController.getNames);
 
-    router.route("/interview/:fullName")
-        .get(authRole.isAdminRole, interviewController.getInterview);
+    //router.route("/interview/:fullName")
+    //    .get(authRole.isAdminRole, interviewController.getInterview);
 
     router.route("/interview/:interview_id")
+        .get(authRole.isAdminRole, interviewController.getInterview)
         .delete(authRole.isAdminRole, interviewController.deleteInterview);
 
     router.route("/interviewQuestions/:interview_id")
@@ -57,6 +58,9 @@ module.exports = function(router) {
         
     router.route("/answers/:interview_id")
         .post(authRole.isAdminRole, interviewController.saveAnswers);
+    
+    router.route("/interviewFeedback/:interview_id")
+        .post(authRole.isAdminRole, interviewController.postFeedback)
 
     //-------------------------------------------------------------------------------------------------------
     //  					                           TAG
@@ -66,7 +70,7 @@ module.exports = function(router) {
         .post(authRole.isTechRole,  tagController.postTag);
 
     router.route("/tag/:tag_id")
-        .delete(authRole.isAdminOrTech, tagController.deleteTag);
+        .delete(authRole.isAdminOrTech, tagController.deleteTag);*/
     
 	return router; 
 };

@@ -75,7 +75,7 @@ module.exports = function(router,app) {
     // ------------------------------------------------------------------------------------------------------
     // 													User
     // ------------------------------------------------------------------------------------------------------
-    /*router.route("/user")
+    router.route("/user")
             .get(userController.getUsers);
 
     // ------------------------------------------------------------------------------------------------------
@@ -107,10 +107,8 @@ module.exports = function(router,app) {
     router.route("/interviewNames")
         .get(interviewController.getNames);
 
-    router.route("/interview/:fullName")
-        .get(interviewController.getInterview);
-
     router.route("/interview/:interview_id")
+        .get(interviewController.getInterview)
         .delete(interviewController.deleteInterview);
 
     router.route("/interviewQuestions/:interview_id")
@@ -127,7 +125,10 @@ module.exports = function(router,app) {
         .post(tagController.postTag);
 
     router.route("/tag/:tag_id")
-        .delete(tagController.deleteTag);*/
+        .delete(tagController.deleteTag);
+    
+    router.route("/paginacion")
+        .get(interviewController.getInterviews);
     
 	return router;
 };

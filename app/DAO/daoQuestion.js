@@ -1,4 +1,3 @@
-var mongoose = require('mongoose');
 var bcrypt = require('bcrypt-nodejs');
 var log4js = require('log4js');
 var log = log4js.getLogger("daoQuestion");

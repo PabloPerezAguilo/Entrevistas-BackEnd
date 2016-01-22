@@ -21,7 +21,9 @@ var log = log4js.getLogger("server");
 
 var port = process.env.PORT || 9600;
 
-// configuration ===============================================================
+// configuration  mongo=============================================
+require('mongoose-middleware').initialize({ maxDocs : config.paginacion }, mongoose);
+
 mongoose.connect(config.database, function(err, res) {
     if(err) {
       log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");

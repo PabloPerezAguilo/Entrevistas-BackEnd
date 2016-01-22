@@ -14,6 +14,8 @@
 	"bcrypt-nodejs": "0.0.3",
 	"cors":"^2.7.1",
 	"node-schema-object": "0.8.8",
-    "q": "latest"
+    "q": "latest",
+    "mathjs": "latest",
+    "mongoose-middleware": "0.2.13"   
   }
 }

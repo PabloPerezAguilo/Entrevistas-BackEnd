@@ -23,6 +23,7 @@ var InterviewSchema = new mongoose.Schema({
         required: true
     },
     questions:[String],
+    feedback: String,
     answers:[],
     nquestions:[],
 	leveledTags:[leveledTagsModel.leveledTags]
