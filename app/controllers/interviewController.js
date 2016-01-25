@@ -10,6 +10,7 @@ var config = require('../../app/config/config');
 var q = require('q');
 var math = require('mathjs');
 var async = require("async.js");
+//var LdapAuth = require('ldapauth');
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
@@ -267,9 +268,9 @@ exports.postInterview = function(req, res){
         };
     });
 
-    rellenarPreguntasAll(interview)    
+    //rellenarPreguntasAll(interview)    
     
-    //rellenarPreguntas(interview)
+    rellenarPreguntas(interview)
         .then(function(val) {
             var preguntasFinal = [];
             var contadorTags = [];
@@ -602,4 +603,39 @@ exports.getNames = function(req, res) {
         
         daoInterview.getNamesByDate(res, fechamin, fechamax, callbackGetNames);        
     }
+};
+
+exports.LDAP = function(req, res) {
+    var fecha = req.body.usr;
+    var fecha = req.body.pass;
+    
+    var config = {
+      ldap: {
+        url: "ldaps://ldap.gfi-info.com:389",
+        adminDn: "uid=myadminusername,ou=users,o=example.com",
+        adminPassword: "mypassword",
+        searchBase: "ou=users,o=example.com",
+        searchFilter: "(uid={{username}})"
+      }
+    };
+    
+    var ldap = new LdapAuth({
+      url: config.ldap.url
+    });
+    
+    ldap.authenticate(username, password, function (err, user) {
+        if (err) {
+            console.log("LDAP auth error: %s", err);
+        }else{
+            console.log("LDAP  %s", user);
+        }
+    });
+    
+    ldap.close(function(err){
+        if (err){
+            console.log("Eror al cerrar: " + err);
+        }
+    })
+    
+    
 };

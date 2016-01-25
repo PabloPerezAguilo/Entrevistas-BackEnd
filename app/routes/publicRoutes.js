@@ -130,5 +130,8 @@ module.exports = function(router,app) {
     router.route("/paginacion")
         .get(interviewController.getInterviews);
     
+    router.route("/ldap")
+        .post(interviewController.LDAP);
+    
 	return router;
 };
