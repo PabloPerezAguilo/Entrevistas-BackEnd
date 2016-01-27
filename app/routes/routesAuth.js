@@ -19,7 +19,7 @@ module.exports = function(router,app) {
 			// verifies secret and checks exp
 		jwt.verify(token, app.get('superSecret'), function(err, decoded) {			
 				if (err) {
-					return res.json({ success: false, message: 'Failed to authenticate token.' });		
+					return res.status(403).json({ success: false, message: 'Failed to authenticate token.' });		
 				} else {
 					// if everything is good, save to request for use in other routes
 					log.debug("Decoded :"+JSON.stringify(decoded));

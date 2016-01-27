@@ -1,6 +1,5 @@
 // Load required packages
 var Interview = require('../models/interviewModel');
-var questionModel = require('../models/questionModel');
 var LeveledTag = require('../models/leveledTagsModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
@@ -10,7 +9,6 @@ var daoQuestion = require("../DAO/daoQuestion");
 var config = require('../../app/config/config');
 var q = require('q');
 var math = require('mathjs');
-//var async = require("async.js");
 var ldapAuth = require('ldapauth-fork');
 
 function strExists(str) {
@@ -119,51 +117,6 @@ function tagsValidate(req, callback) {
 	callback(error,conjunto);
 };
 
-//esto de momento no se usa
-function buscarAlternativa(leveledTags) {
-    var deferred = q.defer();
-    var data = "";
-    var numeroConsulta = 0;
-    var preguntas = [];
-    var numeroPreguntas = Math.floor(config.numeroPreguntas / leveledTags.length);
-    var totalPreguntas = 0;
-    var continuar = true;
-    log.debug("AQUI ");
-        
-        
-        for(var i = 0; i < leveledTags.length; i++) {
-            log.debug("MAX " +  leveledTags[i].max + " MIN " +  leveledTags[i].min);
-            daoQuestion.getQuestionsByLevelRange(leveledTags[i].tag,
-                        leveledTags[i].min ,leveledTags[i].max ,function(err, result, tag){
-                
-                log.debug("Preguntas para TU " + tag + " " + result.slice(0,numeroPreguntas));
-                numeroConsulta++;
-
-                //si se devuelve alguna pregunta se añade
-                if(result!==null && result.length!=0 && result!==undefined ){
-                    totalPreguntas = totalPreguntas + result.length;
-                    preguntas.push(result);
-                };
-
-                //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenadas
-                if (numeroConsulta == interview.leveledTags.length){
-                    json={"preguntas": preguntas, "total": totalPreguntas};
-
-                    if(totalPreguntas >= config.numeroPreguntas){
-                        data="SI se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
-                    }
-                    else{
-                        data="NO se han encontrado suficientes preguntas para la entrevista entre los niveles " + tag;
-                    };
-                    
-                    deferred.resolve(data);
-                };
-                
-            });
-        }
-
-    return deferred.promise;
-};
 
 //busca todas las preguntas en la BD para los tags de la entrevista
 function rellenarPreguntas(objeto) {
@@ -180,7 +133,7 @@ function rellenarPreguntas(objeto) {
         tags.push(objeto.leveledTags[i].tag);
         
         daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
-                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag){
+                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function(err, result, tag, max, min){
             
             numeroConsulta++;
             
@@ -195,7 +148,7 @@ function rellenarPreguntas(objeto) {
                 preguntas.push(result);
             };
             
-            recuentoPreguntas.push({"tag":tag, "count":result.length});
+            recuentoPreguntas.push({"tag":tag, "max": max, "min":min , "count":result.length});
             
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenas
             if (numeroConsulta == interview.leveledTags.length) {
@@ -210,7 +163,7 @@ function rellenarPreguntas(objeto) {
                             + recuentoPreguntas[j].preguntas + ";";
                     };
                     
-                    err.leveledTags=objeto.leveledTags;
+                    err.objeto=objeto;
                     deferred.reject(err);
                 };
                 
@@ -218,38 +171,33 @@ function rellenarPreguntas(objeto) {
             }
         });
     }
-    
     return deferred.promise;
 };
 
-function prueba(i) {
-    var trama = " Fuera " + i;
+function buscarAlternativa(objeto, res) {
+    var continuar = true;
     
-};
-
-function rellenarPreguntasAll(objeto) {
-    var deferred = q.defer();
-    var numeroConsulta = 0;
-    var preguntas = [];
-    var totalPreguntas = 0;
-    var recuentoPreguntas = [];
-    var tags = [];
-    var resultSinRepetidos =[];
-    
-    var llamadas = [];
-    
-    for (var i = 0; i < objeto.leveledTags.length; i++) {
-        llamadas.push(questionModel.find({tags: objeto.leveledTags[i].tag, level: {$gte: objeto.leveledTags[i].min, $lte: objeto.leveledTags[i].max}}, {_id:1}))
-    }
-    
-    /*async.list([prueba(1), prueba(2), prueba(3)]).call().end(function(err, result){
-        log.debug(result)
-    })*/
-    
-    async.parallel(llamadas, function(err,results){
-        log.debug("A VER QUE SALE " + results)
-    });
-    
+    rellenarPreguntas(objeto)
+        .then(function(val){
+            log.debug("ENCONTRADAS " + val.total + " PREGUNTAS EN OTRO RANGO")
+            res.status(500).send(val)
+            continuar=false;
+        })
+        .fail(function(err){
+            for(var i = 0; i < err.objeto.leveledTags.length; i++) {
+                if(err.objeto.leveledTags[i].min >2 && err.objeto.leveledTags[i].max < 10){
+                    err.objeto.leveledTags[i].max ++;
+                    err.objeto.leveledTags[i].min --;
+                }else{
+                    continuar = false;
+                }
+            }
+            if (continuar == true){
+                buscarAlternativa(err.objeto, res)
+            }else{
+                res.status(500).send(err)
+            }
+        })
 };
 
 // POST api/interview
@@ -272,8 +220,6 @@ exports.postInterview = function(req, res){
         };
     });
 
-    //rellenarPreguntasAll(interview)    
-    
     rellenarPreguntas(interview)
         .then(function(val) {
             var preguntasFinal = [];
@@ -351,36 +297,11 @@ exports.postInterview = function(req, res){
             });         
         })
         .fail(function (err) {
-            /*var continuar = true;
-            
-            log.debug("ENTRA " + err.leveledTags + " " + err);
-            while(continuar){
-                log.debug(" IN while");
-                continuar = false;
-                
-                buscarAlternativa(err.leveledTags)
-                    .then( function(data){
-                        log.debug("SALE BIEN " + data);
-
-                        err.data=data
-
-                        log.debug("ERROR "+ err );
-                        //res.send(err);
-                    })
-                    .fail( function(err){
-                        log.debug("SALE MAL " + err);
-                    });  
-                    
-                for(var i = 0; i < leveledTags.length; i++) {
-                    if(err.leveledTags[i].min >2 && err.leveledTags[i].max < 10){
-                        err.leveledTags[i].max ++;
-                        err.leveledTags[i].min --;
-                        continuar = true
-                    }
-                }
-            }*/
-            res.status(500).send(err);
-        });
+            buscarAlternativa(err.objeto, res);
+            log.debug("FUERA SE HAN ENCONTRADO " + resultado.total + " PREGUNTAS" )
+        });  
+    
+    
 };
 
 // GET api/interview/:DNI
@@ -559,18 +480,23 @@ exports.postFeedback = function(req, res) {
  
 exports.getNames = function(req, res) {
     var fecha = req.param("fecha");
+    var estado = req.param("estado");
     
-    if (fecha == null || fecha == undefined || fecha===""){
-        daoInterview.getNames(res, callbackGetNames);
-    }else{
-        var mes = parseInt(fecha.slice(5,7));
-        var ano = parseInt(fecha.slice(0,4));
-        var dia = parseInt(fecha.slice(8,10));
+    if (strExists(estado)){
+        if (fecha == null || fecha == undefined || fecha===""){
+            daoInterview.getNames(estado, res, callbackGetNames);
+        }else{
+            var mes = parseInt(fecha.slice(5,7));
+            var ano = parseInt(fecha.slice(0,4));
+            var dia = parseInt(fecha.slice(8,10));
 
-        var fechamin = new Date(ano,mes-1,dia).toISOString();
-        var fechamax = new Date(ano,mes-1,dia+1).toISOString();
-        
-        daoInterview.getNamesByDate(res, fechamin, fechamax, callbackGetNames);        
+            var fechamin = new Date(ano,mes-1,dia).toISOString();
+            var fechamax = new Date(ano,mes-1,dia+1).toISOString();
+
+            daoInterview.getNamesByDate(estado, res, fechamin, fechamax, callbackGetNames);        
+        }
+    }else{
+        res.send("No se ha especificado estado");
     }
 };
 
@@ -591,13 +517,10 @@ exports.LDAP = function(req, res) {
             log.debug("LDAP auth error: %s", err);
             res.json({"error":err});
         }else{
-            log.debug("LDAP auth error: %s", err);
             res.send(user);
         }
-        //res.json({"error": err, "data": user}); 
     });
- 
-    
+
     auth.close(function(err) { 
         console.log(err)
     })

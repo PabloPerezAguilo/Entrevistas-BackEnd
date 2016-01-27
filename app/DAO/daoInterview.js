@@ -87,14 +87,14 @@ exports.deleteInterview = function (id, cb){
   	});
 };
 
-exports.getNamesByDate = function (res, datemin, datemax,cb){
-	interviewModel.distinct("name", { date: { $gte: datemin, $lt: datemax} }, function(err, result){
+exports.getNamesByDate = function (estado, res, datemin, datemax,cb){
+	interviewModel.distinct("name", { date: { $gte: datemin, $lt: datemax} , status:estado }, function(err, result){
         cb(res, err, result);
     });
 };
 
-exports.getNames = function (res, cb){
-	interviewModel.distinct("name", function(err, result){
+exports.getNames = function (estado, res, cb){
+	interviewModel.distinct("name", {status:estado },function(err, result){
         cb(res, err, result);
     });
 };
