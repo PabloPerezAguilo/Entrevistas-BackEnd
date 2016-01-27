@@ -116,6 +116,9 @@ module.exports = function(router,app) {
     
     router.route("/answers/:interview_id")
         .post(interviewController.saveAnswers);
+    
+    router.route("/interviewFeedback/:interview_id")
+        .post(interviewController.postFeedback);
 
     //-------------------------------------------------------------------------------------------------------
     //  					                           TAG
@@ -127,8 +130,7 @@ module.exports = function(router,app) {
     router.route("/tag/:tag_id")
         .delete(tagController.deleteTag);
     
-    router.route("/paginacion")
-        .get(interviewController.getInterviews);
+//----------------------------------------------------
     
     router.route("/ldap")
         .post(interviewController.LDAP);

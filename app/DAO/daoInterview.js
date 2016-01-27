@@ -10,60 +10,60 @@ exports.postInterview = function (interview,cb){
 };
 
 //get all interviews
-exports.getInterviews = function (page, cb){
+exports.getInterviews = function (estado, res, page, cb){
 	var options = {
 	   start : (page - 1) * config.paginacion,
 	   count : config.paginacion
     };
     
 	interviewModel
-        .find()
+        .find({status: estado})
         .sort({date: 1})
         .page(options, function(err, result) {
-                cb(err, result);
+                cb(res, err, result);
         });
 };
 
-exports.getInterviewsPaged = function (page, cb){
+exports.getInterviewsByName = function (estado, res, page, nombre, cb){
     var options = {
 	   start : (page - 1) * config.paginacion,
 	   count : config.paginacion
     };
     
 	interviewModel
-        .find()
+        .find({name:nombre, status:estado})
         .sort({date: 1})
         .page(options, function(err, result) {
-                cb(err, result);
+                cb(res, err, result);
         });
 };
 
-exports.getInterviewsByDateAndName = function (page, datemin, datemax, nombre, cb){    
+exports.getInterviewsByDateAndName = function (estado, res, page, datemin, datemax, nombre, cb){    
     var options = {
 	   start : (page - 1) * config.paginacion,
 	   count : config.paginacion
     };
     
 	interviewModel
-        .find({date: {$gte: datemin, $lt: datemax}, name:nombre})
+        .find({date: {$gte: datemin, $lt: datemax}, name:nombre, status:estado})
         .sort({date: 1})
         .page(options, function(err, result) {
-                cb(err, result);
+                cb(res, err, result);
         });
     
 };
 
-exports.getInterviewsByDate = function (page, datemin, datemax, cb){
+exports.getInterviewsByDate = function (estado, res, page, datemin, datemax, cb){
     var options = {
 	   start : (page - 1) * config.paginacion,
 	   count : config.paginacion
     };
     
 	interviewModel
-        .find({date: {$gte: datemin,$lt: datemax}})
+        .find({date: {$gte: datemin,$lt: datemax}, status:estado})
         .sort({date: 1})
         .page(options, function(err, result) {
-                cb(err, result);
+                cb(res, err, result);
         });
 };
 

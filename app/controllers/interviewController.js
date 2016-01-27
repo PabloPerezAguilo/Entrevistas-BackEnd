@@ -1,5 +1,6 @@
 // Load required packages
 var Interview = require('../models/interviewModel');
+var questionModel = require('../models/questionModel');
 var LeveledTag = require('../models/leveledTagsModel');
 var log4js = require('log4js');
 var log = log4js.getLogger("interviewCtrl");
@@ -9,8 +10,8 @@ var daoQuestion = require("../DAO/daoQuestion");
 var config = require('../../app/config/config');
 var q = require('q');
 var math = require('mathjs');
-var async = require("async.js");
-//var LdapAuth = require('ldapauth');
+//var async = require("async.js");
+var ldapAuth = require('ldapauth-fork');
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
@@ -60,6 +61,16 @@ function callbackGetNames(res, err, nombres){
             listaNombres.push({"name":nombres[i]});
         }
         res.json(listaNombres);
+    }
+}
+
+function callbackGetInterviews(res, err, interviews){
+    if(err){
+        log.debug("Error at getting all interviews: "+err);
+    }
+    else{
+        interviews.total= math.ceil( interviews.total / config.paginacion);
+        res.json(interviews);
     }
 }
 
@@ -211,16 +222,8 @@ function rellenarPreguntas(objeto) {
     return deferred.promise;
 };
 
-function prueba(i, objeto) {
-    daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
-                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function (err, result, tag) {
-            log.debug("RESUL " + tag);
-            var trama = " Dentro " + i;
-            return trama;
-            
-        })
+function prueba(i) {
     var trama = " Fuera " + i;
-    return trama;
     
 };
 
@@ -236,13 +239,14 @@ function rellenarPreguntasAll(objeto) {
     var llamadas = [];
     
     for (var i = 0; i < objeto.leveledTags.length; i++) {
-        llamadas.push(daoQuestion.getQuestionsByLevelRange(objeto.leveledTags[i].tag,
-                    objeto.leveledTags[i].min, objeto.leveledTags[i].max, function (err, result, tag){
-            log.debug("A VER QUE SALE " + tag)
-        }))
+        llamadas.push(questionModel.find({tags: objeto.leveledTags[i].tag, level: {$gte: objeto.leveledTags[i].min, $lte: objeto.leveledTags[i].max}}, {_id:1}))
     }
     
-    async.parallel([llamadas], function(results){
+    /*async.list([prueba(1), prueba(2), prueba(3)]).call().end(function(err, result){
+        log.debug(result)
+    })*/
+    
+    async.parallel(llamadas, function(err,results){
         log.debug("A VER QUE SALE " + results)
     });
     
@@ -410,22 +414,20 @@ exports.getInterviews = function(req, res) {
     var fecha = req.param("fecha");
     var nombre = req.query.nombre;
     var page = req.query.pagina;
+    var estado = req.query.estado;
     
     if (!strExists(page)){
         page=1
     }
     
     if (fecha == null || fecha == undefined) {
-        daoInterview.getInterviews(page, function(err, interviews){
-            if(err){
-                log.debug("Error at getting all interviews: "+err);
-            }
-            else{
-                interviews.total= math.ceil( interviews.total / config.paginacion);
-                res.json(interviews);
-            }
-        });
+        if (!strExists(nombre)) {
+            daoInterview.getInterviews(estado, res, page, callbackGetInterviews);
+        }else{
+            daoInterview.getInterviewsByName(estado, res, page, nombre, callbackGetInterviews);
+        }
     }else{
+        
         var mes = parseInt(fecha.slice(5,7));
         var ano = parseInt(fecha.slice(0,4));
         var dia = parseInt(fecha.slice(8,10));
@@ -434,44 +436,11 @@ exports.getInterviews = function(req, res) {
         var fechamax = new Date(ano,mes-1,dia+1).toISOString();
 
         if (!strExists(nombre)) {
-            daoInterview.getInterviewsByDate(page, fechamin, fechamax, function(err, interviews){
-                if(err){
-                    log.debug("Error at getting interviews: " + err);
-                }
-                else{
-                    interviews.total= math.ceil( interviews.total / config.paginacion);
-                    res.json(interviews);
-                }
-            });
+            daoInterview.getInterviewsByDate(estado, res, page, fechamin, fechamax, callbackGetInterviews);
         }else{
-            daoInterview.getInterviewsByDateAndName(page, fechamin, fechamax, nombre, function(err, interviews){
-                if(err){
-                    log.debug("Error at getting interviews: " + err);
-                }
-                else{
-                    interviews.total= math.ceil( interviews.total / config.paginacion);
-                    res.json(interviews);
-                }
-            });
+            daoInterview.getInterviewsByDateAndName(estado, res, page, fechamin, fechamax, nombre, callbackGetInterviews);
         }
     }
-};
-
-exports.getInterviewsPaged = function(req, res) {
-    var page = req.query.pagina;
-    
-    daoInterview.getInterviewsPaged(page, function(err, interviews){
-        if(err){
-            log.debug("Error at getting all interviews: " + err);
-        }
-        else{
-            
-            log.debug(interviews.results[0]);
-            log.debug("Paginas " + math.ceil( interviews.total / config.paginacion) );
-            
-            res.json(interviews);
-        }
-    });
 };
 
 // DELETE  api/interview/:ID
@@ -606,36 +575,30 @@ exports.getNames = function(req, res) {
 };
 
 exports.LDAP = function(req, res) {
-    var fecha = req.body.usr;
-    var fecha = req.body.pass;
+    var usr = req.body.usr;
+    var pass = req.body.pass;    
     
-    var config = {
-      ldap: {
-        url: "ldaps://ldap.gfi-info.com:389",
-        adminDn: "uid=myadminusername,ou=users,o=example.com",
-        adminPassword: "mypassword",
-        searchBase: "ou=users,o=example.com",
+    var options = {
+        url: 'ldap://ldap.gfi-info.com:389',
+        searchBase: "ou=People,o=gfi-info.com",
         searchFilter: "(uid={{username}})"
-      }
     };
+
+    var auth = new ldapAuth(options);
     
-    var ldap = new LdapAuth({
-      url: config.ldap.url
-    });
-    
-    ldap.authenticate(username, password, function (err, user) {
-        if (err) {
-            console.log("LDAP auth error: %s", err);
-        }else{
-            console.log("LDAP  %s", user);
-        }
-    });
-    
-    ldap.close(function(err){
+    auth.authenticate(usr, pass, function(err, user) {
         if (err){
-            console.log("Eror al cerrar: " + err);
+            log.debug("LDAP auth error: %s", err);
+            res.json({"error":err});
+        }else{
+            log.debug("LDAP auth error: %s", err);
+            res.send(user);
         }
+        //res.json({"error": err, "data": user}); 
+    });
+ 
+    
+    auth.close(function(err) { 
+        console.log(err)
     })
-    
-    
 };
