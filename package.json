@@ -2,21 +2,20 @@
 	"name": "API-NODE-TOKEN",
 	"main": "server.js",
 	"dependencies": {
-	"jsonwebtoken": "~1.1.2",
-	"express": "~4.9.8",
-	"body-parser": "~1.9.2",
-	"mongoose": "~3.8.19",
-	"morgan": "~1.5.0",
-	"redis" : "latest",
-	"q": "^1.0.1",
-	"log4js": "^0.6.27",
-	"node-uuid": "~1.4.3",
-	"bcrypt-nodejs": "0.0.3",
-	"cors":"^2.7.1",
-	"node-schema-object": "0.8.8",
-    "q": "latest",
-    "mathjs": "latest",
-    "mongoose-middleware": "0.2.13",
-    "ldapauth-fork": "2.5.2"
-  }
+        "jsonwebtoken": "~1.1.2",
+        "express": "~4.9.8",
+        "body-parser": "~1.9.2",
+        "mongoose": "~3.8.19",
+        "morgan": "~1.5.0",
+        "redis" : "latest",
+        "log4js": "^0.6.27",
+        "node-uuid": "~1.4.3",
+        "bcrypt-nodejs": "0.0.3",
+        "cors":"^2.7.1",
+        "node-schema-object": "0.8.8",
+        "q": "latest",
+        "mathjs": "latest",
+        "mongoose-middleware": "^0.2.13",
+        "ldapauth-fork": "^2.5.2"
+    }
 }

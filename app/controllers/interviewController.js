@@ -156,12 +156,11 @@ function rellenarPreguntas(objeto) {
                 
                 if (totalPreguntas < config.numeroPreguntas) {
                     err =new Error();
-                    err.name="No se han encontrado suficientes preguntas para la entrevista ";
-                    
-                    for (var j = 0; j < recuentoPreguntas.length; j++) {
+                    err.message="Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";
+                    /*for (var j = 0; j < recuentoPreguntas.length; j++) {
                         err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " preguntas: " 
                             + recuentoPreguntas[j].preguntas + ";";
-                    };
+                    };*/
                     
                     err.objeto=objeto;
                     deferred.reject(err);
@@ -179,29 +178,40 @@ function buscarAlternativa(objeto, res) {
     
     rellenarPreguntas(objeto)
         .then(function(val){
-            log.debug("ENCONTRADAS " + val.total + " PREGUNTAS EN OTRO RANGO")
+            val.message="Aumentar el rango de la(s) aptitud(es): ";
             res.status(500).send(val)
             continuar=false;
         })
         .fail(function(err){
-            for(var i = 0; i < err.objeto.leveledTags.length; i++) {
-                if(err.objeto.leveledTags[i].min >2 && err.objeto.leveledTags[i].max < 10){
-                    err.objeto.leveledTags[i].max ++;
+            for(var i = 0; i < err.objeto.leveledTags.length; i++) {     
+                
+                if(err.objeto.leveledTags[i].min >1){
                     err.objeto.leveledTags[i].min --;
-                }else{
+                }
+                if(err.objeto.leveledTags[i].max <10){
+                    err.objeto.leveledTags[i].max ++;
+                }
+                
+                if(err.objeto.leveledTags[i].min == 1 && err.objeto.leveledTags[i].max == 10){
                     continuar = false;
                 }
             }
             if (continuar == true){
                 buscarAlternativa(err.objeto, res)
             }else{
-                res.status(500).send(err)
+                rellenarPreguntas(err.objeto)
+                    .then(function(val){
+                        val.message="Aumentar el rango de lo(s) aptitud(es): ";
+                        res.status(500).send(val)
+                    })
+                    .fail(function(err){
+                        res.status(500).send(err)
+                    })
             }
         })
 };
 
 // POST api/interview
-
 exports.postInterview = function(req, res){
 	tagsValidate(req, function(err, tags){
         if (err) {
@@ -229,10 +239,6 @@ exports.postInterview = function(req, res){
             for(var i = 0; i < val.preguntas.length; i++) {
                 contadorTags[i]=0;
             }
-        
-            log.debug(" PREGUNTAS " + val.preguntas + " TAGS " + val.preguntas.length + " TOTALPREGUNTAS " + val.total);
-        
-            log.debug( " UNO " + val.total + " DOS " +  config.numeroPreguntas + " : " + (config.numeroPreguntas < val.total) );
         
             //entra para coger preguntas de cada tema
             if ((config.numeroPreguntas <= val.total)) {
@@ -278,7 +284,7 @@ exports.postInterview = function(req, res){
                             if (-1!==err.err.indexOf("duplicate key error")) {
                                 err =new Error();
                                 err.name="MongoError";
-                                err.message="The interview " + interview.DNI + " already exists";
+                                err.message="La entrevista " + interview.DNI + " ya existe";
                             }
                             
                             res.status(400);
@@ -292,13 +298,12 @@ exports.postInterview = function(req, res){
                     res.send(err);
                 }
                 else{
-                    res.json({ message: 'New interview created!', data: interview, recuento: interview.nquestions}); 
+                    res.json({ message: 'Entrevista creada!', data: interview, recuento: interview.nquestions}); 
                 }
             });         
         })
         .fail(function (err) {
             buscarAlternativa(err.objeto, res);
-            log.debug("FUERA SE HAN ENCONTRADO " + resultado.total + " PREGUNTAS" )
         });  
     
     
@@ -321,7 +326,7 @@ exports.getInterview = function(req, res){
                     res.json(result);
                 }
                 else{
-                    res.status(400).json({success:false, message: "No interview found with the id "+ id});
+                    res.status(400).json({success:false, message: "No se ha encontrado la entrevista con el id "+ id});
                 }
             }
         });
@@ -377,10 +382,10 @@ exports.deleteInterview = function(req, res) {
             var response;
             
             if(0<result){
-                response={success:true , message:"Interview with DNI " + id + " deleted"};
+                response={success:true , message:"Se ha eliminado la entrevista con DNI " + id };
             }
             else{
-                response={success:false , message:"No interview with DNI " + id + " found"};
+                response={success:false , message:"Se ha eliminado la entrevista con DNI " + id };
                 res.status(400);
             }
             
@@ -420,7 +425,7 @@ exports.getInterviewQuestions = function(req, res) {
                     });
                 }
             }else {
-                response={message:"No interview with the id " + id};
+                response={message:"No hay entrevistas con id " + id};
                 res.send(response);
             }
         }
@@ -442,7 +447,7 @@ exports.saveAnswers = function(req, res) {
 
                 }
                 else{
-                    response={success:true , message:"Answers saved"};
+                    response={success:true , message:"Respuesta guardada"};
                     res.send(response);
                 }
             });
@@ -460,7 +465,7 @@ exports.postFeedback = function(req, res) {
     }
     daoInterview.postFeedback(id, feedback, function (err, data){
         if(err){
-            log.debug("Error saving the answers for the interview " + id + ": " + err);
+            log.debug("Error saving the feedback for the interview " + id + ": " + err);
             res.status(500).send(err);
         }
         else{
@@ -469,7 +474,7 @@ exports.postFeedback = function(req, res) {
 
                 }
                 else{
-                    response={success:true , message:"Answers saved"};
+                    response={success:true , message:"Estado guardado"};
                     res.send(response);
                 }
             });
@@ -496,7 +501,7 @@ exports.getNames = function(req, res) {
             daoInterview.getNamesByDate(estado, res, fechamin, fechamax, callbackGetNames);        
         }
     }else{
-        res.send("No se ha especificado estado");
+        res.send("No se ha especificado ningún estado");
     }
 };
 
