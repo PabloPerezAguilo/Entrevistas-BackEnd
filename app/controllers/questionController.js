@@ -162,12 +162,12 @@ exports.putQuestion = function(req, res) {
 exports.getQuestionsByLevelRange = function(req, res) {
 	daoQuestion.getQuestionsByLevelRange(req.body.tag, req.body.min, req.body.max, function(err, questions){
         if(err){
-			log.debug("Error leveling the question which ID is "+questions+": "+err);
-            res.status(400).send(err);
+			log.debug("Error leveling the question which ID is " + questions + ": "+err);
+            res.status(500).send(err);
         }
         else{
             if(questions===null || questions.length==0 || questions===undefined ){
-                    res.status(400).json({success: false, message: "No question found with level between " + req.body.max + " and " + req.body.min});
+                    res.status(500).json({success: false, message: "No question found with level between " + req.body.max + " and " + req.body.min});
                 }
                 else{
                     res.json(questions); 
@@ -188,7 +188,7 @@ exports.getQuestionByTag = function(req, res) {
             }
             else{
                 if(null===question || 0==question.length || undefined===question ){
-                    res.status(404);
+                    res.status(500);
                     res.json({success: false, message: "No question found with the tags: " + tags});
                 }
                 else{

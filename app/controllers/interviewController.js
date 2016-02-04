@@ -13,11 +13,11 @@ var ldapAuth = require('ldapauth-fork');
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
-};
+}
 
 function randomIntInc(low, high) {
     return Math.floor(Math.random() * (high - low + 1) + low);
-};
+}
 
 //coge num elementos aleatorios de un array source y los guarda en un array dest
 function randomElems(num, source, dest) {
@@ -28,7 +28,7 @@ function randomElems(num, source, dest) {
     }
     
     source.splice(valor, 1);
-};
+}
 
 //elimina de la estructura1 los elementos que ya existan en la estructura2
 function buscarElementosRepetidos (estructura1, estructura2){
@@ -46,7 +46,7 @@ function buscarElementosRepetidos (estructura1, estructura2){
     };
     
     return estructuraFinal
-};
+}
 
 function callbackGetNames(res, err, nombres){
     if (err) {
@@ -115,7 +115,7 @@ function tagsValidate(req, callback) {
 		conjunto=undefined;
 	}
 	callback(error,conjunto);
-};
+}
 
 
 //busca todas las preguntas en la BD para los tags de la entrevista
@@ -144,19 +144,20 @@ function rellenarPreguntas(objeto) {
             
             //si se devuelve alguna pregunta se añade al total
             if (resultSinRepetidos !== null && resultSinRepetidos.length != 0 && resultSinRepetidos !== undefined ) {
-                totalPreguntas = totalPreguntas + result.length;
-                preguntas.push(result);
-            };
+                totalPreguntas = totalPreguntas + resultSinRepetidos.length;
+            }
             
-            recuentoPreguntas.push({"tag":tag, "max": max, "min":min , "count":result.length});
+            preguntas.push(resultSinRepetidos);
+            
+            recuentoPreguntas.push({"tag" : tag, "max" : max, "min" : min , "count" : result.length});
             
             //si es el collback de la ultima consulta a la base de datos se devuelve la promesa con la entrevista con las preguntas rellenas
             if (numeroConsulta == interview.leveledTags.length) {
-                json={"preguntas": preguntas, "total": totalPreguntas, "recuento":recuentoPreguntas};
+                json={"preguntas" : preguntas, "total" : totalPreguntas, "recuento" : recuentoPreguntas};
                 
                 if (totalPreguntas < config.numeroPreguntas) {
-                    err =new Error();
-                    err.message="Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";
+                    err = new Error();
+                    err.message = "Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";
                     /*for (var j = 0; j < recuentoPreguntas.length; j++) {
                         err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " preguntas: " 
                             + recuentoPreguntas[j].preguntas + ";";
@@ -171,16 +172,21 @@ function rellenarPreguntas(objeto) {
         });
     }
     return deferred.promise;
-};
+}
 
 function buscarAlternativa(objeto, res) {
-    var continuar = true;
+    var continuar = false;
     
     rellenarPreguntas(objeto)
         .then(function(val){
-            val.message="Aumentar el rango de la(s) aptitud(es): ";
+            val.message = "Aumentar el rango de la(s) aptitud(es): ";
+            for(var i = 0; i < val.preguntas.length; i++){
+                if( val.preguntas[i].length == 0){
+                    val.recuento.splice(i,1)
+                }
+            }
             res.status(500).send(val)
-            continuar=false;
+            continuar = false;
         })
         .fail(function(err){
             for(var i = 0; i < err.objeto.leveledTags.length; i++) {     
@@ -192,8 +198,10 @@ function buscarAlternativa(objeto, res) {
                     err.objeto.leveledTags[i].max ++;
                 }
                 
-                if(err.objeto.leveledTags[i].min == 1 && err.objeto.leveledTags[i].max == 10){
-                    continuar = false;
+                for(var j = 0; j < err.objeto.leveledTags.length; j++){
+                    if(err.objeto.leveledTags[j].min > 1 || err.objeto.leveledTags[j].max < 10){
+                        continuar = true;
+                    }
                 }
             }
             if (continuar == true){
@@ -202,6 +210,11 @@ function buscarAlternativa(objeto, res) {
                 rellenarPreguntas(err.objeto)
                     .then(function(val){
                         val.message="Aumentar el rango de lo(s) aptitud(es): ";
+                        for(var i = 0; i < val.preguntas.length; i++){
+                                if( val.preguntas[i].length == 0){
+                                    val.recuento.splice(i,1)
+                                }
+                            }
                         res.status(500).send(val)
                     })
                     .fail(function(err){
@@ -209,7 +222,7 @@ function buscarAlternativa(objeto, res) {
                     })
             }
         })
-};
+}
 
 // POST api/interview
 exports.postInterview = function(req, res){
@@ -303,11 +316,10 @@ exports.postInterview = function(req, res){
             });         
         })
         .fail(function (err) {
+        log.debug("Busca alternativa")
             buscarAlternativa(err.objeto, res);
         });  
-    
-    
-};
+}
 
 // GET api/interview/:DNI
 // returns the interview (unique) for the candidate for the searched DNI
@@ -334,7 +346,7 @@ exports.getInterview = function(req, res){
     //else{
         //res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
     //}
-};
+}
 
 exports.getInterviews = function(req, res) {
     var fecha = req.param("fecha");
@@ -358,8 +370,8 @@ exports.getInterviews = function(req, res) {
         var ano = parseInt(fecha.slice(0,4));
         var dia = parseInt(fecha.slice(8,10));
 
-        var fechamin = new Date(ano,mes-1,dia).toISOString();
-        var fechamax = new Date(ano,mes-1,dia+1).toISOString();
+        var fechamin = new Date(ano, mes-1, dia).toISOString();
+        var fechamax = new Date(ano, mes-1, dia+1).toISOString();
 
         if (!strExists(nombre)) {
             daoInterview.getInterviewsByDate(estado, res, page, fechamin, fechamax, callbackGetInterviews);
@@ -367,7 +379,7 @@ exports.getInterviews = function(req, res) {
             daoInterview.getInterviewsByDateAndName(estado, res, page, fechamin, fechamax, nombre, callbackGetInterviews);
         }
     }
-};
+}
 
 // DELETE  api/interview/:ID
 exports.deleteInterview = function(req, res) {
@@ -382,17 +394,17 @@ exports.deleteInterview = function(req, res) {
             var response;
             
             if(0<result){
-                response={success:true , message:"Se ha eliminado la entrevista con DNI " + id };
+                response = {success:true , message:"Se ha eliminado la entrevista con DNI " + id };
             }
             else{
-                response={success:false , message:"Se ha eliminado la entrevista con DNI " + id };
+                response = {success:false , message:"Se ha eliminado la entrevista con DNI " + id };
                 res.status(400);
             }
             
             res.json(response); 
         }
     });
-};
+}
 
 exports.getInterviewQuestions = function(req, res) {
     var id = req.params.interview_id;
@@ -430,7 +442,7 @@ exports.getInterviewQuestions = function(req, res) {
             }
         }
     });
-};
+}
 
 exports.saveAnswers = function(req, res) {
     var id = req.params.interview_id;
@@ -454,7 +466,7 @@ exports.saveAnswers = function(req, res) {
                     
         }
     });
-};
+}
 
 exports.postFeedback = function(req, res) {
     var id = req.params.interview_id;
@@ -471,17 +483,17 @@ exports.postFeedback = function(req, res) {
         else{
             daoInterview.updateState(id, "Realizada" ,function (err, data){
                 if(err){
-
+                    log.debug("Error al actualizar el estado ");
+                    res.status(500).send(err);
                 }
                 else{
                     response={success:true , message:"Estado guardado"};
                     res.send(response);
                 }
             });
-                    
         }
     });
-};
+}
  
 exports.getNames = function(req, res) {
     var fecha = req.param("fecha");
@@ -498,35 +510,41 @@ exports.getNames = function(req, res) {
             var fechamin = new Date(ano,mes-1,dia).toISOString();
             var fechamax = new Date(ano,mes-1,dia+1).toISOString();
 
-            daoInterview.getNamesByDate(estado, res, fechamin, fechamax, callbackGetNames);        
+            daoInterview.getNamesByDate(estado, res, fechamin, fechamax, callbackGetNames);
         }
     }else{
         res.send("No se ha especificado ningún estado");
     }
-};
+}
 
 exports.LDAP = function(req, res) {
     var usr = req.body.usr;
-    var pass = req.body.pass;    
-    
+    var pass = req.body.pass;
     var options = {
         url: 'ldap://ldap.gfi-info.com:389',
         searchBase: "ou=People,o=gfi-info.com",
         searchFilter: "(uid={{username}})"
     };
-
-    var auth = new ldapAuth(options);
     
-    auth.authenticate(usr, pass, function(err, user) {
-        if (err){
-            log.debug("LDAP auth error: %s", err);
-            res.json({"error":err});
-        }else{
-            res.send(user);
-        }
-    });
+    
+    try{
+        var auth = new ldapAuth(options);
+        
+        auth.authenticate(usr, pass, function(err, user) {
+            if (err){
+                log.debug("LDAP auth error: %s", err);
+                res.send(err);
+            }else{
+                res.send(user);
+            }
 
-    auth.close(function(err) { 
-        console.log(err)
-    })
-};
+            auth.close(function(err) {
+                if (err){
+                    console.log(err);
+                }
+            })
+        });
+    }catch(err){
+        log.debug("ERROR " + err);
+    }
+}
