@@ -16,6 +16,7 @@
         "q": "latest",
         "mathjs": "latest",
         "mongoose-middleware": "^0.2.13",
-        "ldapauth-fork": "^2.5.2"
+        "ldapauth-fork": "2.5.2",
+        "atob": "^2.0.0"
     }
 }

@@ -3,21 +3,15 @@ var userController = require("../controllers/user");
 var interviewController = require("../controllers/interviewController");
 var questionController = require("../controllers/questionController");
 var tagController = require("../controllers/tagController");
+var ldapController = require("../controllers/LDAPController");
 var daoUser = require("../DAO/daoUser");
+var atob = require('atob');
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
 
 module.exports = function(router,app) {
 	 log.debug("Load public!");
-    // ------------------------------------------------------------------------------------------------------
-    // 															User
-    // ------------------------------------------------------------------------------------------------------
-
-    // http://localhost:9600/api/user
-	router.route("/user")
-		.post(userController.postUsers);
-
 
     // ------------------------------------------------------------------------------------------------------
     // 														authentication 
@@ -35,14 +29,10 @@ module.exports = function(router,app) {
                 if (!user) {
                     res.status(400).json({ success: false, message: 'Authentication failed. User not found.' });
                 } else if (user) {
-
                     // check if password matches
-                    user.verifyPassword(req.body.password, function(err,cb) {
+                    user.verifyPassword(atob(req.body.password), function(err,cb) {
                         if(err){
-                          res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.' });
-                        }
-                        if(!cb){
-                          res.status(400).json({ success: false, message: 'Authentication failed. Wrong password.' });
+                          res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.', error:err });
                         }
 
                        else{
@@ -63,77 +53,8 @@ module.exports = function(router,app) {
                         }
                     });		
                 }
-
             });
 	   });
-    
-//-------------------------------------------------------------------------------------------------------
-    //              DEVELOPE ROUTES
-    //  This routes should be private, but for developing, are public until the feature is done
-    //-------------------------------------------------------------------------------------------------------
-
-    // ------------------------------------------------------------------------------------------------------
-    // 													User
-    // ------------------------------------------------------------------------------------------------------
-    router.route("/user")
-            .get(userController.getUsers);
-
-    // ------------------------------------------------------------------------------------------------------
-    // 													question
-    // ------------------------------------------------------------------------------------------------------
-    router.route("/question")
-        .get(questionController.getQuestions)
-        .post(questionController.postQuestion);
-
-    router.route("/question/:question_id")
-        .get(questionController.getQuestion)
-        .put(questionController.putQuestion)
-        .delete(questionController.deleteQuestion);
-
-    router.route("/questionByTags")
-        .post(questionController.getQuestionByTag);
-
-    router.route('/questionsByLevel')//este servicio no se usa en version nfinal
-        .post(questionController.getQuestionsByLevelRange);
-
-    //-------------------------------------------------------------------------------------------------------
-    //  					                           Interview
-    //-------------------------------------------------------------------------------------------------------
-
-     router.route("/interview")
-        .post(interviewController.postInterview)
-        .get(interviewController.getInterviews);
-
-    router.route("/interviewNames")
-        .get(interviewController.getNames);
-
-    router.route("/interview/:interview_id")
-        .get(interviewController.getInterview)
-        .delete(interviewController.deleteInterview);
-
-    router.route("/interviewQuestions/:interview_id")
-        .get(interviewController.getInterviewQuestions);
-    
-    router.route("/answers/:interview_id")
-        .post(interviewController.saveAnswers);
-    
-    router.route("/interviewFeedback/:interview_id")
-        .post(interviewController.postFeedback);
-
-    //-------------------------------------------------------------------------------------------------------
-    //  					                           TAG
-    //-------------------------------------------------------------------------------------------------------
-    router.route('/tag')
-        .get(tagController.getTags)
-        .post(tagController.postTag);
-
-    router.route("/tag/:tag_id")
-        .delete(tagController.deleteTag);
-    
-//----------------------------------------------------
-    
-    router.route("/ldap")
-        .post(interviewController.LDAP);
     
 	return router;
 };

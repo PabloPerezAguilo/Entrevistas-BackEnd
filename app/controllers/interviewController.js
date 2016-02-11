@@ -9,7 +9,6 @@ var daoQuestion = require("../DAO/daoQuestion");
 var config = require('../../app/config/config');
 var q = require('q');
 var math = require('mathjs');
-var ldapAuth = require('ldapauth-fork');
 
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
@@ -157,12 +156,7 @@ function rellenarPreguntas(objeto) {
                 
                 if (totalPreguntas < config.numeroPreguntas) {
                     err = new Error();
-                    err.message = "Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";
-                    /*for (var j = 0; j < recuentoPreguntas.length; j++) {
-                        err.message = err.message + " Tag: " + recuentoPreguntas[j].tag + " preguntas: " 
-                            + recuentoPreguntas[j].preguntas + ";";
-                    };*/
-                    
+                    err.message = "Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";                    
                     err.objeto=objeto;
                     deferred.reject(err);
                 };
@@ -236,7 +230,7 @@ exports.postInterview = function(req, res){
                 name: req.body.name,
                 surname: req.body.surname,
                 feedback: req.body.feedback,
-                date: req.body.date,//"AAAA-MM-DDTHH:MM"
+                date: req.body.date, //"AAAA-MM-DDTHH:MM"
                 status: "Pendiente",
                 leveledTags: tags
             });
@@ -326,26 +320,21 @@ exports.postInterview = function(req, res){
 exports.getInterview = function(req, res){
     var id=req.params.interview_id;
     var pattern = new RegExp("^([0-9,a-z]{6,30})$", "gi");
-    
-    //if(pattern.test(dni)){
-        daoInterview.getInterview(id, function(err, result){
-            if (err) {
-                log.debug("Error at getting the interview which id is " + id + ": "+err);
-                res.status(500).json({success:false,message: err.message});
+
+    daoInterview.getInterview(id, function(err, result){
+        if (err) {
+            log.debug("Error at getting the interview which id is " + id + ": "+err);
+            res.status(500).json({success:false,message: err.message});
+        }
+        else{
+            if(null!=result && undefined!=result){
+                res.json(result);
             }
             else{
-                if(null!=result && undefined!=result){
-                    res.json(result);
-                }
-                else{
-                    res.status(400).json({success:false, message: "No se ha encontrado la entrevista con el id "+ id});
-                }
+                res.status(400).json({success:false, message: "No se ha encontrado la entrevista con el id "+ id});
             }
-        });
-    //}
-    //else{
-        //res.status(400).json({ message: 'ERROR: Invalid DNI format: '+dni});
-    //}
+        }
+    });
 }
 
 exports.getInterviews = function(req, res) {
@@ -477,7 +466,7 @@ exports.postFeedback = function(req, res) {
     }
     daoInterview.postFeedback(id, feedback, function (err, data){
         if(err){
-            log.debug("Error saving the feedback for the interview " + id + ": " + err);
+            log.debug("Error al guardar los comentarios de la entrevista " + id + ": " + err);
             res.status(500).send(err);
         }
         else{
@@ -514,37 +503,5 @@ exports.getNames = function(req, res) {
         }
     }else{
         res.send("No se ha especificado ningún estado");
-    }
-}
-
-exports.LDAP = function(req, res) {
-    var usr = req.body.usr;
-    var pass = req.body.pass;
-    var options = {
-        url: 'ldap://ldap.gfi-info.com:389',
-        searchBase: "ou=People,o=gfi-info.com",
-        searchFilter: "(uid={{username}})"
-    };
-    
-    
-    try{
-        var auth = new ldapAuth(options);
-        
-        auth.authenticate(usr, pass, function(err, user) {
-            if (err){
-                log.debug("LDAP auth error: %s", err);
-                res.send(err);
-            }else{
-                res.send(user);
-            }
-
-            auth.close(function(err) {
-                if (err){
-                    console.log(err);
-                }
-            })
-        });
-    }catch(err){
-        log.debug("ERROR " + err);
     }
 }

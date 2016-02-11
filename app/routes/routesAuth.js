@@ -15,7 +15,7 @@ module.exports = function(router,app) {
 		var token = req.body.token || req.param('token') || req.headers['x-access-token'];
 		// decode token
 		if (token) {
-		 log.debug("Token: "+token);
+		 log.debug("Token: " + token);
 			// verifies secret and checks exp
 		jwt.verify(token, app.get('superSecret'), function(err, decoded) {			
 				if (err) {

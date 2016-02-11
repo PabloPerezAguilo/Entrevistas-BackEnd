@@ -7,6 +7,7 @@ var morgan      = require('morgan');
 var mongoose    = require('mongoose');
 var log4js = require('log4js');
 var cors = require('cors');
+var mongoMiddleware = require('mongoose-middleware')
 var config = require('./app/config/config'); // get our config file
 //var redis = require("redis");
   
@@ -22,20 +23,19 @@ var log = log4js.getLogger("server");
 var port = process.env.PORT || 9600;
 
 // configuration  mongo=============================================
-require('mongoose-middleware').initialize({ maxDocs : config.paginacion }, mongoose);
+mongoMiddleware.initialize({ maxDocs : config.paginacion }, mongoose);
 
-mongoose.connect(config.database, function(err, res) {
+mongoose.connect(config.database,  function(err, res) {
     if(err) {
-      log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
+        log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed " + err);
     }
     else{
-        log.info("Connected to Database");
+        log.info("Connected to Database" + res);
     }
 });
 
 mongoose.connection.on("error", function(error) {
-  // Do something sane with error here
-    
+  // Do something sane with error here    
     log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed");
     mongoose.connect(config.database, function(err, res) {
     
@@ -64,7 +64,7 @@ app.use(morgan('dev'));
 // routes ==========================================================
 // =================================================================
 
-// basic route (http://localhost:8080)
+// basic route (http://localhost:9600)
 app.get("/", function(req, res) {
 	res.send("Hello! The API is at http://localhost:" + port + "/api");
 });
@@ -80,7 +80,6 @@ app.use('/api', apiRoutes);
 // =================================================================
 // start the server ================================================
 // =================================================================
-// Start the server
 app.listen(port,function(err, res) {
   if(err) throw err;
   log.info('Start Server!');

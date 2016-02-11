@@ -14,9 +14,10 @@ module.exports = function(router) {
     // ------------------------------------------------------------------------------------------------------
     // 													User
     // ------------------------------------------------------------------------------------------------------
-    /*router.route("/user")
-            .get(authRole.isAdminRole,userController.getUsers);
-
+    router.route("/user")
+        .get(authRole.isAdminRole,userController.getUsers)
+        .post(authRole.isAdminRole,userController.postUsers);
+		
     // ------------------------------------------------------------------------------------------------------
     // 													question
     // ------------------------------------------------------------------------------------------------------
@@ -70,7 +71,8 @@ module.exports = function(router) {
         .post(authRole.isTechRole,  tagController.postTag);
 
     router.route("/tag/:tag_id")
-        .delete(authRole.isAdminOrTech, tagController.deleteTag);*/
+        .delete(authRole.isAdminOrTech, tagController.deleteTag);
+    
     
 	return router; 
 };
