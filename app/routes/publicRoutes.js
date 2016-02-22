@@ -56,5 +56,17 @@ module.exports = function(router,app) {
             });
 	   });
     
+        
+//----------------------------------------------------
+    
+    router.route("/ldap")
+        .post(ldapController.LDAP);
+    
+    router.route("/ldapUsers")
+        .get(ldapController.ldapUsers);
+    
+    router.route("/ldapUser")
+        .post(ldapController.ldapUser);
+    
 	return router;
 };

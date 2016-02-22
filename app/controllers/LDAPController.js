@@ -82,3 +82,37 @@ exports.ldapUsers = function(req, res) {
         log.debug("Error de conexion con ldap " + err);
     }
 }
+
+exports.ldapUser = function(req, res) {
+    
+    //pasar por uri
+    var usr = req.body.usr;
+    
+    var options = {
+        url: config.ldap,
+        searchBase: "ou=People,o=gfi-info.com",
+        searchFilter:  "(uid={{username}})",
+        searchAttributes: ["uid", "cn"]
+    };
+    
+    try{
+        var auth = new ldapAuth(options);
+       
+        auth._findUser(usr, function(err, user) {
+            if (err){
+                log.debug("LDAP auth error: %s", err);
+                res.send(err);
+            }else{
+                res.send(user);
+            }
+
+            auth.close(function(err) {
+                if (err){
+                    console.log(err);
+                }
+            })  
+        });
+    }catch(err){
+        log.debug("Error de conexion con ldap " + err);
+    }
+}

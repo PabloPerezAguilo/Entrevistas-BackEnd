@@ -21,3 +21,21 @@ exports.getUser = function (username,cb){
         cb(err, datos);
   	});	
 };
+
+exports.getUsersByRole = function (userRole,cb){
+	userModel.find({role: userRole},function(err, datos) {
+        cb(err, datos);
+  	});	
+};
+
+exports.getUsersByRoleAndNick = function (userRole, nick,cb){
+	userModel.find({username: nick, role: userRole},function(err, datos) {
+        cb(err, datos);
+  	});	
+};
+
+exports.deleteUser = function (id, cb){
+	userModel.remove({username:id}, function(err, result) {
+        cb(err, result);
+  	});
+};

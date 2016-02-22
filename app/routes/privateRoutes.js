@@ -16,7 +16,8 @@ module.exports = function(router) {
     // ------------------------------------------------------------------------------------------------------
     router.route("/user")
         .get(authRole.isAdminRole,userController.getUsers)
-        .post(authRole.isAdminRole,userController.postUsers);
+        .post(authRole.isAdminRole,userController.postUsers)
+        .delete(authRole.isAdminRole,userController.deleteUser);
 		
     // ------------------------------------------------------------------------------------------------------
     // 													question

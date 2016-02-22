@@ -10,15 +10,18 @@ var log=log4js.getLogger("userModel");
 
 // Define our user schema
 var UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    unique: true,
-    required: true
-  },
-  role:{    
-      type: String,
-      required:true
-  } 
+    username: {
+        type: String,
+        unique: true,
+        required: true
+    },
+    cn: {
+        type: String
+    },
+    role:{    
+        type: String,
+        required:true
+    } 
 });
 
 

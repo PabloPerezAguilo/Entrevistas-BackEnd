@@ -1,5 +1,3 @@
-var authRole = require('./app/controllers/authRole');
-
 var log4js = require('log4js');
 var log = log4js.getLogger("routes");
 
