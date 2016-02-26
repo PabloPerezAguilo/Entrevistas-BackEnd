@@ -62,7 +62,8 @@ module.exports = function(router) {
         .post(authRole.isAdminRole, interviewController.saveAnswers);
     
     router.route("/interviewFeedback/:interview_id")
-        .post(authRole.isAdminRole, interviewController.postFeedback)
+        .post(authRole.isAdminRole, interviewController.postFeedback);
+    
 
     //-------------------------------------------------------------------------------------------------------
     //  					                           TAG

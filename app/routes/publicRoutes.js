@@ -13,6 +13,8 @@ var log = log4js.getLogger("publicRoutes");
 module.exports = function(router,app) {
 	 log.debug("Load public!");
 
+    router.route("/valoracion")
+        .post(interviewController.postValoracion);
     // ------------------------------------------------------------------------------------------------------
     // 														authentication 
     // ------------------------------------------------------------------------------------------------------
@@ -33,17 +35,16 @@ module.exports = function(router,app) {
                     user.verifyPassword(atob(req.body.password), function(err,cb) {
                         if(err){
                           res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.', error:err });
-                        }
-
-                       else{
-                        var userJWT= {username: user.username, role:user.role, _id: user._id };
-                        // if user is found and password is right
-                        // create a token
+                        }else{
+                            var userJWT= {username: user.username, role:user.role, _id: user._id };
+                            // if user is found and password is right
+                            // create a token
                             var token = jwt.sign(userJWT, app.get('superSecret'), {
-                            expiresInMinutes: 1440 // 1440 min - expires in 24 hours
+                                expiresInMinutes: 1440 // 1440 min - expires in 24 hours
                             });
 
                             console.log(token);
+                            
                             res.json({
                                 success: true,
                                 message: 'Enjoy your token!',

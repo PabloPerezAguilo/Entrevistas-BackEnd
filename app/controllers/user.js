@@ -108,3 +108,14 @@ exports.deleteUser = function(req, res) {
         }
     });
 };
+
+exports.postValoracion = function(req, res) {
+    var val = req.body.valoracion;
+    
+    if (val != null){
+        daoUser.postvaloracion(val);
+    } else {
+        res.status(400).send("Valores invalidos")
+    }
+
+};

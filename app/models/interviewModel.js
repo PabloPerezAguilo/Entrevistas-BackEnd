@@ -26,7 +26,8 @@ var InterviewSchema = new mongoose.Schema({
     feedback: String,
     answers:[],
     nquestions:[],
-	leveledTags:[leveledTagsModel.leveledTags]
+	leveledTags:[leveledTagsModel.leveledTags],
+    valoracion:[]
 });
 
 //--------------------------------------- Validators -----------------------------------------------------

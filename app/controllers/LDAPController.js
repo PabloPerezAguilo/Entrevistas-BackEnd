@@ -84,8 +84,6 @@ exports.ldapUsers = function(req, res) {
 }
 
 exports.ldapUser = function(req, res) {
-    
-    //pasar por uri
     var usr = req.body.usr;
     
     var options = {

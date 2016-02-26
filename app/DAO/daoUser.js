@@ -39,3 +39,9 @@ exports.deleteUser = function (id, cb){
         cb(err, result);
   	});
 };
+
+exports.deleteUser = function (id, cb){
+	userModel.remove({username:id}, function(err, result) {
+        cb(err, result);
+  	});
+};

@@ -116,3 +116,9 @@ exports.updateState = function (id, nuevoEstado, cb){
         cb(err, result);
     });
 };
+
+exports.postValoracion = function (id, evaluacion, cb){
+	interviewModel.update({ _id: id }, { $set: { valoracion: evaluacion } }, function(err, result){
+        cb(err, result);
+    });
+};

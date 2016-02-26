@@ -505,3 +505,24 @@ exports.getNames = function(req, res) {
         res.send("No se ha especificado ningún estado");
     }
 }
+
+exports.postValoracion = function(req, res) {
+    var id = req.query.id;
+    var evaluacion = req.body;
+    
+    if (evaluacion != null && evaluacion.length >0){
+        daoInterview.postValoracion(id, evaluacion, function(err, data){
+            if(err){
+                log.debug("Error al guardar la valoracion " + err);
+                res.status(500).send(err);
+            }
+            else{
+                response={success:true , message:"Valoracion guardada"};
+                res.send(response);
+            }
+        });
+    }else{
+        response={success:false , message:"Valoracion incorrecta"};
+        res.status(500).send(response);
+    }
+}
