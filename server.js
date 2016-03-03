@@ -9,6 +9,9 @@ var log4js = require('log4js');
 var cors = require('cors');
 var mongoMiddleware = require('mongoose-middleware');
 var config = require('./app/config/config'); // get our config file
+var https = require('https');
+var http = require('http');
+var fs = require('fs');
 //var redis = require("redis");
   
 
@@ -35,7 +38,7 @@ mongoose.connect(config.database, options, function(err, res) {
         log.error("Unable to connect to the data base.\nConsults and changes to data base will not work.\nOnly consults to cache (if it is enabled) are allowed " + err);
     }
     else{
-        log.info("Connected to Database" + res);
+        log.info("Connected to Database");
     }
 });
 
@@ -87,5 +90,10 @@ app.listen(port,function(err, res) {
   if(err) throw err;
   log.info('Start Server!');
 });
+//http.createServer(app).listen(80);
+/*https.createServer({
+      key: fs.readFileSync('key.pem'),
+      cert: fs.readFileSync('cert.pem')
+    }, app).listen(80);*/
 
 exports.apli = app; // needed to start de server from the tests index.js

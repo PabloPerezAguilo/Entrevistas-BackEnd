@@ -74,13 +74,6 @@ QuestionSchema.pre('save', function(cb){
     
     //Seguimos con las comprobaciones
     if("FREE"===this.type){
-        //Damos error si tiene opciones.
-        if (this.directive!==undefined && this.directive!==null){
-            if(!validator.strValidator(this.directive, 300)){
-                 err=new Error( "Too long directive");
-            }
-        }
-
         if(null!==this.answers && undefined!==this.answers){
             err=new Error("A question with type 'FREE' cannot have answers");
         }
@@ -99,12 +92,7 @@ QuestionSchema.pre('save', function(cb){
                 }
                 //Si es e tipo simple, comprobamos que haya exactamente una opción correcta. Sino, da error
                 if("SINGLE_CHOICE"===this.type && 1!=correctAnswers){
-                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");                    
-                }
-
-                //Si es e tipo simple, comprobamos que haya al menos una opción correcta. Sino, da error
-                if("MULTI_CHOICE"===this.type && 0===correctAnswers){
-                    err= new Error("A question with type 'MULTI_CHOICE' must have at least one valid answer");
+                    err= new Error("A question with type 'SINGLE_CHOICE' must have exactly one valid answer");
                 }
             }
             else{

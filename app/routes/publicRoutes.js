@@ -9,6 +9,7 @@ var atob = require('atob');
 
 var log4js = require('log4js');
 var log = log4js.getLogger("publicRoutes");
+log4js.configure("./app/config/log4js.json");
 
 module.exports = function(router,app) {
 	 log.debug("Load public!");
@@ -34,7 +35,11 @@ module.exports = function(router,app) {
                     // check if password matches
                     user.verifyPassword(atob(req.body.password), function(err,cb) {
                         if(err){
-                          res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.', error:err });
+                            if (err.code==3) {
+                                res.status(500).json({ success: false, message: 'LDAP time out', error:err });
+                            }else{
+                                res.status(500).json({ success: false, message: 'Authentication failed. Error in validate password.', error:err });
+                            }
                         }else{
                             var userJWT= {username: user.username, role:user.role, _id: user._id };
                             // if user is found and password is right

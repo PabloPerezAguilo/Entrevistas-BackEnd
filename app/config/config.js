@@ -2,7 +2,6 @@ var uuid = require("node-uuid");
 var uuidgen=uuid.v4();
 module.exports = {
     "paginacion": 7, //Numnero de entrevistas que aparecen por pagina
-    "numeroPreguntas": 4, //numero de preguntas en cada entrevista
 	"secret": uuidgen,
 	"database": "mongodb://localhost/MagniDB",
     "mongo_usr":"Magni",

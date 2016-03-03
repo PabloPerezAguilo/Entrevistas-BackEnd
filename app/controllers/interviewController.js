@@ -10,6 +10,8 @@ var config = require('../../app/config/config');
 var q = require('q');
 var math = require('mathjs');
 
+var preguntasEnEntrevista=0;
+
 function strExists(str) {
     return undefined !== str && null !== str && 0 < str.length;
 }
@@ -154,7 +156,7 @@ function rellenarPreguntas(objeto) {
             if (numeroConsulta == interview.leveledTags.length) {
                 json={"preguntas" : preguntas, "total" : totalPreguntas, "recuento" : recuentoPreguntas};
                 
-                if (totalPreguntas < config.numeroPreguntas) {
+                if (totalPreguntas < preguntasEnEntrevista) {
                     err = new Error();
                     err.message = "Debe crear más preguntas para la(s) aptitud(es) seleccionada(s) o añadir alguna aptitud a la entrevista.";                    
                     err.objeto=objeto;
@@ -203,7 +205,7 @@ function buscarAlternativa(objeto, res) {
             }else{
                 rellenarPreguntas(err.objeto)
                     .then(function(val){
-                        val.message="Aumentar el rango de lo(s) aptitud(es): ";
+                        val.message="Aumentar el rango de la(s) aptitud(es): ";
                         for(var i = 0; i < val.preguntas.length; i++){
                                 if( val.preguntas[i].length == 0){
                                     val.recuento.splice(i,1)
@@ -234,6 +236,8 @@ exports.postInterview = function(req, res){
                 status: "Pendiente",
                 leveledTags: tags
             });
+            preguntasEnEntrevista = req.body.nPreguntas;
+            console.log("PREGUNTAS " + preguntasEnEntrevista + " " + req.body.nPreguntas)
         };
     });
 
@@ -248,11 +252,11 @@ exports.postInterview = function(req, res){
             }
         
             //entra para coger preguntas de cada tema
-            if ((config.numeroPreguntas <= val.total)) {
+            if ((preguntasEnEntrevista <= val.total)) {
                 var i = 0;
-                while (i < config.numeroPreguntas) {
+                while (i < preguntasEnEntrevista) {
                     for (var j = 0; j < val.preguntas.length; j++) {
-                        if ((val.preguntas[j].length > 0) && (preguntasFinal.length < config.numeroPreguntas)) {
+                        if ((val.preguntas[j].length > 0) && (preguntasFinal.length < preguntasEnEntrevista)) {
                             i++;
                             contadorTags[j] ++;
                             randomElems(1, val.preguntas[j], preguntasFinal);

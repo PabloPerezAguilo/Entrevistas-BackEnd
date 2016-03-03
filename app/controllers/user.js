@@ -93,7 +93,6 @@ exports.getUsers = function(req, res) {
             });
         }
     }
-
 };
 
 exports.deleteUser = function(req, res) {

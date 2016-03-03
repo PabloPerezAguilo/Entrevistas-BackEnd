@@ -13,7 +13,7 @@ rellenar = function (req, callback){
 	var conjunto =[optionModel.option];
 	if(validator.notEmptyArray(req.body.answers)){
 		for(var i = 0; i < req.body.answers.length; i++) {
-			if((typeof req.body.answers[i].valid)=="boolean" && validator.strValidator(req.body.answers[i].title, 50)){
+			if((typeof req.body.answers[i].valid)=="boolean"){
 				conjunto[i]=(new optionModel({valid: req.body.answers[i].valid, title: req.body.answers[i].title}));
 			}else{
 				var error=new Error();
