@@ -9,10 +9,6 @@ var log4js = require('log4js');
 var cors = require('cors');
 var mongoMiddleware = require('mongoose-middleware');
 var config = require('./app/config/config'); // get our config file
-var https = require('https');
-var http = require('http');
-var fs = require('fs');
-//var redis = require("redis");
   
 
 // =================================================================
@@ -23,7 +19,7 @@ var fs = require('fs');
 log4js.configure("./app/config/log4js.json");
 var log = log4js.getLogger("server");
 
-var port = process.env.PORT || 9600;
+var port = 9600;
 
 // configuration  mongo=============================================
 mongoMiddleware.initialize({ maxDocs : config.paginacion }, mongoose);
@@ -73,7 +69,7 @@ app.use(morgan('dev'));
 // =================================================================
 
 // basic route (http://localhost:9600)
-app.use(express.static(__dirname + "/../Entrevistas-FrontEnd/app/"));
+app.use(express.static(__dirname + "/front"));
 
 // ---------------------------------------------------------
 // get an instance of the router for api routes
@@ -90,10 +86,5 @@ app.listen(port,function(err, res) {
   if(err) throw err;
   log.info('Start Server!');
 });
-//http.createServer(app).listen(80);
-/*https.createServer({
-      key: fs.readFileSync('key.pem'),
-      cert: fs.readFileSync('cert.pem')
-    }, app).listen(80);*/
 
 exports.apli = app; // needed to start de server from the tests index.js
